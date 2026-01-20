@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF‑8">
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Purpose Activation Toolkit</title>
     <link rel="stylesheet" href="style.css">
@@ -15,100 +15,118 @@
 
     <nav>
         <ul>
-            <li><a href="#orientation">Welcome</a></li>
-            <li><a href="#quantum">Quantum & Intention</a></li>
-            <li><a href="#vitality">Purpose‑Driven Vitality</a></li>
-            <li><a href="#audit">Purpose Audit</a></li>
-            <li><a href="#activation">Activation Exercises</a></li>
-            <li><a href="#resources">Resources</a></li>
+            <li><a href="#hero-mission">Mission</a></li>
+            <li><a href="#journey-timeline">Journey</a></li>
+            <li><a href="#assessments">Assessments</a></li>
+            <li><a href="#connect-continue">Connect &amp; Continue</a></li>
+            <li><a href="#login">Login</a></li>
+            <li><a href="#reminders">Reminders</a></li>
         </ul>
     </nav>
 
     <main>
-        <!-- Welcome & Orientation -->
-        <section id="orientation">
-            <h2>Welcome & Orientation</h2>
-            <p>Welcome to the Purpose Activation Toolkit. This interactive experience will guide you through
-                understanding the science of intention, discovering your purpose and cultivating vitality.
-                Please move through the sections at your own pace. Everything is designed to be non‑denominational and open to all belief systems.</p>
+        <section id="hero-mission">
+            <h2>Hero Mission</h2>
+            <p>Welcome to the Purpose Activation Toolkit. This experience guides you through understanding intention,
+                discovering your purpose and cultivating vitality. Everything is designed to be non-denominational
+                and open to all belief systems.</p>
+            <div class="mission-highlights">
+                <div>
+                    <h3>Purpose</h3>
+                    <p>Clarify the values and impact you want to live each day.</p>
+                </div>
+                <div>
+                    <h3>Activation</h3>
+                    <p>Turn insights into micro-commitments that build momentum.</p>
+                </div>
+                <div>
+                    <h3>Vitality</h3>
+                    <p>Support your mind, body, and spirit with energizing habits.</p>
+                </div>
+            </div>
         </section>
 
-        <!-- Quantum Science & the Power of Intention -->
-        <section id="quantum">
-            <h2>Quantum Science & the Power of Intention</h2>
-            <p>Discover how research in quantum mechanics reveals that consciousness and intention may influence reality. Learn about superposition, entanglement and the observer effect in simple terms.</p>
-            <p><strong>Exercise:</strong> Write down a clear intention you have for the next 30 days.</p>
-            <form id="intention‑form">
-                <textarea id="intention‑statement" placeholder="My intention is…" required></textarea>
-                <button type="submit">Submit Intention</button>
+        <section id="journey-timeline">
+            <h2>Your Journey Timeline</h2>
+            <ol class="timeline">
+                <li>
+                    <h3>Orientation</h3>
+                    <p>Understand the science of intention and set your north star.</p>
+                </li>
+                <li>
+                    <h3>Purpose Discovery</h3>
+                    <p>Identify themes in your story that point to your calling.</p>
+                </li>
+                <li>
+                    <h3>Activation Practices</h3>
+                    <p>Build rituals that align your daily actions with purpose.</p>
+                </li>
+                <li>
+                    <h3>Sustained Momentum</h3>
+                    <p>Review progress and refine your commitments over time.</p>
+                </li>
+            </ol>
+        </section>
+
+        <section id="assessments">
+            <h2>Assessments</h2>
+            <p>Use the assessments to measure alignment, clarity, and vitality. New question cards will appear below.</p>
+            <div id="assessment-card-container" class="card-grid" aria-live="polite"></div>
+        </section>
+
+        <section id="connect-continue">
+            <h2>Connect &amp; Continue</h2>
+            <p>Link your favorite tools to keep your purpose practices flowing across your day.</p>
+            <div class="integration-cards">
+                <article class="integration-card">
+                    <h3>Calendar Sync</h3>
+                    <p>Schedule purpose check-ins and milestone reviews.</p>
+                    <a href="https://calendar.google.com" target="_blank" rel="noreferrer">Connect Google Calendar</a>
+                </article>
+                <article class="integration-card">
+                    <h3>Wellness Tracker</h3>
+                    <p>Mirror your energy levels with your commitments.</p>
+                    <a href="https://www.fitbit.com" target="_blank" rel="noreferrer">Connect Fitbit</a>
+                </article>
+                <article class="integration-card">
+                    <h3>Notes Companion</h3>
+                    <p>Capture insights and reflections on the go.</p>
+                    <a href="https://www.notion.so" target="_blank" rel="noreferrer">Connect Notion</a>
+                </article>
+            </div>
+        </section>
+
+        <section id="login">
+            <h2>Member Login</h2>
+            <p>Sign in to save progress, revisit assessments, and track your journey.</p>
+            <form class="login-form">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" placeholder="you@example.com" required>
+
+                <label for="password">Password</label>
+                <input id="password" name="password" type="password" placeholder="Enter your password" required>
+
+                <button type="submit">Log In</button>
             </form>
-            <div id="intention‑response" class="response"></div>
         </section>
 
-        <!-- Purpose‑Driven Vitality -->
-        <section id="vitality">
-            <h2>Purpose‑Driven Vitality</h2>
-            <p>A strong sense of purpose has been correlated with improved mental, emotional and physical health. Explore how aligning your daily actions with your life purpose can lead to greater vitality past the golden years.</p>
-        </section>
+        <section id="reminders">
+            <h2>Purpose Reminders</h2>
+            <p>Set gentle nudges that keep your intentions top of mind throughout the week.</p>
+            <form class="reminders-form">
+                <label for="reminder-frequency">Reminder Frequency</label>
+                <select id="reminder-frequency" name="reminder-frequency">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
 
-        <!-- Purpose Audit -->
-        <section id="audit">
-            <h2>Purpose Audit</h2>
-            <p>Take this short quiz to gauge how aligned you currently are with your purpose. Rate each statement from 1 (strongly disagree) to 5 (strongly agree).</p>
-            <form id="audit‑form">
-                <div class="quiz‑question" data‑q="1">
-                    <label>1. I feel connected to a purpose larger than myself.</label>
-                    <select>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <div class="quiz‑question" data‑q="2">
-                    <label>2. My daily actions reflect my core values.</label>
-                    <select>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <div class="quiz‑question" data‑q="3">
-                    <label>3. I feel invigorated and healthy when pursuing my goals.</label>
-                    <select>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                        <option value="5">5</option>
-                    </select>
-                </div>
-                <button type="submit">Submit Responses</button>
+                <label for="reminder-message">Reminder Message</label>
+                <input id="reminder-message" name="reminder-message" type="text" placeholder="I align my actions with purpose.">
+
+                <button type="submit">Save Reminder</button>
             </form>
-            <div id="audit‑results" class="response"></div>
         </section>
-
-        <!-- Purpose Activation Exercises -->
-        <section id="activation">
-            <h2>Purpose Activation Exercises</h2>
-            <ul>
-                <li><strong>Intention Journalling:</strong> Maintain a journal where you note down your daily intentions and reflections.</li>
-                <li><strong>Vision Board:</strong> Use the template provided in resources to design a visual representation of your goals.</li>
-                <li><strong>Micro‑Commitments:</strong> Commit to one small action each day that aligns with your purpose.</li>
-            </ul>
-        </section>
-
-        <!-- Resources -->
-        <section id="resources">
-            <h2>Resources</h2>
-            <p>Explore curated books, videos and podcasts to deepen your understanding of quantum science, intention and purpose.</p>
-            <button id="load‑resources">Load Resources</button>
-            <ul id="resources‑list"></ul>
-        </section>
-
     </main>
 
     <footer>
