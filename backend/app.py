@@ -9,11 +9,28 @@ could be built, including database integration, authentication and
 external integrations (e.g. email reminders, mentorship scheduling).
 """
 
-from fastapi import FastAPI, HTTPException
+from datetime import datetime, timedelta
+import os
+from typing import List, Literal, Optional
+
+from fastapi import Depends, FastAPI, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
 from pydantic import BaseModel, Field
-from typing import List, Optional
+
+from backend.worker import send_audit_follow_up, send_weekly_reminder
+
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-me")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+JWT_ACCESS_EXPIRE_MINUTES = int(os.getenv("JWT_ACCESS_EXPIRE_MINUTES", "30"))
+JWT_REFRESH_EXPIRE_DAYS = int(os.getenv("JWT_REFRESH_EXPIRE_DAYS", "7"))
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
+API_USERNAME = os.getenv("API_USERNAME", "admin")
+API_PASSWORD = os.getenv("API_PASSWORD", "purpose")
 
 app = FastAPI(title="Purpose Activation Toolkit API", version="0.1.0")
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/token")
 
 
 class Intention(BaseModel):
@@ -27,6 +44,113 @@ class AuditResponse(BaseModel):
     score: int
     description: str
     mentorship_recommended: bool
+
+
+class LoginCredentials(BaseModel):
+    """Credentials used to obtain access tokens."""
+    username: str = Field(..., description="Login username")
+    password: str = Field(..., description="Login password")
+
+
+class TokenResponse(BaseModel):
+    """Token response containing access and refresh tokens."""
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+    expires_in: int
+
+
+class ReminderRequest(BaseModel):
+    """Payload describing which reminder to enqueue."""
+    reminder_type: Literal["weekly_email", "audit_follow_up"] = Field(
+        "weekly_email",
+        description="Type of reminder to enqueue.",
+    )
+
+
+def authenticate_user(credentials: LoginCredentials = Depends()) -> str:
+    if credentials.username != API_USERNAME or credentials.password != API_PASSWORD:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return credentials.username
+
+
+def create_token(subject: str, token_type: str, expires_delta: timedelta) -> str:
+    payload = {
+        "sub": subject,
+        "type": token_type,
+        "exp": datetime.utcnow() + expires_delta,
+    }
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
+
+def decode_token(token: str, expected_type: str) -> dict:
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+    except JWTError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token is invalid or expired.",
+            headers={"WWW-Authenticate": "Bearer"},
+        ) from exc
+    if payload.get("type") != expected_type:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token type.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return payload
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
+    payload = decode_token(token, "access")
+    subject = payload.get("sub")
+    if not subject:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token subject is missing.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return subject
+
+
+def get_refresh_user(token: str = Depends(oauth2_scheme)) -> str:
+    payload = decode_token(token, "refresh")
+    subject = payload.get("sub")
+    if not subject:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token subject is missing.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    return subject
+
+
+@app.post("/api/token", response_model=TokenResponse)
+def issue_token(user: str = Depends(authenticate_user)) -> TokenResponse:
+    access_expires = timedelta(minutes=JWT_ACCESS_EXPIRE_MINUTES)
+    refresh_expires = timedelta(days=JWT_REFRESH_EXPIRE_DAYS)
+    return TokenResponse(
+        access_token=create_token(user, "access", access_expires),
+        refresh_token=create_token(user, "refresh", refresh_expires),
+        token_type="bearer",
+        expires_in=int(access_expires.total_seconds()),
+    )
+
+
+@app.post("/api/token/refresh", response_model=TokenResponse)
+def refresh_token(user: str = Depends(get_refresh_user)) -> TokenResponse:
+    access_expires = timedelta(minutes=JWT_ACCESS_EXPIRE_MINUTES)
+    refresh_expires = timedelta(days=JWT_REFRESH_EXPIRE_DAYS)
+    return TokenResponse(
+        access_token=create_token(user, "access", access_expires),
+        refresh_token=create_token(user, "refresh", refresh_expires),
+        token_type="bearer",
+        expires_in=int(access_expires.total_seconds()),
+    )
 
 
 @app.post("/api/intent")
@@ -103,3 +227,23 @@ async def get_resources():
         },
     ]
     return {"resources": resources}
+
+
+@app.post("/api/reminders/{journey_id}")
+def enqueue_reminder(
+    journey_id: int,
+    payload: ReminderRequest,
+    current_user: str = Depends(get_current_user),
+):
+    if payload.reminder_type == "weekly_email":
+        task = send_weekly_reminder.delay(journey_id=journey_id, requested_by=current_user)
+        task_type = "weekly_email"
+    else:
+        task = send_audit_follow_up.delay(journey_id=journey_id, requested_by=current_user)
+        task_type = "audit_follow_up"
+    return {
+        "message": "Reminder queued.",
+        "task_id": task.id,
+        "journey_id": journey_id,
+        "reminder_type": task_type,
+    }
