@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Purpose Activation Toolkit</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Purpose Activation Toolkit</h1>
+        <nav>
+            <ul>
+                <li><a href="#mission">Mission &amp; Vision</a></li>
+                <li><a href="#primer">Divine Power Primer</a></li>
+                <li><a href="#intention">Science of Intention &amp; Purpose</a></li>
+                <li><a href="#scorecard">Scorecard</a></li>
+                <li><a href="#workbook">Discovery Workbook</a></li>
+                <li><a href="#activation">Activation Practices</a></li>
+                <li><a href="#implementation">Implementation Plan</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main></main>
+
+    <footer>
+        <p>
+            &copy; 2026 Truth J Blue LLC. All rights reserved. This toolkit is for
+            educational purposes and is not a substitute for medical or
+            psychological advice.
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        const sectionSources = [
+            { id: 'mission', file: 'content/sections/01-mission-vision.md' },
+            { id: 'primer', file: 'content/sections/02-divine-power-primer.md' },
+            { id: 'intention', file: 'content/sections/03-science-of-intention-purpose.md' },
+            { id: 'scorecard', file: 'content/sections/04-purpose-scorecard.md' },
+            { id: 'workbook', file: 'content/sections/05-discovery-workbook.md' },
+            { id: 'activation', file: 'content/sections/06-activation-practices.md' },
+            { id: 'implementation', file: 'content/sections/07-implementation-plan.md' }
+        ];
+
+        const main = document.querySelector('main');
+
+        const renderSections = async () => {
+            try {
+                for (const section of sectionSources) {
+                    const response = await fetch(section.file);
+                    if (!response.ok) {
+                        throw new Error(`Unable to load ${section.file}`);
+                    }
+                    const markdown = await response.text();
+                    const sectionElement = document.createElement('section');
+                    sectionElement.id = section.id;
+                    sectionElement.innerHTML = marked.parse(markdown);
+                    main.appendChild(sectionElement);
+                }
+            } catch (error) {
+                main.innerHTML = '<p>Section content failed to load. Please refresh the page.</p>';
+                console.error(error);
+            }
+        };
+
+        renderSections();
+    </script>
+</body>
+</html>

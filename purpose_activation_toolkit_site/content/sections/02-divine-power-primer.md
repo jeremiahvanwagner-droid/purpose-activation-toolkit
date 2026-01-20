@@ -1,0 +1,3 @@
+## Divine Power Primer
+
+Quantum mechanics describes how matter and energy behave at the smallest scales. It introduces phenomena such as superposition, entanglement, and wave-particle duality. Contrary to popular lore, quantum physics does not endorse magical thinking or "manifesting" through sheer will. The so-called "observer effect" refers to physical disturbance—measurements require interactions (photons, electrons, detectors) that alter a system's state. Consciousness does not collapse wavefunctions; the universe behaves the way it will regardless of who is watching. This primer clarifies common misconceptions and invites you to respect physical laws while embracing the genuine power of intention as a psychological and behavioural force.
