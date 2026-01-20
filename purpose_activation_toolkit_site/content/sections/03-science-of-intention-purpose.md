@@ -1,0 +1,5 @@
+## Science of Intention & Purpose
+
+An intention is more than a wish; it is a self-instruction that embodies commitment to act. Psychologists distinguish between *goal intentions*—general desires such as "I intend to exercise more"—and *implementation intentions*, which specify when, where, and how you will act (e.g., "After lunch today I will walk for 20 minutes"). Implementation intentions create cues and scripts for behaviour, making them far more effective than vague wishes. Even strong intentions can falter due to habitual patterns, vague plans, environmental cues, and emotional factors. Aligning intentions with purpose, crafting specific plans, and building supportive environments help to close the intention–behaviour gap.
+
+Research shows that cultivating a sense of purpose is linked to greater well-being, reduced mortality risk, and better cardiovascular outcomes. Purpose motivates healthy behaviours, buffers stress, and influences biological pathways (e.g., lower inflammation). By combining disciplined practices with a meaningful "why," you can activate resilience and vitality.

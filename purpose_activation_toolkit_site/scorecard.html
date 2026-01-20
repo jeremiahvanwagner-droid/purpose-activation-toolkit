@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sample Scorecard Results</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific styles for the scorecard page */
+        .scorecard-container {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 8px;
+        }
+        .results-summary {
+            margin-bottom: 2rem;
+        }
+        .results-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+        .domain-card {
+            background-color: #f5f5f5;
+            border-radius: 8px;
+            padding: 1rem;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .domain-card h3 {
+            margin-bottom: 0.5rem;
+            color: #2a2f45;
+        }
+        .domain-card button {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            background: #2a2f45;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .popup {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        .popup-content {
+            background-color: #fff;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .popup-content h4 {
+            margin-bottom: 1rem;
+        }
+        .popup-content p {
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+        .close-btn {
+            display: inline-block;
+            background-color: #2a2f45;
+            color: #fff;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        /* Highlight colours for high and low scores */
+        .high-score {
+            border-left: 4px solid #4caf50;
+        }
+        .low-score {
+            border-left: 4px solid #f44336;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Sample Scorecard Results</h1>
+    </header>
+    <div class="scorecard-container">
+        <section class="results-summary">
+            <h2>Your Top &amp; Bottom Domains</h2>
+            <p>
+                Below is an example of how your Purpose Scorecard results might be
+                displayed. The top three domains where you scored highest are marked
+                in green, while the lowest three are marked in red. Click the plus
+                button on any domain to read a brief description and suggestions
+                for growth.
+            </p>
+        </section>
+        <section class="results-list">
+            <div class="domain-card high-score" data-domain="Mind">
+                <h3>Mind</h3>
+                <button aria-label="More info" onclick="openPopup('Mind')">+</button>
+            </div>
+            <div class="domain-card high-score" data-domain="Body">
+                <h3>Body</h3>
+                <button aria-label="More info" onclick="openPopup('Body')">+</button>
+            </div>
+            <div class="domain-card high-score" data-domain="Spirit">
+                <h3>Spirit</h3>
+                <button aria-label="More info" onclick="openPopup('Spirit')">+</button>
+            </div>
+            <div class="domain-card low-score" data-domain="Relationships">
+                <h3>Relationships</h3>
+                <button aria-label="More info" onclick="openPopup('Relationships')">+</button>
+            </div>
+            <div class="domain-card low-score" data-domain="Contribution">
+                <h3>Contribution</h3>
+                <button aria-label="More info" onclick="openPopup('Contribution')">+</button>
+            </div>
+            <div class="domain-card low-score" data-domain="Vitality">
+                <h3>Vitality</h3>
+                <button aria-label="More info" onclick="openPopup('Vitality')">+</button>
+            </div>
+        </section>
+    </div>
+    <!-- Pop‑up modal -->
+    <div class="popup" id="popup">
+        <div class="popup-content" id="popup-content">
+            <h4 id="popup-title"></h4>
+            <p id="popup-description"></p>
+            <a class="close-btn" onclick="closePopup()">Close</a>
+        </div>
+    </div>
+    <script>
+        // Descriptions and suggestions for each domain
+        const domainInfo = {
+            'Mind': {
+                title: 'Mind',
+                description: 'Your thoughts, beliefs and mental habits shape your experience. High scores here suggest a growth mindset and strong cognitive tools. Maintain healthy thinking patterns by journaling, challenging limiting beliefs, and seeking mental stimulation.'
+            },
+            'Body': {
+                title: 'Body',
+                description: 'The body is the vessel through which purpose is expressed. High scores indicate that you prioritise nutrition, movement and rest. Continue honouring your body by listening to its needs, practicing mindful movement and fueling yourself well.'
+            },
+            'Spirit': {
+                title: 'Spirit',
+                description: 'Spirit reflects your connection to something larger than yourself—whether that is Source, nature, community or a personal philosophy. A strong spirit provides meaning and resilience. Deepen your practice through meditation, prayer or time in nature.'
+            },
+            'Relationships': {
+                title: 'Relationships',
+                description: 'Relationships are the webs through which love and purpose flow. Lower scores may signal disconnection or unresolved tensions. Invest in authentic communication, set healthy boundaries and seek community that uplifts you.'
+            },
+            'Contribution': {
+                title: 'Contribution',
+                description: 'Contribution reflects how you share your gifts with others. Low scores here might indicate a lack of clarity on your impact. Explore ways to serve—through volunteering, mentoring or creating value in your work—that align with your values.'
+            },
+            'Vitality': {
+                title: 'Vitality',
+                description: 'Vitality encompasses your overall energy, health and zest for life. Lower scores may point to burnout or neglect. Renew your vitality by balancing work and rest, nourishing your body, and engaging in joyful movement or creativity.'
+            }
+        };
+
+        function openPopup(domain) {
+            const info = domainInfo[domain];
+            document.getElementById('popup-title').textContent = info.title;
+            document.getElementById('popup-description').textContent = info.description;
+            document.getElementById('popup').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
