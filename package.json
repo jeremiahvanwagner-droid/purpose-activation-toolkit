@@ -1,0 +1,11 @@
+{
+  "name": "purpose-activation-toolkit",
+  "version": "0.1.0",
+  "description": "Interactive toolkit to help individuals activate their purpose and vitality.",
+  "scripts": {
+    "start": "uvicorn backend.app:app --reload",
+    "serve:frontend": "python3 -m http.server --directory frontend 8080"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
