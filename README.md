@@ -27,33 +27,72 @@ The toolkit combines concepts from quantum science, mindfulness, and vitality re
    cd purpose-activation-toolkit
    ```
 
-2. **Run with Docker (recommended):**
+## Environment variables
+
+Set these values in your shell, `.env`, or Docker Compose environment block before running the services:
+
+- `DATABASE_URL`: Database connection string for the backend.
+- `JWT_SECRET_KEY`: Secret used to sign access and refresh tokens.
+- `JWT_ALGORITHM`: Algorithm for JWT signing (e.g., `HS256`).
+- `JWT_ACCESS_EXPIRE_MINUTES`: Access token lifetime in minutes.
+- `JWT_REFRESH_EXPIRE_DAYS`: Refresh token lifetime in days.
+- `REDIS_URL`: Redis connection string for Celery broker/result backend.
+- External links used by the frontend or content integrations:
+  - `BEYOND_VEIL_URL`
+  - `CALENDLY_URL`
+  - `SKOOL_URL`
+  - `BOOK_STORE_URL`
+
+## Usage
+
+### Run with Docker (recommended)
+
+```bash
+docker compose up --build
+```
+
+The services are available at:
+* Frontend: `http://localhost:8080`
+* API: `http://localhost:8000`
+
+The compose file mounts `backend/app.py` into the API container and runs Uvicorn with `--reload`
+for a fast development loop.
+
+### Run manually (without Docker)
+
+1. **Install backend dependencies:**
    ```bash
-   docker compose up --build
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install fastapi uvicorn
    ```
-   The services are available at:
-   * Frontend: `http://localhost:8080`
-   * API: `http://localhost:8000`
 
-   The compose file mounts `backend/app.py` into the API container and runs Uvicorn with `--reload`
-   for a fast development loop.
+2. **Run the backend server:**
+   ```bash
+   uvicorn backend.app:app --reload
+   ```
+   The API will be available at `http://localhost:8000`.
 
-3. **Run manually (without Docker):**
-   1. **Install backend dependencies:**
-      ```bash
-      python3 -m venv venv
-      source venv/bin/activate
-      pip install fastapi uvicorn
-      ```
+3. **Run the Celery worker (for background jobs):**
+   ```bash
+   celery -A backend.worker worker -l info
+   ```
+   Ensure `REDIS_URL` is configured so the worker can connect to Redis.
 
-   2. **Run the backend server:**
-      ```bash
-      uvicorn backend.app:app --reload
-      ```
-      The API will be available at `http://localhost:8000`.
+4. **Serve the frontend:**
+   Since the frontend is static, you can open `frontend/index.html` in a browser directly or serve it with any static file server. If running with the backend, you can add a middleware or mount static files to serve the frontend on the same domain.
 
-   3. **Serve the frontend:**
-      Since the frontend is static, you can open `frontend/index.html` in a browser directly or serve it with any static file server. If running with the backend, you can add a middleware or mount static files to serve the frontend on the same domain.
+5. **If you have a Next.js frontend:**
+   Install dependencies and run the Next.js development server:
+   ```bash
+   npm install
+   npm run dev
+   ```
+
+## Assessments & integrations
+
+- Use the external link environment variables to point users to assessments, scheduling, community, and bookstore experiences hosted elsewhere.
+- These URLs can be surfaced in the frontend or embedded in partner platforms such as GoHighLevel sites.
 
 ## Customisation
 
