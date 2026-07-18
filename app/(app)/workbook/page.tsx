@@ -153,7 +153,7 @@ export default function WorkbookPage() {
   return (
     <div className="canvas-inner wb">
       <div className="wb-actions no-print">
-        <Link className="btn ghost" href="/">
+        <Link className="btn ghost" href="/toolkit">
           ← Back to toolkit
         </Link>
         <button type="button" className="btn gold" onClick={() => window.print()} disabled={!wb.anyContent}>

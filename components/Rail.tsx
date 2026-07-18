@@ -50,7 +50,7 @@ export default function Rail() {
 
   return (
     <aside className="rail" aria-label="Your journey">
-      <Link className="brand" href="/">
+      <Link className="brand" href="/toolkit">
         <BrandGlyph />
         <span className="wordmark">
           <span className="wm-name">TRUTH J BLUE</span>

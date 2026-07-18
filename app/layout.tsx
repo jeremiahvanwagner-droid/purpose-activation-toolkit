@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Rail from "@/components/Rail";
 import SyncProvider from "@/components/SyncProvider";
 
 export const metadata: Metadata = {
@@ -14,10 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <SyncProvider />
-        <div className="app">
-          <Rail />
-          <main className="canvas">{children}</main>
-        </div>
+        {children}
       </body>
     </html>
   );
