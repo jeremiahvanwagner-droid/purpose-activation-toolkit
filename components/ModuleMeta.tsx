@@ -37,8 +37,8 @@ export default function ModuleMeta({ slug, label = "Module progress" }: { slug: 
           <i style={{ width: `${progress.pct}%` }} />
         </div>
       </div>
-      <span className={`saved${saving ? " saving" : ""}`}>
-        <span className="pip" />
+      <span className={`saved${saving ? " saving" : ""}`} role="status" aria-live="polite">
+        <span className="pip" aria-hidden="true" />
         <span>{saving ? "Saving…" : touched ? "Saved just now" : "Saved"}</span>
       </span>
       <Link className="btn ghost" href="/workbook">

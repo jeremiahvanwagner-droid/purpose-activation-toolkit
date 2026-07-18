@@ -17,7 +17,7 @@ export default function AlignmentProfile() {
   if (!res.complete) {
     const pct = res.total ? Math.round((res.answered / res.total) * 100) : 0;
     return (
-      <div className="profile-locked">
+      <div className="profile-locked" role="status" aria-live="polite">
         <div className="bar">
           <i style={{ width: `${pct}%` }} />
         </div>
@@ -29,8 +29,10 @@ export default function AlignmentProfile() {
     );
   }
 
+  const leverLabel = res.primaryLever ? `. ${res.primaryLever.name} is your primary lever.` : "";
+
   return (
-    <div>
+    <div role="region" aria-live="polite" aria-label={`Alignment profile revealed${leverLabel}`}>
       <div className="profile-grid">
         {res.results.map((r) => {
           const b = BANDS[r.band];

@@ -2,9 +2,13 @@
 
 import Link from "next/link";
 import { MODULES, useAllModuleProgress } from "@/lib/modules";
+import { useResponses } from "@/lib/store";
+import { BANDS, scoreAudit } from "@/lib/content/innerAlignmentAudit";
 
 export default function Home() {
   const progress = useAllModuleProgress();
+  const all = useResponses();
+  const audit = scoreAudit(all as Record<string, unknown>);
   const m1 = progress["purpose-activation"];
   const started = m1.done > 0;
   const anyStarted = Object.values(progress).some((p) => p.done > 0);
@@ -33,13 +37,26 @@ export default function Home() {
         )}
       </div>
 
-      <Link href="/audit" className="audit-banner">
-        <span className="audit-banner-k">Free · 3 minutes</span>
-        <span className="audit-banner-t">
-          New here? Start with the <b>Inner Alignment Audit</b> to find where to begin
-        </span>
-        <span className="audit-banner-arrow">→</span>
-      </Link>
+      {audit.complete && audit.primaryLever ? (
+        <Link href="/audit#profile" className="audit-banner lever-banner">
+          <span className="audit-banner-k">Your Alignment Profile</span>
+          <span className="audit-banner-t">
+            Your primary lever is <b>{audit.primaryLever.name}</b> —{" "}
+            <span style={{ opacity: 0.85 }}>
+              {BANDS[audit.primaryLever.band].meaning}. Repair that first, and the rest begins to settle.
+            </span>
+          </span>
+          <span className="audit-banner-arrow">↗</span>
+        </Link>
+      ) : (
+        <Link href="/audit" className="audit-banner">
+          <span className="audit-banner-k">Free · 3 minutes</span>
+          <span className="audit-banner-t">
+            New here? Start with the <b>Inner Alignment Audit</b> to find where to begin
+          </span>
+          <span className="audit-banner-arrow">→</span>
+        </Link>
+      )}
 
       <div id="journey" className="eyebrow" style={{ marginBottom: 12 }}>
         The Journey

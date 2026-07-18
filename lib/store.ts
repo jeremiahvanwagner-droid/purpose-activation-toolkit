@@ -130,6 +130,22 @@ export function replaceAll(data: Values, ts: number) {
   emit();
 }
 
+/** Wipe local state — called on sign-out so a shared device doesn't leak the
+ *  previous user's workbook into the next signer's cloud row. */
+export function clearAll() {
+  cache = {};
+  updatedAt = 0;
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.removeItem(KEY);
+      window.localStorage.removeItem(TS_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
+  emit();
+}
+
 /** Raw (non-React) subscription to store changes, for the sync pusher. */
 export function subscribeStore(cb: () => void): () => void {
   listeners.add(cb);

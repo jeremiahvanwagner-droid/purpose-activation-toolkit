@@ -67,9 +67,13 @@ export default function Rail() {
           const active = pathname === `/module/${m.slug}`;
           const done = p.total > 0 && p.done >= p.total;
           const className = `mod${active ? " active" : ""}${done ? " done" : ""}`;
+          const stateWord = done ? "complete" : p.pct > 0 ? "in progress" : "not started";
+          const linkAria = m.available
+            ? `${m.title} — ${m.blurb}. ${p.pct}% ${stateWord}.`
+            : `${m.title} — ${m.blurb}. Not yet available.`;
           const label = (
             <>
-              <span className="star">
+              <span className="star" aria-hidden="true">
                 <span className="dot" />
               </span>
               <span className="label">
@@ -78,9 +82,12 @@ export default function Rail() {
                 <span className="m-d">{m.blurb}</span>
               </span>
               {m.available ? (
-                <Ring pct={p.pct} />
+                <span aria-hidden="true">
+                  <Ring pct={p.pct} />
+                </span>
               ) : (
                 <span
+                  aria-hidden="true"
                   style={{
                     fontSize: "0.56rem",
                     letterSpacing: "0.18em",
@@ -94,15 +101,16 @@ export default function Rail() {
             </>
           );
           return m.available ? (
-            <Link key={m.slug} href={`/module/${m.slug}`} className={className}>
+            <Link key={m.slug} href={`/module/${m.slug}`} className={className} aria-label={linkAria}>
               {label}
             </Link>
           ) : (
             <div
               key={m.slug}
               className={className}
+              role="link"
               aria-disabled="true"
-              title="Unlocks as the toolkit is built out"
+              aria-label={linkAria}
               style={{ opacity: 0.55, cursor: "default" }}
             >
               {label}

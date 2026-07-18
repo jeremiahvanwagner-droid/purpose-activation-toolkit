@@ -91,7 +91,12 @@ body {
 
 a { color: inherit; }
 h1, h2, h3, h4 { text-wrap: balance; }
-:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+/* Focus outline lets each element's own radius show through — don't force 4px. */
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* Screen-reader-only utility for labels that are visually redundant. */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* ---------------- app frame ---------------- */
 .app {
@@ -520,6 +525,8 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .audit-banner-arrow { font-size: 1.2rem; color: var(--gold-deep); }
 @media (prefers-color-scheme: dark) { .audit-banner-arrow { color: var(--gold-bright); } }
 :root[data-theme="dark"] .audit-banner-arrow { color: var(--gold-bright); }
+.lever-banner { background: linear-gradient(180deg, rgba(190, 150, 70, 0.14), var(--surface)); }
+.lever-banner .audit-banner-k { background: linear-gradient(180deg, var(--gold-bright), var(--gold)); }
 
 /* ---------------- inner alignment audit ---------------- */
 .likert-list { display: grid; gap: 18px; margin-top: 16px; }
@@ -528,6 +535,12 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (prefers-color-scheme: dark) { .likert-n { color: var(--gold-bright); } }
 :root[data-theme="dark"] .likert-n { color: var(--gold-bright); }
 .likert-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+@media (max-width: 540px) {
+  .likert-scale { grid-auto-flow: column; grid-auto-columns: 72px; grid-template-columns: none;
+    overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+  .likert-pill { min-height: 44px; padding: 10px 6px; scroll-snap-align: start; }
+  .likert-scale { scroll-snap-type: x mandatory; }
+}
 .likert-pill { font-family: var(--sans); font-size: 0.74rem; padding: 9px 5px; border-radius: 10px; cursor: pointer;
   border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-soft); transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease; text-align: center; }
 .likert-pill:hover { border-color: var(--gold); color: var(--ink); }
@@ -786,9 +799,15 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .mk-scripture {
   font-family: var(--serif); font-style: italic; text-align: center;
   font-size: clamp(1.05rem, 0.95rem + 0.5vw, 1.2rem); line-height: 1.55;
-  color: var(--ink); margin: 56px auto 0; max-width: 44ch;
+  color: var(--ink); margin: 56px auto 0; max-width: 46ch;
   padding: 26px 24px; border-top: 1px solid var(--gold); border-bottom: 1px solid var(--gold);
 }
+.mk-scripture cite {
+  display: block; font-style: normal; font-size: 0.66rem; letter-spacing: 0.24em;
+  text-transform: uppercase; color: var(--gold-deep); margin-top: 14px;
+}
+@media (prefers-color-scheme: dark) { .mk-scripture cite { color: var(--gold-bright); } }
+:root[data-theme="dark"] .mk-scripture cite { color: var(--gold-bright); }
 
 /* Diff */
 .mk-diff { background: var(--ground-2); }
@@ -859,7 +878,12 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
   .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 16px 18px; }
-  .rail-title, .rail-foot, .acct { display: none; }
+  .rail-title, .rail-foot { display: none; }
+  /* Keep AccountWidget visible on mobile so phone users can actually sign in. */
+  .acct { flex: 1 1 100%; border-top: none; padding-top: 0; margin-top: 6px; }
+  .acct-title, .acct-note { display: none; }
+  .acct-input { max-width: 240px; }
+  .acct-btn { padding: 8px 14px; }
   .nav .thread { display: none; }
   .brand { flex: 1 1 100%; }
   .nav { flex-direction: row; flex-wrap: wrap; gap: 8px; width: 100%; }

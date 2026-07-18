@@ -27,7 +27,7 @@ export default function AuditPage() {
   return (
     <div className="canvas-inner">
       <header>
-        <div className="eyebrow">Beyond the Veil · Free Assessment</div>
+        <div className="eyebrow">Beyond the Veil · Inner Alignment Audit</div>
         <h1 className="page-title">{IAA_META.title}</h1>
         <p className="lede">{IAA_META.subtitle}</p>
       </header>
@@ -152,16 +152,19 @@ export default function AuditPage() {
           </p>
         </div>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
-          <Link className="btn gold" href="/module/purpose-activation">
+          <Link className="btn gold" href="/toolkit">
             Open the Purpose Activation Toolkit
           </Link>
-          <a className="btn ghost" href={IAA_META.ctaUrl} target="_blank" rel="noreferrer">
-            Learn more
-          </a>
+          <Link className="btn ghost" href="/module/purpose-activation">
+            Or begin with Module 1
+          </Link>
         </div>
         <p className="assist" style={{ marginTop: 14 }}>
-          Your free eBook, <i>You Were Created to Serve</i>, and 7-day access to the Divine Path Walkers
-          community are delivered by email. <span style={{ opacity: 0.7 }}>(Delivery is being finalized.)</span>
+          Your free eBook, <i>You Were Created to Serve</i>, and 7-day access to the{" "}
+          <a href={IAA_META.ctaUrl} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
+            Divine Path Walkers community
+          </a>{" "}
+          are delivered by email once you sign in and begin the toolkit.
         </p>
       </section>
     </div>

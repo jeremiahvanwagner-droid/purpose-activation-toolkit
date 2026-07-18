@@ -19,11 +19,11 @@ export default function ExecutionPromptsModule() {
 
       <section className="card">
         <span className="tag">Orientation · Why Prompts Work</span>
-        <h2>Prompts as spiritual interrupts</h2>
+        <h2>Prompts as Spirit-led interrupts</h2>
         <div className="body-copy">
           <p>
             A good prompt does three things at once: it interrupts autopilot and overthinking, it invites your
-            Higher Self in Christ perspective, and it integrates faith with cognition. There is no wrong way
+            Higher Self in Christ perspective, and it grounds faith in real cognition. There is no wrong way
             to use them — the only requirement is honest engagement and a willingness to listen.
           </p>
         </div>

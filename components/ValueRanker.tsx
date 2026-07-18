@@ -24,15 +24,15 @@ export default function ValueRanker() {
 
   return (
     <div className="values-wrap">
-      <div className="chips" role="listbox" aria-label="Core values">
+      <div className="chips" role="group" aria-label="Core values — choose up to 7">
         {VALUES_BANK.map((v) => {
           const on = picked.includes(v);
           return (
             <button
               key={v}
               type="button"
-              role="option"
-              aria-selected={on}
+              aria-pressed={on}
+              disabled={!on && atCap}
               className={`chip${on ? " picked" : ""}${!on && atCap ? " locked" : ""}`}
               onClick={() => toggle(v)}
             >

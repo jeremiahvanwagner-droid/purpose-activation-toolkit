@@ -93,8 +93,11 @@ export default function ListeningTimer() {
         ))}
       </div>
 
-      <div className="t-clock" aria-live="off">
+      <div className="t-clock" aria-hidden="true">
         {done ? "Amen." : fmt(left)}
+      </div>
+      <div className="sr-only" role="status" aria-live="polite">
+        {done ? "Amen. Ten minutes complete." : `${phase.name} phase — ${fmt(left)} remaining.`}
       </div>
 
       {!done ? (

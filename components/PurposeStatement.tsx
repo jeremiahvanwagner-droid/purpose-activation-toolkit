@@ -26,7 +26,7 @@ function Part({ id, leadIn, hint, placeholder }: { id: string; leadIn: string; h
 export default function PurposeStatement() {
   const all = useResponses();
   const [working, setWorking] = useResponse<string>(STATEMENT_WORKING_FIELD, "");
-  const [sealed, setSealed] = useState(false);
+  const [sealed, setSealed] = useResponse<boolean>("pa.stmt.sealed", false);
   const [pulse, setPulse] = useState(0);
 
   const get = (id: string) => ((all[id] as string) || "").trim();

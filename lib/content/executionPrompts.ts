@@ -7,7 +7,7 @@ export const EP_META = {
   title: "Execution Prompts",
   subtitle: "Your Daily Companion for Aligned Living",
   lede:
-    "Simple questions that interrupt mental noise and invite you to see from a higher perspective — used consistently, they become spiritual technology.",
+    "Simple questions that interrupt mental noise and invite you to see from your Higher Self in Christ — used consistently, they become a Spirit-led daily practice.",
 };
 
 export const USAGE_MODES = [

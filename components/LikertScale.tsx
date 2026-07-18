@@ -23,10 +23,12 @@ export default function LikertScale({ id, question, n }: { id: string; question:
   }
 
   function focusPill(i: number) {
-    const clamped = ((i % LIKERT.length) + LIKERT.length) % LIKERT.length;
-    const el = groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[clamped];
+    // Clamp to the ends (do not wrap) — wrapping would silently record the
+    // opposite answer when a user overshoots at the edge of the scale.
+    if (i < 0 || i >= LIKERT.length) return;
+    const el = groupRef.current?.querySelectorAll<HTMLButtonElement>('[role="radio"]')[i];
     el?.focus();
-    setValue(LIKERT[clamped].value);
+    setValue(LIKERT[i].value);
   }
 
   function onKey(e: React.KeyboardEvent) {

@@ -33,7 +33,11 @@ export default function AccountWidget() {
     setErr(null);
     const { error } = await supa.auth.signInWithOtp({
       email: addr,
-      options: { emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined },
+      // Land signed-in users straight in their toolkit, not the marketing page.
+      options: {
+        emailRedirectTo:
+          typeof window !== "undefined" ? `${window.location.origin}/toolkit` : undefined,
+      },
     });
     setBusy(false);
     if (error) setErr(error.message);

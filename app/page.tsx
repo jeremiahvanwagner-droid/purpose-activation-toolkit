@@ -160,10 +160,11 @@ export default function Landing() {
               </article>
             ))}
           </div>
-          <div className="mk-scripture">
+          <blockquote className="mk-scripture">
             “You are a Child of God, called according to His purpose, equipped with everything you need to
             fulfill your assignment. Now walk in it.”
-          </div>
+            <cite>The Purpose Activation Framework</cite>
+          </blockquote>
         </div>
       </section>
 
@@ -247,8 +248,8 @@ export default function Landing() {
             Take the first step. The rest is a matter of walking.
           </h2>
           <p className="mk-body mk-final-body">
-            Start with the free Inner Alignment Audit. In under five minutes you'll know where to begin —
-            no credit card, no email required to see your result.
+            Start with the free Inner Alignment Audit. Three minutes, no sign-up — and you'll know exactly
+            where to begin.
           </p>
           <div className="mk-cta-row mk-center">
             <Link className="mk-btn mk-btn-primary" href="/audit">
