@@ -33,6 +33,14 @@ export default function Home() {
         )}
       </div>
 
+      <Link href="/audit" className="audit-banner">
+        <span className="audit-banner-k">Free · 3 minutes</span>
+        <span className="audit-banner-t">
+          New here? Start with the <b>Inner Alignment Audit</b> to find where to begin
+        </span>
+        <span className="audit-banner-arrow">→</span>
+      </Link>
+
       <div id="journey" className="eyebrow" style={{ marginBottom: 12 }}>
         The Journey
       </div>
