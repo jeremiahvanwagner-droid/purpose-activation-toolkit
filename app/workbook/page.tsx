@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useResponses } from "@/lib/store";
 import { MODULES } from "@/lib/modules";
+import { IAA_FIELD_IDS } from "@/lib/content/innerAlignmentAudit";
 import { buildWorkbook, countAnswers, type Entry } from "@/lib/workbook";
 
 function EntryView({ e }: { e: Entry }) {
@@ -110,6 +111,29 @@ function EntryView({ e }: { e: Entry }) {
           ))}
         </div>
       );
+    case "profile":
+      return (
+        <div className="wb-profile">
+          <div className="wb-profile-grid">
+            {e.results.map((r) => (
+              <div className={`wb-pcard wb-band-${r.band}${r.isLever ? " wb-lever" : ""}`} key={r.name}>
+                {r.isLever ? <span className="wb-lever-tag">Primary lever</span> : null}
+                <div className="wb-pcard-name">{r.name}</div>
+                <div className="wb-pcard-score">
+                  {r.total}
+                  <span>/{r.max}</span>
+                </div>
+                <div className="wb-pcard-band">{r.bandLabel}</div>
+              </div>
+            ))}
+          </div>
+          {e.primaryLever ? (
+            <p className="wb-lever-note">
+              <b>{e.primaryLever}</b> is your primary lever — the place to begin.
+            </p>
+          ) : null}
+        </div>
+      );
   }
 }
 
@@ -123,7 +147,7 @@ export default function WorkbookPage() {
   const wb = buildWorkbook(all as Record<string, unknown>, date);
   const answers = countAnswers(
     all as Record<string, unknown>,
-    MODULES.flatMap((m) => m.fieldIds)
+    [...IAA_FIELD_IDS, ...MODULES.flatMap((m) => m.fieldIds)]
   );
 
   return (
@@ -170,7 +194,7 @@ export default function WorkbookPage() {
                   <span className="wb-dot">·</span>
                 </>
               ) : null}
-              <span>{answers} answers written</span>
+              <span>{answers} {answers === 1 ? "answer" : "answers"} written</span>
               {date ? (
                 <>
                   <span className="wb-dot">·</span>

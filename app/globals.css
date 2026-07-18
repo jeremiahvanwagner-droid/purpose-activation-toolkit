@@ -612,6 +612,33 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .wb-sig-date { font-size: 0.8rem; color: var(--slate); }
 .wb-foot { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); text-align: center; font-family: var(--serif); font-style: italic; color: var(--ink-soft); line-height: 1.6; max-width: 52ch; margin-left: auto; margin-right: auto; }
 
+/* ---------------- audit profile in the keepsake ---------------- */
+.wb-profile { margin: 8px 0 6px; }
+.wb-profile-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.wb-pcard { position: relative; border: 1px solid var(--line); border-radius: 12px; padding: 14px 12px; background: var(--surface-2); text-align: center; }
+.wb-pcard-name { font-family: var(--serif); font-size: 0.88rem; color: var(--ink); line-height: 1.2; }
+.wb-pcard-score { font-family: var(--serif); font-size: 1.5rem; line-height: 1.05; margin: 6px 0 3px; font-variant-numeric: tabular-nums; }
+.wb-pcard-score span { font-size: 0.78rem; color: var(--slate); }
+.wb-pcard-band { font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; }
+.wb-pcard.wb-band-aligned { border-color: var(--sage); }
+.wb-pcard.wb-band-aligned .wb-pcard-band { color: var(--sage); }
+.wb-pcard.wb-band-tension { border-color: var(--gold); }
+.wb-pcard.wb-band-tension .wb-pcard-band { color: var(--gold-deep); }
+@media (prefers-color-scheme: dark) { .wb-pcard.wb-band-tension .wb-pcard-band { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-pcard.wb-band-tension .wb-pcard-band { color: var(--gold-bright); }
+.wb-pcard.wb-band-misaligned { border-color: #C97A6D; }
+.wb-pcard.wb-band-misaligned .wb-pcard-band { color: #BC5947; }
+@media (prefers-color-scheme: dark) { .wb-pcard.wb-band-misaligned .wb-pcard-band { color: #E0897B; } }
+:root[data-theme="dark"] .wb-pcard.wb-band-misaligned .wb-pcard-band { color: #E0897B; }
+.wb-pcard.wb-lever { box-shadow: 0 0 0 2px var(--gold), var(--shadow-sm); }
+.wb-lever-tag { position: absolute; top: -8px; left: 50%; transform: translateX(-50%); font-size: 0.52rem; letter-spacing: 0.14em;
+  text-transform: uppercase; color: #20180A; background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  padding: 3px 8px; border-radius: 99px; font-weight: 700; white-space: nowrap; }
+.wb-lever-note { font-family: var(--serif); font-style: italic; color: var(--ink-soft); margin: 12px 0 0; font-size: 0.92rem; text-align: center; }
+.wb-lever-note b { color: var(--gold-deep); font-style: normal; }
+@media (prefers-color-scheme: dark) { .wb-lever-note b { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-lever-note b { color: var(--gold-bright); }
+
 /* ---------------- print (Save as PDF) ---------------- */
 @media print {
   @page { margin: 16mm 15mm; }
@@ -623,7 +650,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
   .wb-doc { box-shadow: none; border: none; border-radius: 0; padding: 0; background: #fff; color: #14141a; }
   .wb-cover { border-color: #d9cdb0; break-after: page; padding-top: 12mm; }
   .wb-module { break-before: page; }
-  .wb-qa, .wb-covenant, .wb-statement, .wb-kv-row, .wb-prompts .wb-qa { break-inside: avoid; }
+  .wb-qa, .wb-covenant, .wb-statement, .wb-kv-row, .wb-prompts .wb-qa, .wb-pcard, .wb-profile { break-inside: avoid; }
   .wb-mtitle { break-after: avoid; }
   .wb-sheading { break-after: avoid; }
   .wb-a, .wb-kv-v { color: #33333c; }

@@ -10,6 +10,8 @@ import * as PA from "./content/purposeActivation";
 import * as DM from "./content/decisionMaking";
 import * as ATA from "./content/alignmentToAction";
 import * as EP from "./content/executionPrompts";
+import * as IAA from "./content/innerAlignmentAudit";
+import type { Band } from "./content/innerAlignmentAudit";
 
 export type Entry =
   | { k: "text"; label: string; text: string }
@@ -19,7 +21,12 @@ export type Entry =
   | { k: "grid"; decision: string; options: { name: string; total: number }[] }
   | { k: "tracker"; done: number; total: number; days: { n: number; date: string; action: string; note: string }[] }
   | { k: "covenant"; body: string; name: string; date: string; signature: string; sealed: boolean }
-  | { k: "prompts"; label: string; items: { prompt: string; answer: string }[] };
+  | { k: "prompts"; label: string; items: { prompt: string; answer: string }[] }
+  | {
+      k: "profile";
+      results: { name: string; total: number; max: number; band: Band; bandLabel: string; isLever: boolean }[];
+      primaryLever: string | null;
+    };
 
 export type Section = { heading: string; entries: Entry[] };
 export type ModuleDoc = { slug: string; title: string; sections: Section[] };
@@ -320,7 +327,73 @@ function buildEP(all: Any): Section[] {
   return out;
 }
 
+/* ---------------------------------- Inner Alignment Audit ---------------------------------- */
+function buildIAA(all: Any): Section[] {
+  const out: Section[] = [];
+  const res = IAA.scoreAudit(all);
+
+  // Alignment Profile — only after all 28 items are answered.
+  if (res.complete) {
+    const results = res.results.map((r) => ({
+      name: r.name,
+      total: r.total,
+      max: IAA.BANDS.aligned.max,
+      band: r.band,
+      bandLabel: IAA.BANDS[r.band].label,
+      isLever: res.primaryLever?.key === r.key,
+    }));
+    out.push({
+      heading: "Your Alignment Profile",
+      entries: [{ k: "profile", results, primaryLever: res.primaryLever?.name ?? null }],
+    });
+  }
+
+  // Interpretation
+  const interp: Entry[] = [];
+  push(
+    interp,
+    textEntry(all, "iaa.interpret.secondary", "Which domain most supports the one you're repairing first?")
+  );
+  push(interp, textEntry(all, "iaa.interpret.hidden", "Where is a hidden drain quietly costing you energy?"));
+  if (interp.length) out.push({ heading: "Read your pattern", entries: interp });
+
+  // 7-day realignment plan
+  const plan: Entry[] = [];
+  push(plan, textEntry(all, "iaa.plan.focus", "Focus domain for the next 7 days"));
+  push(plan, textEntry(all, "iaa.plan.boundary", "One boundary I'll hold"));
+  push(plan, textEntry(all, "iaa.plan.practice", "One daily practice I'll keep"));
+  push(plan, textEntry(all, "iaa.plan.measure", "How I'll know I'm improving"));
+  if (plan.length) out.push({ heading: "My 7-day realignment plan", entries: plan });
+
+  // Alignment statement — carries the same anchoring language as the audit page.
+  const stmt: Entry[] = [];
+  push(stmt, textEntry(all, "iaa.stmt.inviting", "God is inviting me to…"));
+  push(stmt, textEntry(all, "iaa.stmt.release", "I release…"));
+  push(stmt, textEntry(all, "iaa.stmt.commit", "I commit to…"));
+  push(stmt, textEntry(all, "iaa.stmt.next7", "My next 7 days will look like…"));
+  if (stmt.length) out.push({ heading: "My alignment statement", entries: stmt });
+
+  // Deeper reflections per domain
+  const reflect: Entry[] = [];
+  IAA.DOMAINS.forEach((d) => {
+    d.reflectionPrompts.forEach((p, i) => {
+      push(reflect, textEntry(all, IAA.reflectField(d.key, i + 1), `${d.name} — ${p}`));
+    });
+  });
+  if (reflect.length) out.push({ heading: "Deeper reflection", entries: reflect });
+
+  // Worksheets
+  const ws: Entry[] = [];
+  IAA.WORKSHEETS.forEach((w) => {
+    push(ws, textEntry(all, w.id, w.title));
+  });
+  if (ws.length) out.push({ heading: "Worksheets", entries: ws });
+
+  return out;
+}
+
 const BUILDERS: Record<string, (all: Any) => Section[]> = {
+  "inner-alignment-audit": buildIAA,
   "purpose-activation": buildPA,
   "decision-making": buildDM,
   "alignment-to-action": buildATA,
@@ -328,6 +401,7 @@ const BUILDERS: Record<string, (all: Any) => Section[]> = {
 };
 
 const TITLES: Record<string, string> = {
+  "inner-alignment-audit": "The Inner Alignment Audit",
   "purpose-activation": "Purpose Activation",
   "decision-making": "Proper Decision-Making",
   "alignment-to-action": "Alignment-to-Action",
