@@ -3,18 +3,20 @@
 /**
  * Local-first response store.
  *
- * Every answer in the toolkit is saved to localStorage the instant it changes,
- * so nothing is ever lost. In Phase 2 this same store gains an optional cloud
- * sync (Supabase) for signed-in users — the component API below won't change.
+ * Every answer saves to localStorage instantly, so nothing is ever lost.
+ * When the user signs in (Supabase configured), lib/sync.ts pulls their cloud
+ * copy and pushes local changes — the component API below never changes.
  */
 
 import { useCallback, useSyncExternalStore } from "react";
 
 const KEY = "pat:responses:v1";
+const TS_KEY = "pat:updatedAt:v1";
 
 export type Values = Record<string, unknown>;
 
 let cache: Values | null = null;
+let updatedAt = 0;
 const listeners = new Set<() => void>();
 
 function load(): Values {
@@ -23,6 +25,7 @@ function load(): Values {
   try {
     const raw = window.localStorage.getItem(KEY);
     cache = raw ? (JSON.parse(raw) as Values) : {};
+    updatedAt = Number(window.localStorage.getItem(TS_KEY)) || 0;
   } catch {
     cache = {};
   }
@@ -33,6 +36,7 @@ function persist() {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.setItem(KEY, JSON.stringify(cache ?? {}));
+    window.localStorage.setItem(TS_KEY, String(updatedAt));
   } catch {
     /* storage full or blocked — the in-memory copy still works this session */
   }
@@ -42,9 +46,14 @@ function emit() {
   listeners.forEach((l) => l());
 }
 
+function now(): number {
+  return typeof Date.now === "function" ? Date.now() : 0;
+}
+
 export function setResponse(id: string, value: unknown) {
   const current = load();
   cache = { ...current, [id]: value };
+  updatedAt = now();
   persist();
   emit();
 }
@@ -95,7 +104,7 @@ export function useResponses(): Values {
 /** Bind a single field: `const [value, setValue] = useResponse(id, "")`. */
 export function useResponse<T>(id: string, fallback: T): [T, (v: T) => void] {
   const all = useResponses();
-  const value = (all[id] === undefined ? fallback : (all[id] as T));
+  const value = all[id] === undefined ? fallback : (all[id] as T);
   const set = useCallback((v: T) => setResponse(id, v), [id]);
   return [value, set];
 }
@@ -104,4 +113,25 @@ export function useResponse<T>(id: string, fallback: T): [T, (v: T) => void] {
 export function useFilledCount(ids: string[]): number {
   const all = useResponses();
   return ids.reduce((n, id) => (isFilled(all[id]) ? n + 1 : n), 0);
+}
+
+/* ----------------------------- cloud-sync support ----------------------------- */
+
+/** Snapshot for pushing to the cloud. */
+export function getAllData(): { data: Values; updatedAt: number } {
+  return { data: load(), updatedAt };
+}
+
+/** Replace the entire store (used when the cloud copy is newer than local). */
+export function replaceAll(data: Values, ts: number) {
+  cache = { ...data };
+  updatedAt = ts || now();
+  persist();
+  emit();
+}
+
+/** Raw (non-React) subscription to store changes, for the sync pusher. */
+export function subscribeStore(cb: () => void): () => void {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
 }

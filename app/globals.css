@@ -155,6 +155,19 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .rail-foot { position: relative; font-size: 0.68rem; color: rgba(233, 223, 203, 0.5); line-height: 1.5; }
 .rail-foot b { color: var(--gold-bright); font-weight: 600; }
 
+.acct { position: relative; border-top: 1px solid rgba(231, 201, 127, 0.14); padding-top: 14px; display: grid; gap: 8px; }
+.acct-title { font-size: 0.78rem; color: #F1EAD7; font-family: var(--serif); }
+.acct-note { font-size: 0.66rem; color: rgba(233, 223, 203, 0.6); line-height: 1.45; margin: 0; }
+.acct-input { font-family: var(--sans); font-size: 0.78rem; padding: 8px 10px; border-radius: 9px; border: 1px solid rgba(231, 201, 127, 0.28); background: rgba(255, 255, 255, 0.06); color: #F3ECD8; }
+.acct-input::placeholder { color: rgba(233, 223, 203, 0.4); }
+.acct-input:focus { outline: none; border-color: var(--gold-bright); box-shadow: 0 0 0 3px rgba(231, 201, 127, 0.15); }
+.acct-btn { font-family: var(--sans); font-size: 0.74rem; font-weight: 600; cursor: pointer; padding: 8px 10px; border-radius: 9px; border: none; color: #20180A; background: linear-gradient(180deg, var(--gold-bright), var(--gold)); }
+.acct-btn:disabled { opacity: 0.6; cursor: default; }
+.acct-err { font-size: 0.64rem; color: #E89; margin: 0; }
+.acct-status { font-size: 0.68rem; color: rgba(233, 223, 203, 0.78); display: flex; align-items: center; gap: 7px; }
+.acct-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sage); box-shadow: 0 0 0 3px rgba(110, 154, 108, 0.2); flex: 0 0 auto; }
+.acct-link { background: none; border: none; color: var(--gold-bright); font-size: 0.68rem; cursor: pointer; text-align: left; padding: 0; text-decoration: underline; justify-self: start; }
+
 /* ---------------- canvas ---------------- */
 .canvas { position: relative; overflow: hidden; }
 .canvas::before {
@@ -568,7 +581,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
   .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 16px 18px; }
-  .rail-title, .rail-foot { display: none; }
+  .rail-title, .rail-foot, .acct { display: none; }
   .nav .thread { display: none; }
   .brand { flex: 1 1 100%; }
   .nav { flex-direction: row; flex-wrap: wrap; gap: 8px; width: 100%; }

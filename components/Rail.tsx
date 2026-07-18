@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { MODULES, useAllModuleProgress } from "@/lib/modules";
+import AccountWidget from "@/components/AccountWidget";
 
 const R = 15;
 const C = 2 * Math.PI * R;
@@ -110,8 +111,10 @@ export default function Rail() {
         })}
       </nav>
 
+      <AccountWidget />
+
       <div className="rail-foot">
-        Your progress saves automatically and will sync to every device.
+        Your progress saves automatically on this device.
         <br />
         <b>Divine Path Walkers</b> · your community awaits.
       </div>
