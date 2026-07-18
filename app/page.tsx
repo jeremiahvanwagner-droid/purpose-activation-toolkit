@@ -249,20 +249,29 @@ export default function Landing() {
           </h2>
           <p className="mk-body mk-final-body">
             Start with the free Inner Alignment Audit. Three minutes, no sign-up — and you'll know exactly
-            where to begin.
+            where to begin. When you're ready to go deeper, the full four-module toolkit is <b>$247</b>.
           </p>
           <div className="mk-cta-row mk-center">
             <Link className="mk-btn mk-btn-primary" href="/audit">
               Take the free Audit
               <span className="mk-btn-note">Your first step ✦</span>
             </Link>
-            <Link className="mk-btn mk-btn-ghost" href="/toolkit">
-              I already have access
-            </Link>
+            <a
+              className="mk-btn mk-btn-ghost"
+              href="https://site.truthjblue.com/payment-link/696ec80453f21b434dfae38d"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Get the Toolkit
+              <span className="mk-btn-note">$247 · Lifetime access</span>
+            </a>
           </div>
           <p className="mk-assist">
-            The full Purpose Activation Toolkit opens for early members soon.{" "}
-            <span className="mk-soft">Pricing and access will be announced with the Beyond the Veil launch.</span>
+            Already have access?{" "}
+            <Link href="/toolkit" style={{ color: "inherit", textDecoration: "underline" }}>
+              Sign in to continue your work
+            </Link>
+            .
           </p>
         </div>
       </section>
