@@ -1,117 +1,47 @@
 # Purpose Activation Toolkit
 
-This repository contains the **Purpose Activation Toolkit**, an interactive web application designed to empower individuals to recognize their divine power, awaken to their divine potential and align with their divine purpose.  
+**Truth J Blue · Growth by Choice** — an interactive, faith-first digital workbook that guides you from wondering about your purpose to walking in it.
 
-The toolkit combines concepts from quantum science, mindfulness, and vitality research to provide a structured pathway for seekers, awakened individuals and fundamentalists alike. It leverages modern web technologies to create a dynamic experience while remaining portable enough to embed into other platforms (e.g. the **Sites** section of GoHighLevel).
+Unlike a PDF, this toolkit is a living workbook: every exercise is fillable, every answer saves automatically, and your journey culminates in signed commitments you can return to.
 
-## Project Structure
+## The four modules
 
-```
-├── backend/            # FastAPI backend providing API endpoints
-│   └── app.py          # Main FastAPI application with route definitions
-├── frontend/           # Static web application (can be served via any web server)
-│   ├── index.html      # Main page with interactive sections
-│   ├── style.css       # Stylesheet for the frontend
-│   └── script.js       # Client‑side JavaScript powering interactivity
-├── docs/               # Design and content documentation
-│   └── sections.md     # Detailed outline of toolkit sections
-├── package.json        # Optional Node package definition (placeholder for future expansion)
-└── README.md           # Project overview and setup instructions
-```
+1. **Purpose Activation** — discover your God-given design, rank your core values, craft your purpose statement, map your six life domains, and sign a 30-day activation covenant.
+2. **Proper Decision-Making** — the 7-Step Divine Decision Framework, the Values-Based Decision Grid, and listening prayer.
+3. **Alignment-to-Action** — the Aligned Action Formula, daily rituals, and the 21-Day Alignment Tracker.
+4. **Execution Prompts** — 69 journaling prompts in six themed decks, plus a custom prompt lab and personal toolkit.
 
-## Getting Started
+## Tech
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/jeremiahvanwagner-droid/purpose-activation-toolkit.git
-   cd purpose-activation-toolkit
-   ```
+- **Next.js 14 (App Router) + TypeScript** — one clean app, statically exportable
+- **Local-first persistence** — [lib/store.ts](lib/store.ts) saves every answer to `localStorage` instantly; optional account sync (Supabase) arrives in Phase 2
+- **Design system** — navy + gold, light/dark aware, defined in [app/globals.css](app/globals.css)
+- Module content lives as typed manifests in [lib/content/](lib/content/) — the source of truth is the original Truth J Blue workbooks
 
-## Environment variables
-
-Set these values in your shell, `.env`, or Docker Compose environment block before running the services:
-
-- `DATABASE_URL`: Database connection string for the backend.
-- `JWT_SECRET_KEY`: Secret used to sign access and refresh tokens.
-- `JWT_ALGORITHM`: Algorithm for JWT signing (e.g., `HS256`).
-- `JWT_ACCESS_EXPIRE_MINUTES`: Access token lifetime in minutes.
-- `JWT_REFRESH_EXPIRE_DAYS`: Refresh token lifetime in days.
-- `REDIS_URL`: Redis connection string for Celery broker/result backend.
-- External links used by the frontend or content integrations:
-  - `BEYOND_VEIL_URL`
-  - `CALENDLY_URL`
-  - `SKOOL_URL`
-  - `BOOK_STORE_URL`
-
-## Usage
-
-### Run with Docker (recommended)
+## Run it
 
 ```bash
-docker compose up --build
+npm install
+npm run dev     # http://localhost:3000
+npm run build   # production build
 ```
 
-The services are available at:
-* Frontend: `http://localhost:8080`
-* API: `http://localhost:8000`
+## Roadmap
 
-The compose file mounts `backend/app.py` into the API container and runs Uvicorn with `--reload`
-for a fast development loop.
+- [x] Phase 0 — Foundation: clean app, design system, shell
+- [x] Phase 1 — Module 1 fully interactive
+- [ ] Phase 2 — Accounts, cross-device sync, keepsake PDF export
+- [ ] Phase 3 — Modules 2–4
+- [ ] Phase 4 — Landing page, checkout, GoHighLevel/Skool integration
+- [ ] Phase 5 — Polish, QA, production deploy
 
-### Run manually (without Docker)
+## Repository layout
 
-1. **Install backend dependencies:**
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install fastapi uvicorn
-   ```
+```
+app/          # routes: home dashboard + one route per module
+components/   # interactive exercise components (auto-saving)
+lib/          # store, module registry, content manifests
+legacy/       # earlier prototypes, archived for reference
+```
 
-2. **Run the backend server:**
-   ```bash
-   uvicorn backend.app:app --reload
-   ```
-   The API will be available at `http://localhost:8000`.
-
-3. **Run the Celery worker (for background jobs):**
-   ```bash
-   celery -A backend.worker worker -l info
-   ```
-   Ensure `REDIS_URL` is configured so the worker can connect to Redis.
-
-4. **Serve the frontend:**
-   Since the frontend is static, you can open `frontend/index.html` in a browser directly or serve it with any static file server. If running with the backend, you can add a middleware or mount static files to serve the frontend on the same domain.
-
-5. **If you have a Next.js frontend:**
-   Install dependencies and run the Next.js development server:
-   ```bash
-   npm install
-   npm run dev
-   ```
-
-## Assessments & integrations
-
-- Use the external link environment variables to point users to assessments, scheduling, community, and bookstore experiences hosted elsewhere.
-- These URLs can be surfaced in the frontend or embedded in partner platforms such as GoHighLevel sites.
-
-## Customisation
-
-The toolkit is designed to be modular:
-
-* **Sections** – The content of each section can be adjusted in `docs/sections.md` and reflected in `frontend/index.html`.  
-* **API endpoints** – The backend exposes endpoints such as `/api/intent` and `/api/activate` for dynamic functionality. These can be extended or integrated into other services.
-
-## Integration with GoHighLevel Sites
-
-Because the frontend is a simple static web application, it can be embedded into GoHighLevel Sites via an iframe or by copying the HTML/CSS/JS content into a page on the platform. The backend can run separately on a hosting provider (e.g. Heroku, Render) or be omitted if the site only requires static content.
-
-## Contributing
-
-1. Fork the repository.
-2. Create a new branch with your feature/fix.
-3. Commit your changes.
-4. Open a pull request detailing the modifications.
-
-## License
-
-This project is licensed under the MIT license. See [LICENSE](LICENSE) for details.
+© Truth J Blue LLC. Educational content; not a substitute for medical or psychological advice.
