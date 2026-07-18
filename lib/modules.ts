@@ -2,6 +2,9 @@
 
 import { isFilled, useResponses } from "./store";
 import { PA_FIELD_IDS } from "./content/purposeActivation";
+import { DM_FIELD_IDS } from "./content/decisionMaking";
+import { ATA_FIELD_IDS } from "./content/alignmentToAction";
+import { EP_FIELD_IDS } from "./content/executionPrompts";
 
 export type ModuleMeta = {
   slug: string;
@@ -29,8 +32,8 @@ export const MODULES: ModuleMeta[] = [
     kicker: "Module 2",
     title: "Decision-Making",
     blurb: "Decide with peace",
-    available: false,
-    fieldIds: [],
+    available: true,
+    fieldIds: DM_FIELD_IDS,
   },
   {
     slug: "alignment-to-action",
@@ -38,8 +41,8 @@ export const MODULES: ModuleMeta[] = [
     kicker: "Module 3",
     title: "Alignment-to-Action",
     blurb: "Turn clarity into motion",
-    available: false,
-    fieldIds: [],
+    available: true,
+    fieldIds: ATA_FIELD_IDS,
   },
   {
     slug: "execution-prompts",
@@ -47,8 +50,8 @@ export const MODULES: ModuleMeta[] = [
     kicker: "Module 4",
     title: "Execution Prompts",
     blurb: "Your daily companion",
-    available: false,
-    fieldIds: [],
+    available: true,
+    fieldIds: EP_FIELD_IDS,
   },
 ];
 

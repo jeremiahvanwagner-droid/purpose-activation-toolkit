@@ -1,12 +1,23 @@
 "use client";
 
 import { useResponse } from "@/lib/store";
-import { COMMIT_FIELD } from "@/lib/content/purposeActivation";
 
 type Commitment = { name?: string; signature?: string; date?: string; sealed?: boolean };
 
-export default function Covenant() {
-  const [c, setC] = useResponse<Commitment>(COMMIT_FIELD, {});
+/**
+ * A signable commitment statement. `body` is the covenant text that follows
+ * "I, {name}" — each module supplies its own wording.
+ */
+export default function Covenant({
+  id,
+  body,
+  buttonLabel = "Sign my commitment",
+}: {
+  id: string;
+  body: string;
+  buttonLabel?: string;
+}) {
+  const [c, setC] = useResponse<Commitment>(id, {});
   const set = (key: keyof Commitment, v: string | boolean) => setC({ ...c, [key]: v });
 
   const name = (c.name ?? "").trim();
@@ -28,17 +39,15 @@ export default function Covenant() {
         <div className="seal">✦ Covenant sealed</div>
         <div className="c-k">My Commitment Statement</div>
         <p className="c-text">
-          I, <span className="c-name">{name || "__________________"}</span>, commit to walking in my Divine
-          purpose with intentionality and faith for the next 30 days. I recognize that this is not about
-          perfection, but about progress and obedience. I will honor my design, live my values, and take
-          aligned action daily. I trust that God will meet me in my faithfulness and make my path clear.
+          I, <span className="c-name">{name || "__________________"}</span>
+          {body}
         </p>
 
         <div className="sig-grid">
           <div className="field" style={{ marginBottom: 0 }}>
-            <label htmlFor="cov-name">Your full name</label>
+            <label htmlFor={`${id}-name`}>Your full name</label>
             <input
-              id="cov-name"
+              id={`${id}-name`}
               type="text"
               autoComplete="off"
               value={c.name ?? ""}
@@ -47,9 +56,9 @@ export default function Covenant() {
             />
           </div>
           <div className="field" style={{ marginBottom: 0 }}>
-            <label htmlFor="cov-date">Date</label>
+            <label htmlFor={`${id}-date`}>Date</label>
             <input
-              id="cov-date"
+              id={`${id}-date`}
               type="text"
               autoComplete="off"
               value={c.date ?? ""}
@@ -58,9 +67,9 @@ export default function Covenant() {
             />
           </div>
           <div className="field sig-field" style={{ marginBottom: 0 }}>
-            <label htmlFor="cov-sig">Signature</label>
+            <label htmlFor={`${id}-sig`}>Signature</label>
             <input
-              id="cov-sig"
+              id={`${id}-sig`}
               className="sig"
               type="text"
               autoComplete="off"
@@ -74,7 +83,7 @@ export default function Covenant() {
 
       <div className="builder-actions">
         <button type="button" className="btn gold" onClick={sign} disabled={!canSign}>
-          {sealed ? "Covenant sealed ✦" : "Sign my 30-day commitment"}
+          {sealed ? "Covenant sealed ✦" : buttonLabel}
         </button>
         {sealed ? <span className="done-note">✓ Saved to your workbook</span> : null}
         {!canSign ? (

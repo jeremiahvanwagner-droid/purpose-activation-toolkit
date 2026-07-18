@@ -13,6 +13,7 @@ import Covenant from "@/components/Covenant";
 import {
   BELIEF_FIELDS,
   CLOSING_REFLECTIONS,
+  COMMIT_FIELD,
   DESIGN_DOMAINS,
   DIVINE,
   EGOIC,
@@ -199,7 +200,11 @@ export default function PurposeActivationModule() {
           </p>
         </div>
         <Plan30 />
-        <Covenant />
+        <Covenant
+          id={COMMIT_FIELD}
+          buttonLabel="Sign my 30-day commitment"
+          body=", commit to walking in my Divine purpose with intentionality and faith for the next 30 days. I recognize that this is not about perfection, but about progress and obedience. I will honor my design, live my values, and take aligned action daily. I trust that God will meet me in my faithfulness and make my path clear."
+        />
       </section>
 
       {/* ---------- Section 9 — After Day 30 ---------- */}
