@@ -874,6 +874,32 @@ h1, h2, h3, h4 { text-wrap: balance; }
   .mk-brand { justify-content: center; }
 }
 
+/* ---------------- paywall / unlock screen ---------------- */
+.paywall-loading { text-align: center; padding: 80px 20px; color: var(--slate); font-family: var(--serif); font-style: italic; }
+.paywall { max-width: 640px; margin: 0 auto; padding: 20px 0; }
+.paywall-title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 1.4rem + 1.8vw, 2.6rem);
+  line-height: 1.1; letter-spacing: -0.01em; margin: 12px 0 18px; text-wrap: balance; }
+.paywall-lede { font-family: var(--serif); font-size: 1.08rem; line-height: 1.65; color: var(--ink-soft); margin: 0 0 26px; }
+.paywall-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
+.paywall-cta .btn { padding: 14px 22px; font-size: 0.92rem; }
+.paywall-signin { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 20px 22px; margin-bottom: 28px; }
+.paywall-signin .acct { display: block !important; border-top: none; padding-top: 0; color: var(--ink); }
+.paywall-signin .acct-title { color: var(--ink); font-family: var(--serif); font-size: 1.05rem; }
+.paywall-signin .acct-note { color: var(--ink-soft); font-size: 0.86rem; }
+.paywall-signin .acct-input { background: var(--surface-2); color: var(--ink); border: 1px solid var(--line-strong); }
+.paywall-signin .acct-input::placeholder { color: var(--slate); }
+.paywall-signin .acct-btn { color: #20180A; }
+.paywall-signin .acct-status { color: var(--ink-soft); }
+.paywall-note { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.6; margin: 0 0 28px; padding: 14px 16px;
+  background: var(--surface-2); border-radius: 10px; border: 1px solid var(--line); }
+.paywall-inclusions { border-top: 1px solid var(--line); padding-top: 22px; }
+.paywall-inc-title { font-size: 0.64rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 12px; }
+@media (prefers-color-scheme: dark) { .paywall-inc-title { color: var(--gold-bright); } }
+:root[data-theme="dark"] .paywall-inc-title { color: var(--gold-bright); }
+.paywall-inclusions ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.paywall-inclusions li { position: relative; padding-left: 22px; font-size: 0.94rem; color: var(--ink-soft); line-height: 1.55; }
+.paywall-inclusions li::before { content: "✦"; position: absolute; left: 0; color: var(--gold); font-size: 0.86rem; top: 1px; }
+
 /* ---------------- responsive ---------------- */
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
