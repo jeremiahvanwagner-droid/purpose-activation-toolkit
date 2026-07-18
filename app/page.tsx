@@ -7,6 +7,7 @@ export default function Home() {
   const progress = useAllModuleProgress();
   const m1 = progress["purpose-activation"];
   const started = m1.done > 0;
+  const anyStarted = Object.values(progress).some((p) => p.done > 0);
 
   return (
     <div className="canvas-inner">
@@ -21,9 +22,15 @@ export default function Home() {
         <Link className="btn gold" href="/module/purpose-activation">
           {started ? "Continue your journey" : "Begin Module 1"}
         </Link>
-        <a className="btn ghost" href="#journey">
-          See the four modules
-        </a>
+        {anyStarted ? (
+          <Link className="btn ghost" href="/workbook">
+            View my keepsake
+          </Link>
+        ) : (
+          <a className="btn ghost" href="#journey">
+            See the four modules
+          </a>
+        )}
       </div>
 
       <div id="journey" className="eyebrow" style={{ marginBottom: 12 }}>

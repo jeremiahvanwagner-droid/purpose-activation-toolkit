@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useAllModuleProgress } from "@/lib/modules";
 import { useResponses } from "@/lib/store";
@@ -25,37 +26,24 @@ export default function ModuleMeta({ slug, label = "Module progress" }: { slug: 
     return () => clearTimeout(saveTimer.current);
   }, [responses]);
 
-  const [toast, setToast] = useState<string | null>(null);
-  const toastTimer = useRef<ReturnType<typeof setTimeout>>();
-  function exportWorkbook() {
-    setToast("Your keepsake PDF export arrives soon — every answer you're saving now will be in it. 📖");
-    clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 3600);
-  }
-
   return (
-    <>
-      <div className="meta">
-        <div className="prog">
-          <div className="row">
-            <span>{label}</span>
-            <b>{progress.pct}%</b>
-          </div>
-          <div className="bar">
-            <i style={{ width: `${progress.pct}%` }} />
-          </div>
+    <div className="meta">
+      <div className="prog">
+        <div className="row">
+          <span>{label}</span>
+          <b>{progress.pct}%</b>
         </div>
-        <span className={`saved${saving ? " saving" : ""}`}>
-          <span className="pip" />
-          <span>{saving ? "Saving…" : touched ? "Saved just now" : "Saved"}</span>
-        </span>
-        <button type="button" className="btn ghost" onClick={exportWorkbook}>
-          Export my workbook
-        </button>
+        <div className="bar">
+          <i style={{ width: `${progress.pct}%` }} />
+        </div>
       </div>
-      <div className={`toast${toast ? " show" : ""}`} role="status" aria-live="polite">
-        {toast}
-      </div>
-    </>
+      <span className={`saved${saving ? " saving" : ""}`}>
+        <span className="pip" />
+        <span>{saving ? "Saving…" : touched ? "Saved just now" : "Saved"}</span>
+      </span>
+      <Link className="btn ghost" href="/workbook">
+        Export my workbook
+      </Link>
+    </div>
   );
 }

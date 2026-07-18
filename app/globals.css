@@ -495,6 +495,75 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (prefers-color-scheme: dark) { .jcard .j-k { color: var(--gold-bright); } }
 :root[data-theme="dark"] .jcard .j-k { color: var(--gold-bright); }
 
+/* ---------------- keepsake workbook ---------------- */
+.wb-actions { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+.wb-empty { text-align: center; padding: 48px 20px; }
+.wb-empty h2 { font-family: var(--serif); font-size: 1.5rem; margin: 0 0 8px; }
+.wb-empty p { color: var(--ink-soft); max-width: 46ch; margin: 0 auto; line-height: 1.6; }
+.wb-empty a { color: var(--gold-deep); }
+@media (prefers-color-scheme: dark) { .wb-empty a { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-empty a { color: var(--gold-bright); }
+
+.wb-doc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 48px 44px; }
+.wb-cover { text-align: center; padding: 24px 0 36px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+.wb-glyph { width: 46px; height: 46px; color: var(--gold); }
+.wb-kicker { font-size: 0.62rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold-deep); margin-top: 14px; }
+@media (prefers-color-scheme: dark) { .wb-kicker { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-kicker { color: var(--gold-bright); }
+.wb-title { font-family: var(--serif); font-weight: 600; font-size: clamp(1.8rem, 1.4rem + 2vw, 2.8rem); margin: 10px 0 4px; letter-spacing: -0.01em; }
+.wb-sub { font-family: var(--serif); font-style: italic; color: var(--ink-soft); font-size: 1.1rem; }
+.wb-meta { margin-top: 16px; font-size: 0.8rem; color: var(--slate); display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.wb-dot { opacity: 0.5; }
+
+.wb-module { margin-top: 32px; }
+.wb-mtitle { font-family: var(--serif); font-weight: 600; font-size: 1.6rem; color: var(--ink); padding-bottom: 8px; border-bottom: 2px solid var(--gold); margin: 0 0 4px; }
+.wb-section { margin-top: 20px; }
+.wb-sheading { font-size: 0.64rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); margin: 0 0 10px; }
+@media (prefers-color-scheme: dark) { .wb-sheading { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-sheading { color: var(--gold-bright); }
+.wb-qa { margin-bottom: 14px; }
+.wb-q { font-family: var(--serif); font-size: 0.98rem; color: var(--ink); margin-bottom: 3px; }
+.wb-a { font-size: 0.92rem; color: var(--ink-soft); line-height: 1.6; margin: 0; white-space: pre-wrap; }
+.wb-a.wb-ol, .wb-a.wb-ul { margin: 4px 0 0; padding-left: 22px; }
+.wb-a.wb-ol li, .wb-a.wb-ul li { margin-bottom: 3px; }
+.wb-kv { display: grid; gap: 6px; margin-top: 4px; }
+.wb-kv-row { display: grid; grid-template-columns: 170px 1fr; gap: 14px; }
+.wb-kv-k { font-size: 0.78rem; color: var(--gold-deep); }
+@media (prefers-color-scheme: dark) { .wb-kv-k { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-kv-k { color: var(--gold-bright); }
+.wb-kv-v { font-size: 0.9rem; color: var(--ink-soft); line-height: 1.5; white-space: pre-wrap; }
+.wb-statement { font-family: var(--serif); font-size: 1.2rem; font-style: italic; color: var(--ink); border-left: 3px solid var(--gold); padding: 6px 0 6px 18px; margin: 8px 0; line-height: 1.6; }
+.wb-covenant { border: 1px solid var(--gold); border-radius: 12px; padding: 20px 22px; margin: 12px 0; background: rgba(190, 150, 70, 0.05); }
+.wb-covenant p { font-family: var(--serif); line-height: 1.7; margin: 0; color: var(--ink); }
+.wb-cov-name { font-style: italic; color: var(--gold-deep); }
+@media (prefers-color-scheme: dark) { .wb-cov-name { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-cov-name { color: var(--gold-bright); }
+.wb-seal { font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold-deep); margin-bottom: 10px; font-weight: 700; }
+@media (prefers-color-scheme: dark) { .wb-seal { color: var(--gold-bright); } }
+:root[data-theme="dark"] .wb-seal { color: var(--gold-bright); }
+.wb-sig { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 16px; border-top: 1px solid var(--line); padding-top: 10px; gap: 12px; }
+.wb-sig-mark { font-family: "Segoe Script", "Apple Chancery", "Savoye LET", cursive; font-size: 1.35rem; color: var(--ink); }
+.wb-sig-date { font-size: 0.8rem; color: var(--slate); }
+.wb-foot { margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line); text-align: center; font-family: var(--serif); font-style: italic; color: var(--ink-soft); line-height: 1.6; max-width: 52ch; margin-left: auto; margin-right: auto; }
+
+/* ---------------- print (Save as PDF) ---------------- */
+@media print {
+  @page { margin: 16mm 15mm; }
+  html, body { background: #fff !important; }
+  .app { display: block !important; }
+  .rail, .no-print, .toast, .meta, .canvas::before { display: none !important; }
+  .canvas { overflow: visible; }
+  .canvas-inner { max-width: none; margin: 0; padding: 0; }
+  .wb-doc { box-shadow: none; border: none; border-radius: 0; padding: 0; background: #fff; color: #14141a; }
+  .wb-cover { border-color: #d9cdb0; break-after: page; padding-top: 12mm; }
+  .wb-module { break-before: page; }
+  .wb-qa, .wb-covenant, .wb-statement, .wb-kv-row, .wb-prompts .wb-qa { break-inside: avoid; }
+  .wb-mtitle { break-after: avoid; }
+  .wb-sheading { break-after: avoid; }
+  .wb-a, .wb-kv-v { color: #33333c; }
+  a { color: inherit; text-decoration: none; }
+}
+
 /* ---------------- responsive ---------------- */
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
