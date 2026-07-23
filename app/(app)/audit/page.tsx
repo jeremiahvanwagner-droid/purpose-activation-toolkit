@@ -3,6 +3,7 @@
 import Link from "next/link";
 import AuditRunner from "@/components/AuditRunner";
 import AlignmentProfile from "@/components/AlignmentProfile";
+import EbookClaim from "@/components/EbookClaim";
 import Reflection from "@/components/Reflection";
 import { useResponses } from "@/lib/store";
 import {
@@ -22,7 +23,8 @@ function nsGuard(id: string): string {
 
 export default function AuditPage() {
   const all = useResponses();
-  const complete = scoreAudit(all as Record<string, unknown>).complete;
+  const score = scoreAudit(all as Record<string, unknown>);
+  const complete = score.complete;
 
   return (
     <div className="canvas-inner">
@@ -140,6 +142,11 @@ export default function AuditPage() {
         </section>
       )}
 
+      {/* The gift is the reward for finishing, so it sits above the upsell and
+          only appears at 28/28. Delivery is immediate on-page; the emailed copy
+          is a convenience. */}
+      {complete ? <EbookClaim profile={score} /> : null}
+
       {/* Next step CTA — always visible so the funnel isn't gated behind completion */}
       <section className="card cta-card">
         <span className="tag">Your next step</span>
@@ -160,11 +167,12 @@ export default function AuditPage() {
           </Link>
         </div>
         <p className="assist" style={{ marginTop: 14 }}>
-          Your free eBook, <i>You Were Created to Serve</i>, and 7-day access to the{" "}
+          Finish the audit to unlock your free eBook, <i>You Were Created to Serve</i>, and 7-day
+          access to the{" "}
           <a href={IAA_META.ctaUrl} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
             Divine Path Walkers community
-          </a>{" "}
-          are delivered by email once you sign in and begin the toolkit.
+          </a>
+          .
         </p>
       </section>
     </div>

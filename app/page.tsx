@@ -97,7 +97,7 @@ export default function Landing() {
           <div className="mk-cta-row">
             <Link className="mk-btn mk-btn-primary" href="/audit">
               Take the free Inner Alignment Audit
-              <span className="mk-btn-note">3 minutes · no email required</span>
+              <span className="mk-btn-note">3 minutes · instant results</span>
             </Link>
             <a className="mk-btn mk-btn-ghost" href="#whats-inside">
               See what's inside
