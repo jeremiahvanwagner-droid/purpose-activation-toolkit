@@ -1,0 +1,46 @@
+name: CI
+
+# Builds the app that actually ships: the Next.js workbook at the repo root.
+# (`legacy/` holds archived prototypes and is excluded from tsconfig — nothing
+# there is deployed, so nothing there is built here.)
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+# A newer push to the same branch supersedes an in-flight run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Node 22: @supabase/storage-js and friends declare engines >= 22.
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No secrets are set here on purpose. Every env read in the app is
+      # guarded, so a keyless build is the honest check that the app still
+      # compiles for someone cloning it fresh.
+      - name: Build
+        run: npm run build
+
+      # `next build` type-checks the build graph; this also covers files that
+      # nothing imports yet.
+      - name: Type-check
+        run: npx tsc --noEmit
