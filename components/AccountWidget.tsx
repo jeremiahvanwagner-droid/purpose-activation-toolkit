@@ -62,7 +62,18 @@ export default function AccountWidget() {
       <div className="acct">
         <div className="acct-title">Check your email ✉</div>
         <p className="acct-note">
-          We sent a magic link to <b>{email.trim()}</b>. Open it on any device to sync your workbook.
+          We sent a sign-in link to <b>{email.trim()}</b>. Open it on any device to sync your
+          workbook.
+        </p>
+        {/* Auth mail is a brand-new sending reputation, so first sends land in spam often
+            enough to cost us buyers. Naming the sender and the real subject line is what
+            makes it findable — a first-time address gets Supabase's "Confirm Your Signup"
+            template, NOT the magic-link one, so telling people to look for a "magic link"
+            sends them past it. */}
+        <p className="acct-note">
+          It comes from <b>support@truthjblue.com</b>. If it isn&apos;t there in a minute, check
+          your spam or junk folder and mark it <b>Not spam</b> — signing in the first time is
+          all it takes to fix it for good.
         </p>
       </div>
     );
