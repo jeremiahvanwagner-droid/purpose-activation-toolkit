@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BEYOND_THE_VEIL_URL, CHECKOUT_URL } from "@/lib/links";
 
 /**
  * Marketing landing — the public face at "/".
@@ -258,7 +259,7 @@ export default function Landing() {
             </Link>
             <a
               className="mk-btn mk-btn-ghost"
-              href="https://site.truthjblue.com/payment-link/696ec80453f21b434dfae38d"
+              href={CHECKOUT_URL}
               target="_blank"
               rel="noreferrer"
             >
@@ -289,7 +290,7 @@ export default function Landing() {
           <div className="mk-foot-links">
             <Link href="/audit">Inner Alignment Audit</Link>
             <Link href="/toolkit">Enter the Toolkit</Link>
-            <a href="https://beyondtheveil.support" target="_blank" rel="noreferrer">Beyond the Veil</a>
+            <a href={BEYOND_THE_VEIL_URL} target="_blank" rel="noreferrer">Beyond the Veil</a>
           </div>
           <p className="mk-foot-fine">
             © Truth J Blue LLC · Divine Path Walkers.

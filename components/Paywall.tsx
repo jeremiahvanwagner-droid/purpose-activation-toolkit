@@ -3,8 +3,7 @@
 import Link from "next/link";
 import AccountWidget from "@/components/AccountWidget";
 import { PAT_PRODUCT_ID, useEntitlement } from "@/lib/entitlements";
-
-const CHECKOUT_URL = "https://site.truthjblue.com/payment-link/696ec80453f21b434dfae38d";
+import { CHECKOUT_URL } from "@/lib/links";
 
 /**
  * Wraps a paid route. Signed-out users see a warm sign-in prompt; signed-in

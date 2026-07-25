@@ -14,6 +14,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { COMMUNITY_URL } from "@/lib/links";
 
 const CLAIM_KEY = "pat:ebookClaimed:v1";
 const FALLBACK_URL = process.env.NEXT_PUBLIC_EBOOK_URL ?? "";
@@ -114,12 +115,7 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
               Download the eBook
             </a>
           ) : null}
-          <a
-            className="btn ghost"
-            href="https://beyondtheveil.support"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a className="btn ghost" href={COMMUNITY_URL} target="_blank" rel="noreferrer">
             Start your 7 days in Divine Path Walkers
           </a>
         </div>
@@ -135,7 +131,7 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
         <p>
           You finished the audit — this book is yours, free. Tell us where to send it and your
           download will appear right here, along with 7-day access to the{" "}
-          <a href="https://beyondtheveil.support" target="_blank" rel="noreferrer">
+          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
             Divine Path Walkers community
           </a>
           .

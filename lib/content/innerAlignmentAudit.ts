@@ -6,12 +6,15 @@
  * — do not paraphrase without an author's approval.
  */
 
+import { COMMUNITY_URL } from "@/lib/links";
+
 export const IAA_META = {
   title: "The Inner Alignment Audit",
   subtitle:
     "A premium self-diagnostic to locate drift, restore clarity, and rebuild alignment — without shame, striving, or spiritual performance.",
   byline: "Truth J Blue",
-  ctaUrl: "https://beyondtheveil.support",
+  /** Where "the Divine Path Walkers community" points, on /audit. */
+  ctaUrl: COMMUNITY_URL,
 };
 
 /** The Likert scale, printed identically under every scored item. */
