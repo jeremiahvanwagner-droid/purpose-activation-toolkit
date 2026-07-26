@@ -14,5 +14,11 @@ export const COMMUNITY_URL = "https://www.skool.com/divine-path-walkers-8031";
  *  Deliberately NOT the community link; these are two different places. */
 export const BEYOND_THE_VEIL_URL = "https://beyondtheveil.support";
 
+/** The GHL payment link the $247 Toolkit is sold through. This id is also how
+ *  a transaction is recognised as a Toolkit purchase (it arrives on the payment
+ *  record as `entitySourceId`), so the checkout URL and the entitlement matcher
+ *  in /api/entitlement-sync can never drift apart. */
+export const TOOLKIT_PAYMENT_LINK_ID = "696ec80453f21b434dfae38d";
+
 /** GHL payment link for the $247 Purpose Activation Toolkit. */
-export const CHECKOUT_URL = "https://site.truthjblue.com/payment-link/696ec80453f21b434dfae38d";
+export const CHECKOUT_URL = `https://site.truthjblue.com/payment-link/${TOOLKIT_PAYMENT_LINK_ID}`;

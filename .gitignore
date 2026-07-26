@@ -14,9 +14,10 @@
 *.tsbuildinfo
 next-env.d.ts
 
-# local env files
+# local env files — .env.example is tracked deliberately and re-allowed below
 .env
-.env*.local
+.env*
+!.env.example
 
 # vercel
 .vercel
