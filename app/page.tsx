@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BEYOND_THE_VEIL_URL, CHECKOUT_URL } from "@/lib/links";
+import CheckoutLink from "@/components/CheckoutLink";
+import { BEYOND_THE_VEIL_URL } from "@/lib/links";
 
 /**
  * Marketing landing — the public face at "/".
@@ -257,15 +258,10 @@ export default function Landing() {
               Take the free Audit
               <span className="mk-btn-note">Your first step ✦</span>
             </Link>
-            <a
-              className="mk-btn mk-btn-ghost"
-              href={CHECKOUT_URL}
-              target="_blank"
-              rel="noreferrer"
-            >
+            <CheckoutLink className="mk-btn mk-btn-ghost">
               Get the Toolkit
               <span className="mk-btn-note">$247 · Lifetime access</span>
-            </a>
+            </CheckoutLink>
           </div>
           <p className="mk-assist">
             Already have access?{" "}

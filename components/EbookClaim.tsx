@@ -15,6 +15,7 @@
 
 import { useEffect, useState } from "react";
 import { COMMUNITY_URL } from "@/lib/links";
+import { track } from "@/lib/metaPixel";
 
 const CLAIM_KEY = "pat:ebookClaimed:v1";
 const FALLBACK_URL = process.env.NEXT_PUBLIC_EBOOK_URL ?? "";
@@ -80,6 +81,12 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
       } catch {
         /* non-fatal */
       }
+      // The lead is the address reaching the CRM, so this fires here and not on
+      // the restore-from-localStorage path (a returning reader is not a new
+      // lead) or the offline fallback below (that reader's email never landed).
+      // No value: the eBook is a gift, and pricing a gift would poison the
+      // optimisation signal for the $247 Toolkit.
+      track("Lead", { content_name: "You Were Created to Serve" });
       setState("claimed");
     } catch {
       // Network failure. If we have a build-time URL, honour the promise anyway.

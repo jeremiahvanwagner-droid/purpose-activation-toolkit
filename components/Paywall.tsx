@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import AccountWidget from "@/components/AccountWidget";
+import CheckoutLink from "@/components/CheckoutLink";
 import { PAT_PRODUCT_ID, useEntitlement } from "@/lib/entitlements";
-import { CHECKOUT_URL } from "@/lib/links";
 
 /**
  * Wraps a paid route. Signed-out users see a warm sign-in prompt; signed-in
@@ -52,14 +52,7 @@ export default function Paywall({ children }: { children: React.ReactNode }) {
         </p>
 
         <div className="paywall-cta">
-          <a
-            className="btn gold"
-            href={CHECKOUT_URL}
-            target="_blank"
-            rel="noreferrer"
-          >
-            Get the Toolkit — $247
-          </a>
+          <CheckoutLink className="btn gold">Get the Toolkit — $247</CheckoutLink>
           <Link className="btn ghost" href="/audit">
             Or take the free Audit
           </Link>
