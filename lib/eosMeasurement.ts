@@ -362,3 +362,78 @@ export async function sendGa4Event(input: Ga4EventInput): Promise<SinkOutcome> {
     return "error:ga4-network";
   }
 }
+
+export type GhlTrialTagInput = {
+  email: string;
+  name?: string | null;
+};
+
+/**
+ * The sink that starts the customer's onboarding. The 9-email "EOS Trial
+ * Activation" workflow in the TJB sub-account triggers on the
+ * `eos-trial-started` contact tag — but SaaS checkouts happen on
+ * buy.stripe.com and never create a TJB contact by themselves, so without
+ * this handoff the sequence can never fire for a real buyer (found the hard
+ * way on Aug 11: the first real customer received a wrong-brand email and
+ * none of ours).
+ *
+ * The raw email exists only in the Stripe payload at delivery time — the
+ * funnel ledger stores a hash — so this is called from the webhook route,
+ * the one place that has it.
+ *
+ * Two calls, not one: upsert-with-tags can REPLACE a contact's existing tag
+ * set, while POST /contacts/{id}/tags is additive. Slower, deterministic.
+ */
+export async function sendGhlTrialTag(input: GhlTrialTagInput): Promise<SinkOutcome> {
+  const token = process.env.GHL_TJB_PIT?.trim();
+  const locationId = process.env.GHL_TJB_LOCATION_ID?.trim();
+  if (!token || !locationId) return "skipped:not-configured";
+
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Version: "2021-07-28",
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+
+  try {
+    const upsertRes = await fetch("https://services.leadconnectorhq.com/contacts/upsert", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        locationId,
+        email: input.email,
+        ...(input.name ? { name: input.name } : {}),
+        source: "empowerment-os-trial",
+      }),
+      cache: "no-store",
+    });
+    if (!upsertRes.ok) {
+      const detail = (await upsertRes.text()).slice(0, 300);
+      console.error("[eos-measurement] GHL upsert failed:", upsertRes.status, detail);
+      return `error:ghl-upsert-${upsertRes.status}`;
+    }
+    const upsert = (await upsertRes.json()) as { contact?: { id?: string } };
+    const contactId = upsert.contact?.id;
+    if (!contactId) {
+      console.error("[eos-measurement] GHL upsert returned no contact id");
+      return "error:ghl-no-contact-id";
+    }
+
+    const tagRes = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ tags: ["eos-trial-started"] }),
+      cache: "no-store",
+    });
+    if (!tagRes.ok) {
+      const detail = (await tagRes.text()).slice(0, 300);
+      console.error("[eos-measurement] GHL tag failed:", tagRes.status, detail);
+      return `error:ghl-tag-${tagRes.status}`;
+    }
+    return "sent";
+  } catch (err) {
+    console.error("[eos-measurement] GHL error:", err);
+    return "error:ghl-network";
+  }
+}

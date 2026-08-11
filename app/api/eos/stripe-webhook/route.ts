@@ -38,6 +38,7 @@ import {
   intervalFromStripe,
   isoFromEpoch,
   sendGa4Event,
+  sendGhlTrialTag,
   sendMetaEvent,
   sha256Hex,
   tierFromCents,
@@ -357,7 +358,16 @@ export async function POST(req: Request) {
   let sinks: Record<string, SinkOutcome> | null = null;
 
   if (result.funnel_event === "trial_started") {
-    const [meta, ga4] = await Promise.all([
+    // The raw email exists only here, in this event's payload — the ledger
+    // keeps a hash. So the CRM handoff happens now or never: upsert the buyer
+    // into the TJB sub-account and apply the tag that starts the onboarding
+    // sequence. `object` is the checkout session (trial_started can only come
+    // from checkout.session.completed).
+    const buyerDetails = object.customer_details as Record<string, unknown> | undefined;
+    const buyerEmail = str(buyerDetails?.email) ?? str(object.customer_email);
+    const buyerName = str(buyerDetails?.name);
+
+    const [meta, ga4, ghl] = await Promise.all([
       sendMetaEvent({
         eventName: "StartTrial",
         eventId,
@@ -382,8 +392,11 @@ export async function POST(req: Request) {
         click,
         fallbackClientId: subscriptionId ?? eventId,
       }),
+      buyerEmail
+        ? sendGhlTrialTag({ email: buyerEmail, name: buyerName ?? null })
+        : Promise.resolve<SinkOutcome>("error:ghl-no-email-in-session"),
     ]);
-    sinks = { meta, ga4 };
+    sinks = { meta, ga4, ghl };
   }
 
   if (result.funnel_event === "first_payment") {
