@@ -151,6 +151,12 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .mod.active .star .dot { background: var(--gold-bright); border-color: var(--gold-bright);
   box-shadow: 0 0 0 4px var(--navy-deep), 0 0 16px 2px rgba(231, 201, 127, 0.7); }
 .mod.done .star .dot { background: var(--sage); border-color: var(--sage); }
+/* Kicker, title, and blurb must stack. Their parent .label is a grid item
+   (blockified automatically), but these spans are inline by default — without
+   this rule they flow into one jammed line ("MODULE 1Purpose Activation…")
+   and their margin-tops do nothing. */
+.mod .m-k, .mod .m-t, .mod .m-d { display: block; }
+.mod .label { min-width: 0; }
 .mod .m-k { font-size: 0.58rem; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(231, 201, 127, 0.7); }
 .mod .m-t { font-family: var(--serif); font-size: 0.98rem; color: #F1EAD7; margin-top: 2px; line-height: 1.2; }
 .mod .m-d { font-size: 0.72rem; color: rgba(233, 223, 203, 0.62); margin-top: 3px; }
