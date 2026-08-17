@@ -16,13 +16,25 @@
 import { useEffect, useState } from "react";
 import { COMMUNITY_URL } from "@/lib/links";
 import { track } from "@/lib/metaPixel";
+import { CLAIM_KEY, writeClaim } from "@/lib/auditClaim";
 
-const CLAIM_KEY = "pat:ebookClaimed:v1";
 const FALLBACK_URL = process.env.NEXT_PUBLIC_EBOOK_URL ?? "";
 
 type State = "idle" | "sending" | "claimed" | "error";
 
-export default function EbookClaim({ profile }: { profile?: unknown }) {
+/** `gift` — the original post-result thank-you.
+ *  `unlock` — the same form standing in front of the Alignment Profile, which
+ *  is the only place a reader is asked for an address. Identical mechanics; the
+ *  copy differs because the promise differs. */
+type Variant = "gift" | "unlock";
+
+export default function EbookClaim({
+  profile,
+  variant = "gift",
+}: {
+  profile?: unknown;
+  variant?: Variant;
+}) {
   const [state, setState] = useState<State>("idle");
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
@@ -76,11 +88,9 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
       }
       setUrl(link);
       setEmailed(Boolean(data.synced));
-      try {
-        localStorage.setItem(CLAIM_KEY, link);
-      } catch {
-        /* non-fatal */
-      }
+      // Shared write: also notifies the audit page so the profile unlocks in
+      // the same tick, without a reload.
+      writeClaim(link);
       // The lead is the address reaching the CRM, so this fires here and not on
       // the restore-from-localStorage path (a returning reader is not a new
       // lead) or the offline fallback below (that reader's email never landed).
@@ -90,8 +100,18 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
       setState("claimed");
     } catch {
       // Network failure. If we have a build-time URL, honour the promise anyway.
+      // `writeClaim` runs here too even though the lead never landed: in the
+      // `unlock` variant this form stands in front of the reader's own result,
+      // and trapping them behind a network blip would be a worse failure than
+      // the lost address. Same priority the route itself takes.
       if (FALLBACK_URL) {
         setUrl(FALLBACK_URL);
+        writeClaim(FALLBACK_URL);
+        setState("claimed");
+        return;
+      }
+      if (variant === "unlock") {
+        writeClaim("");
         setState("claimed");
         return;
       }
@@ -132,17 +152,29 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
 
   return (
     <section className="card cta-card" id="gift">
-      <span className="tag">Your gift</span>
-      <h2>You Were Created to Serve</h2>
+      <span className="tag">{variant === "unlock" ? "Your result" : "Your gift"}</span>
+      <h2>{variant === "unlock" ? "See your Alignment Profile" : "You Were Created to Serve"}</h2>
       <div className="body-copy">
-        <p>
-          You finished the audit — this book is yours, free. Tell us where to send it and your
-          download will appear right here, along with 7-day access to the{" "}
-          <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
-            Divine Path Walkers community
-          </a>
-          .
-        </p>
+        {variant === "unlock" ? (
+          <p>
+            All 28 answered — your profile is ready. Tell us where to send it and it opens right
+            here, along with your free copy of <i>You Were Created to Serve</i> and 7-day access to
+            the{" "}
+            <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
+              Divine Path Walkers community
+            </a>
+            .
+          </p>
+        ) : (
+          <p>
+            You finished the audit — this book is yours, free. Tell us where to send it and your
+            download will appear right here, along with 7-day access to the{" "}
+            <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
+              Divine Path Walkers community
+            </a>
+            .
+          </p>
+        )}
       </div>
 
       <form onSubmit={submit} style={{ display: "grid", gap: 10, marginTop: 6, maxWidth: 420 }}>
@@ -184,7 +216,11 @@ export default function EbookClaim({ profile }: { profile?: unknown }) {
         />
 
         <button className="btn gold" type="submit" disabled={state === "sending"}>
-          {state === "sending" ? "Sending…" : "Send me the book"}
+          {state === "sending"
+            ? "Sending…"
+            : variant === "unlock"
+              ? "Show my Alignment Profile"
+              : "Send me the book"}
         </button>
 
         {error ? (

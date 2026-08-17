@@ -6,6 +6,7 @@ import AlignmentProfile from "@/components/AlignmentProfile";
 import EbookClaim from "@/components/EbookClaim";
 import Reflection from "@/components/Reflection";
 import { useResponses } from "@/lib/store";
+import { useAuditClaim } from "@/lib/auditClaim";
 import {
   DOMAINS,
   IAA_META,
@@ -25,6 +26,14 @@ export default function AuditPage() {
   const all = useResponses();
   const score = scoreAudit(all as Record<string, unknown>);
   const complete = score.complete;
+
+  // The result is the thing worth an address, so it is what we ask for one in
+  // front of. `claimed` is null until localStorage has been read — treat that
+  // as "undetermined" rather than "not claimed", or a returning reader sees the
+  // form flash over a profile they already paid for with their email.
+  const { claimed } = useAuditClaim();
+  const unlocked = complete && claimed === true;
+  const needsEmail = complete && claimed === false;
 
   return (
     <div className="canvas-inner">
@@ -48,20 +57,29 @@ export default function AuditPage() {
 
       <AuditRunner />
 
-      {/* Results — always rendered so users can watch the progress bar fill; unlocks at 28/28 */}
-      <section className="card" id="profile">
-        <span className="tag">Your Result</span>
-        <h2>Your Alignment Profile</h2>
-        <p className="hint">
-          Four domains, each scored out of 35. The domain carrying the most tension is your primary lever —
-          your best first move.
-        </p>
-        <AlignmentProfile />
-      </section>
+      {/* Results. While incomplete this stays visible so the progress bar can
+          fill — that anticipation is what makes finishing feel worth it. At
+          28/28 the scores sit behind one email; see `needsEmail` above. */}
+      {needsEmail ? (
+        <EbookClaim variant="unlock" profile={score} />
+      ) : (
+        <section className="card" id="profile">
+          <span className="tag">Your Result</span>
+          <h2>Your Alignment Profile</h2>
+          <p className="hint">
+            Four domains, each scored out of 35. The domain carrying the most tension is your primary lever —
+            your best first move.
+          </p>
+          {/* claimed === null means localStorage hasn't been read yet. Render the
+              profile only when we know the reader is entitled to it; while
+              incomplete it is safe either way, since there is nothing to reveal. */}
+          {complete && claimed !== true ? null : <AlignmentProfile />}
+        </section>
+      )}
 
       {/* Everything from here down references the profile above ("your primary lever…"),
           so we hide it until the profile has actually appeared. */}
-      {complete ? (
+      {unlocked ? (
         <>
           {/* Interpretation */}
           <section className="card">
@@ -131,7 +149,7 @@ export default function AuditPage() {
             ))}
           </section>
         </>
-      ) : (
+      ) : !complete ? (
         <section className="card">
           <span className="tag">Coming next</span>
           <h2>What you'll see when you finish</h2>
@@ -140,12 +158,12 @@ export default function AuditPage() {
             alignment statement, and space for deeper reflection.
           </p>
         </section>
-      )}
+      ) : null}
 
       {/* The gift is the reward for finishing, so it sits above the upsell and
           only appears at 28/28. Delivery is immediate on-page; the emailed copy
           is a convenience. */}
-      {complete ? <EbookClaim profile={score} /> : null}
+      {unlocked ? <EbookClaim profile={score} /> : null}
 
       {/* Next step CTA — always visible so the funnel isn't gated behind completion */}
       <section className="card cta-card">
