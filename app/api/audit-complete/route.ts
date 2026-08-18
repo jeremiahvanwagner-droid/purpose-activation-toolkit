@@ -23,6 +23,18 @@ const GHL_VERSION = "2021-07-28";
 /** Tags the GHL delivery workflow keys off of. */
 const AUDIT_TAGS = ["audit-completed", "interest:audit"];
 
+// Where a captured lead lands in the CRM. Env-overridable because rebuilding a
+// pipeline in GHL mints new ids, and a silent id mismatch would drop every
+// opportunity while the contact upsert kept succeeding — the hardest kind of
+// failure to notice. Defaults are the live `TJB — Funnel` ids as of 2026-08-18.
+const FUNNEL_PIPELINE_ID =
+  process.env.GHL_PIPELINE_ID_TJB_FUNNEL?.trim() || "g57dm2tcBSQ1vcnpu2ng";
+const AUDIT_STAGE_ID =
+  process.env.GHL_STAGE_ID_AUDIT_COMPLETED?.trim() || "26e8231f-4a9b-411c-8836-b160cb578dd5";
+
+/** The Purpose Activation Toolkit is the sale this lead is worth if it converts. */
+const OPPORTUNITY_VALUE = 247;
+
 type Payload = {
   email?: unknown;
   name?: unknown;
@@ -42,22 +54,29 @@ function normalizeEmail(raw: unknown): string | null {
   return email;
 }
 
-/** Upsert the lead into GHL and tag them so the delivery workflow fires.
- *  Never throws — returns whether it landed, for logging only. */
+/** Upsert the lead into GHL and tag them so the delivery workflow fires, then
+ *  put them in the pipeline so the lead is countable rather than just present.
+ *
+ *  Both halves are best-effort and independent: a contact with no opportunity
+ *  is a lead we can still email, so a pipeline failure must never cost us the
+ *  contact. Never throws — returns whether the contact landed, for logging. */
 async function syncToGhl(email: string, name: string | null): Promise<boolean> {
   const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
   const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
   if (!token || !locationId) return false;
 
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    Version: GHL_VERSION,
+    "Content-Type": "application/json",
+    Accept: "application/json",
+  };
+
+  let contactId: string | null = null;
   try {
     const res = await fetch(`${GHL_BASE}/contacts/upsert`, {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Version: GHL_VERSION,
-        "Content-Type": "application/json",
-        Accept: "application/json",
-      },
+      headers,
       body: JSON.stringify({
         locationId,
         email,
@@ -70,10 +89,53 @@ async function syncToGhl(email: string, name: string | null): Promise<boolean> {
       console.error("[audit-complete] GHL upsert failed:", res.status, (await res.text()).slice(0, 300));
       return false;
     }
-    return true;
+    const body = (await res.json()) as { contact?: { id?: string } };
+    contactId = body?.contact?.id ?? null;
   } catch (err) {
     console.error("[audit-complete] GHL upsert error:", err);
     return false;
+  }
+
+  // The contact is safe at this point. Everything below is upside.
+  if (contactId) await createOpportunity(headers, locationId, contactId, name);
+  return true;
+}
+
+/** Place the lead in `TJB — Funnel` at "Audit Completed".
+ *
+ *  Uses /opportunities/upsert, not /opportunities/, because a reader who claims
+ *  twice must not produce two opportunities. Verified against the live API:
+ *  the second call returns the same opportunity id with `new: false`.
+ *  Never throws — a missing opportunity costs us reporting, not the lead. */
+async function createOpportunity(
+  headers: Record<string, string>,
+  locationId: string,
+  contactId: string,
+  name: string | null,
+): Promise<void> {
+  try {
+    const res = await fetch(`${GHL_BASE}/opportunities/upsert`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        locationId,
+        contactId,
+        pipelineId: FUNNEL_PIPELINE_ID,
+        pipelineStageId: AUDIT_STAGE_ID,
+        name: `${name ?? "Audit lead"} — Inner Alignment Audit`,
+        status: "open",
+        monetaryValue: OPPORTUNITY_VALUE,
+      }),
+    });
+    if (!res.ok) {
+      console.error(
+        "[audit-complete] opportunity upsert failed:",
+        res.status,
+        (await res.text()).slice(0, 300),
+      );
+    }
+  } catch (err) {
+    console.error("[audit-complete] opportunity upsert error:", err);
   }
 }
 
