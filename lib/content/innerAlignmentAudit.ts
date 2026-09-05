@@ -17,8 +17,12 @@ export const IAA_META = {
   ctaUrl: COMMUNITY_URL,
   /** The same Audit is sold in the Truth J Blue store at $97; here it is the
    *  free lead magnet. Stating the store price is the value anchor for the gift.
-   *  Plain text until the store is live — then this becomes a link. */
-  storeNote: "Sold in the Truth J Blue store for $97 — yours here as our gift.",
+   *  Three parts so the page can link the store's name (STORE_AUDIT_PATH). */
+  storeNote: {
+    lead: "Sold in the ",
+    linkText: "Truth J Blue store",
+    tail: " for $97 — yours here as our gift.",
+  },
 };
 
 /** The Likert scale, printed identically under every scored item. */

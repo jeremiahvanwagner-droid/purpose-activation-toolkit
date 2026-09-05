@@ -7,6 +7,7 @@ import EbookClaim from "@/components/EbookClaim";
 import Reflection from "@/components/Reflection";
 import { useResponses } from "@/lib/store";
 import { useAuditClaim } from "@/lib/auditClaim";
+import { STORE_AUDIT_PATH } from "@/lib/links";
 import {
   DOMAINS,
   IAA_META,
@@ -41,7 +42,13 @@ export default function AuditPage() {
         <div className="eyebrow">Beyond the Veil · Inner Alignment Audit</div>
         <h1 className="page-title">{IAA_META.title}</h1>
         <p className="lede">{IAA_META.subtitle}</p>
-        <p className="store-note">{IAA_META.storeNote}</p>
+        <p className="store-note">
+          {IAA_META.storeNote.lead}
+          <Link href={STORE_AUDIT_PATH} style={{ color: "inherit", textDecoration: "underline" }}>
+            {IAA_META.storeNote.linkText}
+          </Link>
+          {IAA_META.storeNote.tail}
+        </p>
       </header>
 
       <div className="card">

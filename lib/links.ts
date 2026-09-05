@@ -22,3 +22,10 @@ export const TOOLKIT_PAYMENT_LINK_ID = "696ec80453f21b434dfae38d";
 
 /** GHL payment link for the $247 Purpose Activation Toolkit. */
 export const CHECKOUT_URL = `https://site.truthjblue.com/payment-link/${TOOLKIT_PAYMENT_LINK_ID}`;
+
+/** The storefront's own hostname (served by this app; see middleware.ts). */
+export const STORE_URL = "https://store.truthjblue.com";
+
+/** The Audit as sold in the store. A same-host path on purpose: it resolves
+ *  from www.truthjblue.com whether or not the store hostname has moved yet. */
+export const STORE_AUDIT_PATH = "/store/product/inner-alignment-audit";
