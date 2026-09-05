@@ -3,6 +3,18 @@ const nextConfig = {
   reactStrictMode: true,
 
   /**
+   * Storefront product images live on HighLevel's media CDNs. The originals
+   * are multi-megabyte PNGs; next/image resizes and re-encodes them on the
+   * way through, which is the only reason the store can use them at all.
+   */
+  images: {
+    remotePatterns: [
+      { protocol: 'https', hostname: 'storage.googleapis.com', pathname: '/msgsndr/**' },
+      { protocol: 'https', hostname: 'assets.cdn.filesafe.space' },
+    ],
+  },
+
+  /**
    * The brand-site pages (/start, /books, /about, /connect, /legal) are
    * static HTML built by the Astro repo (truthjblue-website) and vendored
    * into public/. That repo has no Vercel project of its own, and this
