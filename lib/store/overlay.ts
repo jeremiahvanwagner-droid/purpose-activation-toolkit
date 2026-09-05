@@ -13,7 +13,7 @@
  */
 
 import type { CheckoutAction } from "@/components/store/CheckoutButton";
-import { CHECKOUT_URL } from "@/lib/links";
+import { AUDIT_CHECKOUT_URL, CHECKOUT_URL, PAID_AUDIT_PATH } from "@/lib/links";
 
 export type CollectionKey =
   | "start-here"
@@ -94,6 +94,8 @@ export type ProductMeta = {
   checkout: CheckoutAction;
   /** Small line under the checkout button. */
   note?: string;
+  /** For products delivered inside this app: where a buyer opens what they own. */
+  access?: { href: string; label: string };
   art:
     | { kind: "photo"; position?: string }
     | { kind: "plate"; title: string; accent?: string; variant?: 1 | 2 | 3 };
@@ -133,10 +135,15 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Self-diagnostic · four domains",
     tagline:
       "Twenty-eight honest statements across four domains of alignment, clear scoring, and a focused follow-up call to integrate what you find.",
-    checkout: { kind: "buy", href: `${PAYMENT_LINK}696e9d90b112a056c6a3f6c5`, label: "Get the Audit" },
-    note: "Secure checkout · results and next steps by email",
+    checkout: { kind: "buy", href: AUDIT_CHECKOUT_URL, label: "Get the Audit" },
+    note: "Instant access · sign in with the email you use at checkout",
+    access: { href: PAID_AUDIT_PATH, label: "Open your Audit" },
     art: { kind: "plate", title: "Inner Alignment", accent: "Audit", variant: 1 },
-    steps: STEPS_BUY,
+    steps: [
+      "Secure checkout on HighLevel, our payments platform.",
+      "Open your Audit at truthjblue.com/store/audit and sign in with the same email — it's waiting there.",
+      "Once your profile is revealed, book your follow-up call from inside the Audit.",
+    ],
   },
   {
     id: "696d7f574f705f240b0875fd",
@@ -149,6 +156,7 @@ export const PRODUCTS: ProductMeta[] = [
       "Four interactive modules that turn spiritual clarity into daily, aligned action. Every answer saves as you write it; the finished workbook is yours for life.",
     checkout: { kind: "buy", href: CHECKOUT_URL, label: "Get the Toolkit" },
     note: "Lifetime access · no subscription",
+    access: { href: "https://www.truthjblue.com/toolkit", label: "Sign in to the Toolkit" },
     art: { kind: "plate", title: "Purpose Activation", accent: "Toolkit", variant: 2 },
     steps: [
       "Secure checkout on HighLevel, our payments platform.",

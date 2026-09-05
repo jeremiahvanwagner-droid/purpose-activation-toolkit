@@ -4,11 +4,16 @@ import { useEffect, useState } from "react";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 
 /**
- * Passwordless (magic-link) sign-in, shown in the rail. Signing in turns on
- * cross-device sync (handled by SyncProvider). Renders nothing when Supabase
- * isn't configured, so the app stays fully usable local-only.
+ * Passwordless (magic-link) sign-in, shown in the rail and on paywalls.
+ * Signing in turns on cross-device sync (handled by SyncProvider). Renders
+ * nothing when Supabase isn't configured, so the app stays fully usable
+ * local-only.
+ *
+ * `redirectTo` is the path the magic link lands on — the Toolkit by default,
+ * or the paid page a reader was trying to open, so a buyer comes back to the
+ * thing they bought rather than to a dashboard they then have to leave.
  */
-export default function AccountWidget() {
+export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?: string }) {
   const supa = getSupabase();
   const [email, setEmail] = useState("");
   const [userEmail, setUserEmail] = useState<string | null>(null);
@@ -33,10 +38,10 @@ export default function AccountWidget() {
     setErr(null);
     const { error } = await supa.auth.signInWithOtp({
       email: addr,
-      // Land signed-in users straight in their toolkit, not the marketing page.
+      // Land signed-in users where they were headed, not on the marketing page.
       options: {
         emailRedirectTo:
-          typeof window !== "undefined" ? `${window.location.origin}/toolkit` : undefined,
+          typeof window !== "undefined" ? `${window.location.origin}${redirectTo}` : undefined,
       },
     });
     setBusy(false);

@@ -69,6 +69,14 @@ export default async function ProductPage({ params }: Params) {
                 amount={item.amount}
                 note={item.meta.note}
               />
+              {item.meta.access ? (
+                <p className="st-buy-note">
+                  Already purchased?{" "}
+                  <a href={item.meta.access.href} style={{ color: "inherit", textDecoration: "underline" }}>
+                    {item.meta.access.label}
+                  </a>
+                </p>
+              ) : null}
               <p className="st-buy-note">
                 {item.meta.checkout.kind === "buy"
                   ? "Opens our secure checkout on HighLevel. No account needed."

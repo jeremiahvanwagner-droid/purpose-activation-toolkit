@@ -1,7 +1,7 @@
 // Entitlement sync — the bridge from "they paid" to "they can get in".
 //
-// The original design routed GHL's payment.received webhook through OpenClaw on
-// the VPS, which was supposed to write public.entitlements. That path was never
+// The original design routed GHL's payment.received webhook through the VPS,
+// which was supposed to write public.entitlements. That path was never
 // finished: the VPS has never received a single payment event, its handler has
 // no Supabase write, and it holds no Supabase credentials. A real buyer would
 // have paid $247 and still hit the paywall.
@@ -18,20 +18,27 @@
 // body: we hand their access token back to Supabase and use the email it
 // returns. A caller can therefore only ever claim their OWN purchase, and only
 // if GHL genuinely records one against that address.
+//
+// The product is the one thing the caller may name. Each product is keyed to
+// the HighLevel payment link(s) it is sold through — the link id arrives on the
+// payment record as `entitySourceId` — so a discount, a promo, or a future
+// price change still grants access, and one product can never unlock another.
 
-import { TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
+import { AUDIT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 const GHL_VERSION = "2021-07-28";
 
-/** The product this route grants. Matches lib/entitlements.ts. */
-const PRODUCT_ID = "purpose-activation-toolkit";
+/** Products this route can grant, and the payment links that sell each.
+ *  Ids match lib/entitlements.ts. Historical links belong here too — someone
+ *  who bought at an old price still bought the product. */
+const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
+  "purpose-activation-toolkit": { sourceIds: new Set([TOOLKIT_PAYMENT_LINK_ID]) },
+  "inner-alignment-audit": { sourceIds: new Set([AUDIT_PAYMENT_LINK_ID]) },
+};
 
-/** A purchase counts as the Toolkit when it came through one of these GHL
- *  payment links. Keyed on the link rather than the price so a discount, a
- *  promo, or a future price change still grants access. Historical links belong
- *  here too — someone who bought at the old price still bought the Toolkit. */
-const TOOLKIT_SOURCE_IDS = new Set<string>([TOOLKIT_PAYMENT_LINK_ID]);
+/** Old clients sent no body; they were all asking about the Toolkit. */
+const DEFAULT_PRODUCT_ID = "purpose-activation-toolkit";
 
 /** Test-mode charges must not open a paid product. Flip only to exercise the
  *  matcher against GHL's sandbox. */
@@ -70,8 +77,9 @@ async function emailFromAccessToken(token: string): Promise<string | null> {
   }
 }
 
-/** Every Toolkit purchase GHL has recorded against this email. */
-async function findToolkitPurchase(email: string): Promise<GhlTransaction | null> {
+/** The first succeeded, live purchase of one of `sourceIds` that GHL has
+ *  recorded against this email. */
+async function findPurchase(email: string, sourceIds: Set<string>): Promise<GhlTransaction | null> {
   const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
   const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
   if (!token || !locationId) return null;
@@ -105,7 +113,7 @@ async function findToolkitPurchase(email: string): Promise<GhlTransaction | null
     const match = rows.find((tx) => {
       if (tx.status !== "succeeded") return false;
       if (REQUIRE_LIVE_MODE && tx.liveMode !== true) return false;
-      if (!tx.entitySourceId || !TOOLKIT_SOURCE_IDS.has(tx.entitySourceId)) return false;
+      if (!tx.entitySourceId || !sourceIds.has(tx.entitySourceId)) return false;
       return (tx.contactEmail ?? "").trim().toLowerCase() === email;
     });
 
@@ -117,7 +125,7 @@ async function findToolkitPurchase(email: string): Promise<GhlTransaction | null
 }
 
 /** Write the entitlement. Idempotent on (email, product_id). */
-async function grant(email: string, tx: GhlTransaction): Promise<boolean> {
+async function grant(email: string, productId: string, tx: GhlTransaction): Promise<boolean> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) {
@@ -136,7 +144,7 @@ async function grant(email: string, tx: GhlTransaction): Promise<boolean> {
       },
       body: JSON.stringify({
         email,
-        product_id: PRODUCT_ID,
+        product_id: productId,
         purchased_at: tx.createdAt ?? new Date().toISOString(),
         source: "ghl-payments-sync",
         gross_amount: tx.amount ?? null,
@@ -160,6 +168,19 @@ async function grant(email: string, tx: GhlTransaction): Promise<boolean> {
   }
 }
 
+async function requestedProductId(req: Request): Promise<string | null> {
+  let productId: unknown = undefined;
+  try {
+    const body = (await req.json()) as { productId?: unknown };
+    productId = body?.productId;
+  } catch {
+    /* no body, or not JSON — an old client asking about the Toolkit */
+  }
+  if (productId === undefined || productId === null || productId === "") return DEFAULT_PRODUCT_ID;
+  if (typeof productId !== "string" || !(productId in PRODUCTS)) return null;
+  return productId;
+}
+
 export async function POST(req: Request) {
   const auth = req.headers.get("authorization") ?? "";
   const token = auth.toLowerCase().startsWith("bearer ") ? auth.slice(7).trim() : "";
@@ -167,18 +188,23 @@ export async function POST(req: Request) {
     return Response.json({ entitled: false, error: "Not signed in." }, { status: 401 });
   }
 
+  const productId = await requestedProductId(req);
+  if (!productId) {
+    return Response.json({ entitled: false, error: "Unknown product." }, { status: 400 });
+  }
+
   const email = await emailFromAccessToken(token);
   if (!email) {
     return Response.json({ entitled: false, error: "Could not verify your session." }, { status: 401 });
   }
 
-  const purchase = await findToolkitPurchase(email);
+  const purchase = await findPurchase(email, PRODUCTS[productId].sourceIds);
   if (!purchase) {
     // No purchase on file. Not an error — most callers are readers who haven't
     // bought yet, and the paywall's unlock screen is the correct answer.
-    return Response.json({ entitled: false, checked: true });
+    return Response.json({ entitled: false, checked: true, productId });
   }
 
-  const granted = await grant(email, purchase);
-  return Response.json({ entitled: granted, checked: true });
+  const granted = await grant(email, productId, purchase);
+  return Response.json({ entitled: granted, checked: true, productId });
 }
