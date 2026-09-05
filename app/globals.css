@@ -204,6 +204,9 @@ h1, h2, h3, h4 { text-wrap: balance; }
   letter-spacing: -0.01em; margin: 0.35rem 0 0; }
 .lede { font-size: var(--step-1); color: var(--ink-soft); line-height: 1.5; margin: 0.8rem 0 0;
   max-width: 60ch; font-family: var(--serif); font-style: italic; }
+/* Store-price anchor under the lede: the same Audit sells for $97 in the store. */
+.store-note { font-size: 0.86rem; color: var(--ink-soft); line-height: 1.5; margin: 0.6rem 0 0;
+  max-width: 60ch; }
 
 /* ---------------- meta bar ---------------- */
 .meta { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin: 22px 0 26px;

@@ -41,6 +41,7 @@ export default function AuditPage() {
         <div className="eyebrow">Beyond the Veil · Inner Alignment Audit</div>
         <h1 className="page-title">{IAA_META.title}</h1>
         <p className="lede">{IAA_META.subtitle}</p>
+        <p className="store-note">{IAA_META.storeNote}</p>
       </header>
 
       <div className="card">
