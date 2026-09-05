@@ -119,12 +119,10 @@ const STEPS_APPLY: [string, string, string] = [
   "No pressure and no obligation — an honest conversation first.",
 ];
 
+const PAYMENT_LINK = "https://site.truthjblue.com/payment-link/";
 const booking = (calendarId: string) => `https://site.truthjblue.com/widget/booking/${calendarId}`;
 const form = (formId: string) => `https://site.truthjblue.com/widget/form/${formId}`;
 
-/** A payment link that has not been created in HighLevel yet. The button
- *  renders, disabled and honest, until the link exists. */
-const PENDING: CheckoutAction = { kind: "pending", label: "Checkout opening shortly" };
 
 export const PRODUCTS: ProductMeta[] = [
   // ── Start here ──────────────────────────────────────────────────────────
@@ -135,7 +133,7 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Self-diagnostic · four domains",
     tagline:
       "Twenty-eight honest statements across four domains of alignment, clear scoring, and a focused follow-up call to integrate what you find.",
-    checkout: PENDING,
+    checkout: { kind: "buy", href: `${PAYMENT_LINK}696e9d90b112a056c6a3f6c5`, label: "Get the Audit" },
     note: "Secure checkout · results and next steps by email",
     art: { kind: "plate", title: "Inner Alignment", accent: "Audit", variant: 1 },
     steps: STEPS_BUY,
@@ -167,7 +165,7 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Self-paced mini-course",
     tagline:
       "Short teachings, guided exercises, and reflection prompts that help you actually do the inner work your Audit reveals.",
-    checkout: PENDING,
+    checkout: { kind: "buy", href: `${PAYMENT_LINK}69909e6c35e5ef228f37e300`, label: "Get the course" },
     note: "Secure checkout · instant access by email",
     art: { kind: "plate", title: "Inner-Work", accent: "Integration Course", variant: 3 },
     steps: STEPS_BUY,
@@ -179,7 +177,7 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Personalised written report",
     tagline:
       "A written Blueprint that reads the story behind your Audit scores and lays out a practical seven-day plan to begin shifting into deeper alignment.",
-    checkout: PENDING,
+    checkout: { kind: "buy", href: `${PAYMENT_LINK}6a9bf21cceb12d9fc1a8b419`, label: "Get your Blueprint" },
     note: "Secure checkout · delivered by email",
     art: { kind: "plate", title: "Divine Alignment", accent: "Blueprint", variant: 1 },
     description:
@@ -194,7 +192,7 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Beyond the Veil · the beginning",
     tagline:
       "The opening experience of the Beyond the Veil path — for seekers who are done collecting information and ready for embodiment.",
-    checkout: PENDING,
+    checkout: { kind: "buy", href: `${PAYMENT_LINK}6a9bf241a7f78e147447f113`, label: "Take the first step" },
     note: "Secure checkout · instant access by email",
     art: { kind: "plate", title: "First Step", accent: "Through the Veil", variant: 2 },
     description:
