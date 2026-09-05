@@ -42,6 +42,11 @@ export const AUDIT_REVIEW_CALENDAR_URL = "https://site.truthjblue.com/widget/boo
  *  parameter into a Content-Disposition: attachment with that filename. Without
  *  it the browser decides what to do with an EPUB — on 5 Sep that was a
  *  save-as dialog hidden behind the window, which read as a frozen site. */
+/** The same book as a PDF, served by this app. A PDF opens in any browser
+ *  tab; an EPUB opens in whatever the reader's device has associated with
+ *  it — on 5 Sep that turned out to be a desktop app that isn't a reader. */
+export const EBOOK_PDF_PATH = "/downloads/You-Were-Created-to-Serve.pdf";
+
 export function ebookDownloadUrl(url: string): string {
   if (!url) return "";
   return `${url}${url.includes("?") ? "&" : "?"}download=You-Were-Created-to-Serve.epub`;

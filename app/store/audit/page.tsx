@@ -7,7 +7,7 @@ import AuditRunner from "@/components/AuditRunner";
 import Paywall, { type PaywallProduct } from "@/components/Paywall";
 import { IAA_META, scoreAudit } from "@/lib/content/innerAlignmentAudit";
 import { IAA_PRODUCT_ID } from "@/lib/entitlements";
-import { AUDIT_CHECKOUT_URL, AUDIT_PAYMENT_LINK_ID, AUDIT_REVIEW_CALENDAR_URL, PAID_AUDIT_PATH, ebookDownloadUrl } from "@/lib/links";
+import { AUDIT_CHECKOUT_URL, AUDIT_PAYMENT_LINK_ID, AUDIT_REVIEW_CALENDAR_URL, EBOOK_PDF_PATH, PAID_AUDIT_PATH, ebookDownloadUrl } from "@/lib/links";
 import { useResponses } from "@/lib/store";
 
 const EBOOK_URL = ebookDownloadUrl(process.env.NEXT_PUBLIC_EBOOK_URL ?? "");
@@ -141,15 +141,20 @@ function PaidAudit() {
         </section>
       )}
 
-      {EBOOK_URL ? (
+      {EBOOK_PDF_PATH ? (
         <section className="card">
           <span className="tag">Also yours</span>
           <h2>You Were Created to Serve</h2>
-          <p className="hint">The eBook that accompanies the Audit. It downloads as an EPUB — open it in Apple Books, Google Play Books, or any reader.</p>
+          <p className="hint">The eBook that accompanies the Audit — read it as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader.</p>
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
-            <a className="btn ghost" href={EBOOK_URL} rel="noreferrer">
-              Download the eBook
+            <a className="btn gold" href={EBOOK_PDF_PATH} target="_blank" rel="noreferrer">
+              Read the eBook (PDF)
             </a>
+            {EBOOK_URL ? (
+              <a className="btn ghost" href={EBOOK_URL} rel="noreferrer">
+                EPUB for e-readers
+              </a>
+            ) : null}
           </div>
         </section>
       ) : null}

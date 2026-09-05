@@ -14,7 +14,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { COMMUNITY_URL, ebookDownloadUrl } from "@/lib/links";
+import { COMMUNITY_URL, EBOOK_PDF_PATH, ebookDownloadUrl } from "@/lib/links";
 import { track } from "@/lib/metaPixel";
 import { CLAIM_KEY, writeClaim } from "@/lib/auditClaim";
 
@@ -131,15 +131,20 @@ export default function EbookClaim({
           <p>
             {url
               ? emailed
-                ? "It's yours — download it right here (an EPUB, for Apple Books, Google Play Books or any reader). We've also sent a copy to your inbox so you can read it on any device."
-                : "It's yours — download it right here (an EPUB, for Apple Books, Google Play Books or any reader). Save the file somewhere you'll find it again."
+                ? "It's yours — read it right here as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader. We've also sent a copy to your inbox so you can read it on any device."
+                : "It's yours — read it right here as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader. Save the file somewhere you'll find it again."
               : "Thank you — your copy is on its way to your inbox."}
           </p>
         </div>
         <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
           {url ? (
-            <a className="btn gold" href={ebookDownloadUrl(url)} rel="noreferrer">
-              Download the eBook
+            <a className="btn gold" href={EBOOK_PDF_PATH} target="_blank" rel="noreferrer">
+              Read the eBook (PDF)
+            </a>
+          ) : null}
+          {url ? (
+            <a className="btn ghost" href={ebookDownloadUrl(url)} rel="noreferrer">
+              EPUB for e-readers
             </a>
           ) : null}
           <a className="btn ghost" href={COMMUNITY_URL} target="_blank" rel="noreferrer">
