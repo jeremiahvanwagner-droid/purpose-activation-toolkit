@@ -24,8 +24,11 @@ export function middleware(req: NextRequest) {
   // The paid Audit is taken on www: a reader's sign-in session and saved
   // answers live per origin, and the magic link lands on www. Sending the
   // store hostname's /audit there keeps one identity for one buyer.
-  if (pathname === "/audit") {
-    return NextResponse.redirect(new URL(`/store/audit${req.nextUrl.search}`, "https://www.truthjblue.com"), 307);
+  if (pathname === "/audit" || pathname === "/blueprint") {
+    return NextResponse.redirect(
+      new URL(`/store${pathname}${req.nextUrl.search}`, "https://www.truthjblue.com"),
+      307
+    );
   }
 
   if (pathname === "/store" || pathname.startsWith("/store/")) {

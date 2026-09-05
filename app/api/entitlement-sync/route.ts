@@ -24,7 +24,7 @@
 // payment record as `entitySourceId` — so a discount, a promo, or a future
 // price change still grants access, and one product can never unlock another.
 
-import { AUDIT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
+import { AUDIT_PAYMENT_LINK_ID, BLUEPRINT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
 
 const GHL_BASE = "https://services.leadconnectorhq.com";
 const GHL_VERSION = "2021-07-28";
@@ -35,6 +35,7 @@ const GHL_VERSION = "2021-07-28";
 const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
   "purpose-activation-toolkit": { sourceIds: new Set([TOOLKIT_PAYMENT_LINK_ID]) },
   "inner-alignment-audit": { sourceIds: new Set([AUDIT_PAYMENT_LINK_ID]) },
+  "divine-alignment-blueprint": { sourceIds: new Set([BLUEPRINT_PAYMENT_LINK_ID]) },
 };
 
 /** Old clients sent no body; they were all asking about the Toolkit. */

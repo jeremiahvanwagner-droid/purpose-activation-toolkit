@@ -313,3 +313,89 @@
   .st-book-row { grid-template-columns: 84px 1fr; gap: 14px; }
   .st-buy-price .st-price { font-size: 1.7rem; }
 }
+
+/* ============================================================
+   THE BLUEPRINT — the reader's own document, at /store/blueprint.
+   Built to be read on screen and saved as a PDF, so every rule
+   here has a print counterpart at the bottom.
+   ============================================================ */
+
+.bp-actions { margin-top: 20px; }
+.bp-actions .btn { cursor: pointer; }
+
+/* Four scores at a glance. The lever is ringed in gold, never in red — a
+   low domain is the place with the most to give back, not a failure. */
+.bp-scores { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-top: 18px; }
+.bp-score {
+  position: relative; border: 1px solid var(--line); border-radius: var(--radius-sm);
+  background: var(--surface-2); padding: 16px 14px 14px; text-align: center;
+}
+.bp-score.lever { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); }
+.bp-tag {
+  position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+  font-size: 0.54rem; letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600;
+  color: #20180A; background: linear-gradient(180deg, var(--gold-bright), var(--gold));
+  padding: 3px 9px; border-radius: 99px; white-space: nowrap;
+}
+.bp-score-name { font-size: 0.72rem; letter-spacing: 0.06em; color: var(--ink-soft); line-height: 1.3; min-height: 2.6em; display: flex; align-items: center; justify-content: center; }
+.bp-score-n { font-family: var(--serif); font-size: 1.9rem; line-height: 1; color: var(--ink); font-variant-numeric: tabular-nums; margin: 4px 0 6px; }
+.bp-score-n span { font-size: 0.8rem; color: var(--slate); }
+.bp-score-band { font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bp-score-band { color: var(--gold-bright); } }
+:root[data-theme="dark"] .bp-score-band { color: var(--gold-bright); }
+
+/* Domain-by-domain reading */
+.bp-reading { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+.bp-reading:first-of-type { border-top: none; padding-top: 4px; }
+.bp-reading-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+.bp-reading-name { font-family: var(--serif); font-size: 1.12rem; color: var(--ink); }
+.bp-reading-meta { font-size: 0.72rem; letter-spacing: 0.08em; color: var(--slate); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.bp-reading p { font-size: 0.94rem; line-height: 1.65; color: var(--ink-soft); margin: 0; max-width: 64ch; }
+
+.bp-invitation {
+  font-family: var(--serif); font-style: italic; font-size: 1.15rem; color: var(--ink);
+  border-left: 2px solid var(--gold); padding-left: 14px; margin: 18px 0 0;
+}
+
+/* The seven days */
+.bp-plan { list-style: none; padding: 0; margin: 18px 0 0; display: grid; gap: 14px; }
+.bp-plan li { display: grid; grid-template-columns: 68px 1fr; gap: 14px; align-items: start; break-inside: avoid; }
+.bp-day { font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-deep); padding-top: 4px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bp-day { color: var(--gold-bright); } }
+:root[data-theme="dark"] .bp-day { color: var(--gold-bright); }
+.bp-day-title { font-family: var(--serif); font-size: 1.05rem; color: var(--ink); margin-bottom: 3px; }
+.bp-plan p { font-size: 0.92rem; line-height: 1.6; color: var(--ink-soft); margin: 0; max-width: 62ch; }
+
+.bp-sign { font-family: var(--serif); font-style: italic; color: var(--gold-deep); margin: 14px 0 0; font-size: 0.95rem; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bp-sign { color: var(--gold-bright); } }
+:root[data-theme="dark"] .bp-sign { color: var(--gold-bright); }
+
+@media (max-width: 560px) {
+  .bp-plan li { grid-template-columns: 1fr; gap: 4px; }
+  .bp-day { padding-top: 0; }
+}
+
+/* ---- saved as a PDF ------------------------------------------------
+   Everything that belongs to the shop — nav, footer, the cross-sell, the
+   button that produced the file — comes off, and the document prints on
+   white with its own page breaks. */
+@media print {
+  .st-nav, .st-foot, .bp-actions, .bp-hide-print { display: none !important; }
+  .st, body { background: #fff !important; }
+  .bp, .bp * { color: #16181d !important; }
+  .bp .card {
+    background: #fff !important; border: none; border-top: 1px solid #ddd8cc;
+    box-shadow: none !important; border-radius: 0; padding: 18px 0 0;
+    margin: 0 0 14px; break-inside: avoid;
+  }
+  .bp header { padding-bottom: 6px; }
+  .bp .canvas-inner, .canvas-inner { padding: 0 !important; max-width: none; }
+  .bp .page-title { font-size: 26pt; }
+  .bp .lede { font-size: 12pt; }
+  .bp .tag, .bp .st-section-title { color: #8B6B2B !important; }
+  .bp .bp-score { border: 1px solid #ddd8cc !important; background: #fff !important; box-shadow: none !important; }
+  .bp .bp-score.lever { box-shadow: inset 0 0 0 2px #BE9646 !important; }
+  .bp .bp-tag { background: #BE9646 !important; color: #fff !important; }
+  .bp .bp-plan li, .bp .bp-reading { break-inside: avoid; }
+  @page { margin: 0.6in; }
+}

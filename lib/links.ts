@@ -29,9 +29,17 @@ export const CHECKOUT_URL = `https://site.truthjblue.com/payment-link/${TOOLKIT_
 export const AUDIT_PAYMENT_LINK_ID = "696e9d90b112a056c6a3f6c5";
 export const AUDIT_CHECKOUT_URL = `https://site.truthjblue.com/payment-link/${AUDIT_PAYMENT_LINK_ID}`;
 
+/** The GHL payment link the $27 Divine Alignment Blueprint is sold through. */
+export const BLUEPRINT_PAYMENT_LINK_ID = "6a9bf21cceb12d9fc1a8b419";
+export const BLUEPRINT_CHECKOUT_URL = `https://site.truthjblue.com/payment-link/${BLUEPRINT_PAYMENT_LINK_ID}`;
+
 /** Where a purchased Audit is taken. Always on www: sign-in sessions and saved
  *  answers live per origin, so store.truthjblue.com/audit redirects here. */
 export const PAID_AUDIT_PATH = "/store/audit";
+
+/** Where a purchased Blueprint is read. Same reasoning as the Audit — it is
+ *  generated from the answers saved under their signed-in session. */
+export const PAID_BLUEPRINT_PATH = "/store/blueprint";
 export const PAID_AUDIT_URL = `https://www.truthjblue.com${PAID_AUDIT_PATH}`;
 
 /** The complimentary 20-minute review call included with the paid Audit

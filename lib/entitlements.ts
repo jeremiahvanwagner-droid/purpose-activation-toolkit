@@ -30,6 +30,10 @@ export const PAT_PRODUCT_ID = "purpose-activation-toolkit";
  *  (profile, follow-up call, eBook, sync) for buyers of the store product. */
 export const IAA_PRODUCT_ID = "inner-alignment-audit";
 
+/** The $27 Divine Alignment Blueprint — the written reading of an Audit
+ *  result, generated at /store/blueprint from the buyer's own answers. */
+export const DAB_PRODUCT_ID = "divine-alignment-blueprint";
+
 export type EntitlementState =
   | { state: "loading" }
   | { state: "signed-out" }

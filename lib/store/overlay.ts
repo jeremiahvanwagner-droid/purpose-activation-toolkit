@@ -13,7 +13,7 @@
  */
 
 import type { CheckoutAction } from "@/components/store/CheckoutButton";
-import { AUDIT_CHECKOUT_URL, CHECKOUT_URL, PAID_AUDIT_PATH } from "@/lib/links";
+import { AUDIT_CHECKOUT_URL, BLUEPRINT_CHECKOUT_URL, CHECKOUT_URL, PAID_AUDIT_PATH, PAID_BLUEPRINT_PATH } from "@/lib/links";
 
 export type CollectionKey =
   | "start-here"
@@ -185,12 +185,17 @@ export const PRODUCTS: ProductMeta[] = [
     kicker: "Personalised written report",
     tagline:
       "A written Blueprint that reads the story behind your Audit scores and lays out a practical seven-day plan to begin shifting into deeper alignment.",
-    checkout: { kind: "buy", href: `${PAYMENT_LINK}6a9bf21cceb12d9fc1a8b419`, label: "Get your Blueprint" },
-    note: "Secure checkout · delivered by email",
+    checkout: { kind: "buy", href: BLUEPRINT_CHECKOUT_URL, label: "Get your Blueprint" },
+    note: "Instant access · sign in with the email you use at checkout",
+    access: { href: PAID_BLUEPRINT_PATH, label: "Open your Blueprint" },
     art: { kind: "plate", title: "Divine Alignment", accent: "Blueprint", variant: 1 },
     description:
       "<p>Your Audit shows the numbers; the Blueprint reveals the story behind them. Using your responses, the Alignment Agent generates a personalised written Blueprint that interprets your four domain scores, identifies root patterns and blockages, and outlines a practical 7-day plan to begin shifting into deeper alignment.</p><p>You’ll receive a beautifully structured document you can pray through, journal with, and return to whenever you feel yourself drifting off-course.</p>",
-    steps: STEPS_BUY,
+    steps: [
+      "Secure checkout on HighLevel, our payments platform.",
+      "Open your Blueprint at truthjblue.com/store/blueprint and sign in with the same email — it is written from your Audit answers.",
+      "Read it, save it as a PDF, and walk the seven days.",
+    ],
   },
   {
     id: "6a4eb9eb6630447c7bd80f0d",
