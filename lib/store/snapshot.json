@@ -1,5 +1,59 @@
 [
  {
+  "id": "6a4eb9eb6630447c7bd80f0d",
+  "name": "First Step Through the Veil",
+  "slug": "first-step-through-the-veil",
+  "description": "<p>First Step Through the Veil is where the Beyond the Veil path begins: a guided opening for seekers who are no longer looking for information, but embodiment.</p><p>It introduces the ground the mentorship is built on — Identity, Purpose, Power, and Transformation — and gives you the first practices to walk it, so that when you are ready to go further, you arrive already in motion.</p>",
+  "image": null,
+  "availableInStore": true,
+  "productType": "DIGITAL",
+  "prices": [
+   {
+    "id": "6a4eb9eb6630449517d80f12",
+    "name": "First Step Through the Veil @ 247",
+    "amount": 247,
+    "type": "one_time",
+    "compareAt": null
+   }
+  ]
+ },
+ {
+  "id": "699fa003a14ffb50139b4b55",
+  "name": "Divine Alignment Blueprint",
+  "slug": "divine-alignment-blueprint",
+  "description": "<p>Your Audit shows the numbers; the Blueprint reveals the story behind them. Using your responses, the Alignment Agent generates a personalised written Blueprint that interprets your four domain scores, identifies root patterns and blockages, and outlines a practical 7-day plan to begin shifting into deeper alignment.</p><p>You’ll receive a beautifully structured document you can pray through, journal with, and return to whenever you feel yourself drifting off-course.</p>",
+  "image": null,
+  "availableInStore": true,
+  "productType": "DIGITAL",
+  "prices": [
+   {
+    "id": "699fa003a14ffbe0d19b4b5a",
+    "name": "Divine Alignment Blueprint @ 27",
+    "amount": 27,
+    "type": "one_time",
+    "compareAt": null
+   }
+  ]
+ },
+ {
+  "id": "698fb04dfa4fc0dd1ef5c9b0",
+  "name": "Deep Dive Call",
+  "slug": "deep-dive-call",
+  "description": "<p>A focused 30-minute session that goes through your Inner Alignment Audit results in depth. Together you’ll look at all four domains, name the primary lever, and leave with a clear first move for the next seven days.</p><p>Best taken alongside the Purpose Activation Toolkit, so the session lands on a plan you’re already working.</p>",
+  "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffc54da041368a9ece6.png",
+  "availableInStore": true,
+  "productType": "DIGITAL",
+  "prices": [
+   {
+    "id": "6a9ba47a43d1d76deaaa94c9",
+    "name": "Deep Dive Call",
+    "amount": 247,
+    "type": "one_time",
+    "compareAt": null
+   }
+  ]
+ },
+ {
   "id": "6a9b440ba9aeb58c782b84e6",
   "name": "The Teachings of the Palace of Excellence — Book 12: Legacy and Impact",
   "slug": "palace-12-legacy-and-impact",
@@ -216,24 +270,6 @@
   ]
  },
  {
-  "id": "698fb04dfa4fc0dd1ef5c9b0",
-  "name": "Deep Dive Call",
-  "slug": "scorecard-deep-dive-workshop",
-  "description": "<p>120-minute live workshop exclusive for Divine Purpose Scorecard members. Explore your assessment results further and uncover the precise 3-step process to address your primary alignment blocker. Includes Purpose Activation Toolkit, lifetime recording access, 30-day community access, and 7-day email support.</p>",
-  "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffc54da041368a9ece6.png",
-  "availableInStore": true,
-  "productType": "DIGITAL",
-  "prices": [
-   {
-    "id": "698fb04dfa4fc03e23f5c9b5",
-    "name": "Scorecard Deep-Dive Workshop @ 47",
-    "amount": 247,
-    "type": "one_time",
-    "compareAt": 1997
-   }
-  ]
- },
- {
   "id": "698fc5075e6a85c8105c04be",
   "name": "Strategic Partnership",
   "slug": "truth-j-blue-strategic-partnership",
@@ -297,13 +333,6 @@
   "productType": "DIGITAL",
   "prices": [
    {
-    "id": "698fb0e8b5e66197116e4a2d",
-    "name": "3-Pay Plan",
-    "amount": 897,
-    "type": "one_time",
-    "compareAt": null
-   },
-   {
     "id": "698fb0e8b5e661bc6f6e4a28",
     "name": "Ascension Intensive @ 1997",
     "amount": 1997,
@@ -327,42 +356,6 @@
     "amount": 2497,
     "type": "one_time",
     "compareAt": 9997
-   }
-  ]
- },
- {
-  "id": "6a4eb9eb6630447c7bd80f0d",
-  "name": "First Step Through the Veil",
-  "slug": null,
-  "description": "",
-  "image": null,
-  "availableInStore": true,
-  "productType": "DIGITAL",
-  "prices": [
-   {
-    "id": "6a4eb9eb6630449517d80f12",
-    "name": "First Step Through the Veil @ 247",
-    "amount": 247,
-    "type": "one_time",
-    "compareAt": null
-   }
-  ]
- },
- {
-  "id": "699fa003a14ffb50139b4b55",
-  "name": "Divine Alignment Blueprint",
-  "slug": "divine-alignment-blueprint",
-  "description": "<p>Your scorecard shows the numbers; the Blueprint reveals the story behind them. Using your responses, my Alignment Agent generates a <strong style=\"box-sizing: border-box; border-width: 0px; border-style: solid; border-color: oklch(0.2642 0.013 93.9 / 0.14); scrollbar-color: initial; scrollbar-width: initial; --tw-border-spacing-x: 0; --tw-border-spacing-y: 0; --tw-translate-x: 0; --tw-translate-y: 0; --tw-rotate: 0; --tw-skew-x: 0; --tw-skew-y: 0; --tw-scale-x: 1; --tw-scale-y: 1; --tw-pan-x: ; --tw-pan-y: ; --tw-pinch-zoom: ; --tw-scroll-snap-strictness: proximity; --tw-gradient-from-position: ; --tw-gradient-via-position: ; --tw-gradient-to-position: ; --tw-ordinal: ; --tw-slashed-zero: ; --tw-numeric-figure: ; --tw-numeric-spacing: ; --tw-numeric-fraction: ; --tw-ring-inset: ; --tw-ring-offset-width: 0px; --tw-ring-offset-color: #fff; --tw-ring-color: rgb(59 130 246 / .5); --tw-ring-offset-shadow: 0 0 #0000; --tw-ring-shadow: 0 0 #0000; --tw-shadow: 0 0 #0000; --tw-shadow-colored: 0 0 #0000; --tw-blur: ; --tw-brightness: ; --tw-contrast: ; --tw-grayscale: ; --tw-hue-rotate: ; --tw-invert: ; --tw-saturate: ; --tw-sepia: ; --tw-drop-shadow: ; --tw-backdrop-blur: ; --tw-backdrop-brightness: ; --tw-backdrop-contrast: ; --tw-backdrop-grayscale: ; --tw-backdrop-hue-rotate: ; --tw-backdrop-invert: ; --tw-backdrop-opacity: ; --tw-backdrop-saturate: ; --tw-backdrop-sepia: ; --tw-contain-size: ; --tw-contain-layout: ; --tw-contain-paint: ; --tw-contain-style: ; font-weight: 630; color: oklch(0.2642 0.013 93.9);\">personalized written Blueprint</strong> that interprets your six scores, identifies root patterns and blockages, and outlines a practical 7‑day plan to begin shifting into deeper alignment. You’ll receive a beautifully structured document you can pray through, journal with, and return to whenever you feel yourself drifting off-course.</p>",
-  "image": null,
-  "availableInStore": true,
-  "productType": "DIGITAL",
-  "prices": [
-   {
-    "id": "699fa003a14ffbe0d19b4b5a",
-    "name": "Divine Alignment Blueprint @ 27",
-    "amount": 27,
-    "type": "one_time",
-    "compareAt": null
    }
   ]
  },
