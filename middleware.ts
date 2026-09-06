@@ -24,9 +24,23 @@ const STORE_HOSTS = new Set(["store.truthjblue.com"]);
  * host check so it covers www and the store host alike. 301 on purpose —
  * unlike the scorecard redirect in next.config.mjs, nothing here is ever
  * coming back, and search engines only transfer standing on a permanent code.
+ *
+ * Product paths are matched exactly, never by prefix: on the store host,
+ * /product/<slug> is the live route for every current product, so a
+ * "/product/" prefix rule redirects the storefront itself. (It did, for the
+ * minutes 28c2795 was live.) /product-tag/ has no live equivalent on any
+ * host, so the prefix is safe there.
  */
 const LEGACY_AUDIT_PATH = "/inner-alignment-audit";
-const LEGACY_STORE_PREFIXES = ["/product/", "/product-tag/"];
+const LEGACY_TAG_PREFIX = "/product-tag/";
+const LEGACY_PRODUCT_PATHS = new Set([
+  "/product/mastering-mental-clarity",
+  "/product/a-voyage-into-ancient-wisdom",
+  "/product/emotional-alchemy-transforming-inner-barriers-into-bridges-of-growth",
+  "/product/empowerment-collection-growth-and-success-bundle",
+  "/product/living_abundantly_unleashing_the_power_within",
+  "/product/unlocking-success-mastering-effective-communication-and-social-skills",
+]);
 
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -34,7 +48,7 @@ export function middleware(req: NextRequest) {
   if (pathname === LEGACY_AUDIT_PATH) {
     return NextResponse.redirect(new URL("/store/audit", "https://www.truthjblue.com"), 301);
   }
-  if (LEGACY_STORE_PREFIXES.some((p) => pathname.startsWith(p))) {
+  if (LEGACY_PRODUCT_PATHS.has(pathname) || pathname.startsWith(LEGACY_TAG_PREFIX)) {
     return NextResponse.redirect(new URL("https://store.truthjblue.com/"), 301);
   }
 
