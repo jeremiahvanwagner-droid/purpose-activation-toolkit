@@ -15,11 +15,31 @@ import { NextResponse, type NextRequest } from "next/server";
  */
 const STORE_HOSTS = new Set(["store.truthjblue.com"]);
 
+/**
+ * The WooCommerce store that used to answer on store.truthjblue.com is gone,
+ * but its URLs are still what search engines hold for this domain: on
+ * 2026-09-06 every indexed result was /product/*, /product-tag/* or
+ * /inner-alignment-audit, and every one returned 404. Permanent redirects
+ * hand that standing to the pages that replaced them. This runs before the
+ * host check so it covers www and the store host alike. 301 on purpose —
+ * unlike the scorecard redirect in next.config.mjs, nothing here is ever
+ * coming back, and search engines only transfer standing on a permanent code.
+ */
+const LEGACY_AUDIT_PATH = "/inner-alignment-audit";
+const LEGACY_STORE_PREFIXES = ["/product/", "/product-tag/"];
+
 export function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
+
+  if (pathname === LEGACY_AUDIT_PATH) {
+    return NextResponse.redirect(new URL("/store/audit", "https://www.truthjblue.com"), 301);
+  }
+  if (LEGACY_STORE_PREFIXES.some((p) => pathname.startsWith(p))) {
+    return NextResponse.redirect(new URL("https://store.truthjblue.com/"), 301);
+  }
+
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
   if (!STORE_HOSTS.has(host)) return NextResponse.next();
-
-  const { pathname } = req.nextUrl;
 
   // The paid Audit is taken on www: a reader's sign-in session and saved
   // answers live per origin, and the magic link lands on www. Sending the
