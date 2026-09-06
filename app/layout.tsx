@@ -38,17 +38,21 @@ export const metadata: Metadata = {
 const ORGANIZATION = {
   "@context": "https://schema.org",
   "@type": "Organization",
-  "@id": `${SITE_URL}/#organization`,
-  name: "Truth J Blue",
+  // Same @id, name and url as the graph on jeremiahvanwagner.com — the
+  // official entity page (2026-08-28) — so Google merges the two into one
+  // Organization instead of seeing a second one on the www host.
+  "@id": "https://truthjblue.com/#organization",
+  name: "Truth J Blue LLC",
+  alternateName: "Truth J Blue",
   legalName: "Truth J Blue LLC",
-  url: SITE_URL,
+  url: "https://truthjblue.com",
   email: "support@truthjblue.com",
   telephone: "+1-877-779-3107",
   founder: {
     "@type": "Person",
+    "@id": "https://jeremiahvanwagner.com/#person",
     name: "Jeremiah Van Wagner",
-    url: `${SITE_URL}/about`,
-    sameAs: ["https://www.linkedin.com/in/vanwagnerjeremiah/"],
+    url: "https://jeremiahvanwagner.com/",
   },
   sameAs: [
     "https://facebook.com/TruthjBlue",
