@@ -41,3 +41,29 @@ export function track(event: string, params?: Record<string, unknown>): void {
     /* blocked or not yet loaded — nothing to recover, and nothing to report */
   }
 }
+
+/**
+ * Fire an event once the pixel is actually on the page.
+ *
+ * The base snippet is injected after hydration, so a client component's mount
+ * effect can run a beat before window.fbq exists — and a plain track() there
+ * would no-op silently. This waits for the stub (which queues until
+ * fbevents.js loads), then sends. Returns a cancel function for effect
+ * cleanup, and gives up quietly after ~5s: a blocker won, nothing to report.
+ */
+export function trackWhenReady(event: string, params?: Record<string, unknown>): () => void {
+  if (typeof window === "undefined") return () => {};
+  let tries = 0;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const attempt = () => {
+    if (window.fbq) {
+      track(event, params);
+      return;
+    }
+    if (++tries < 50) timer = setTimeout(attempt, 100);
+  };
+  attempt();
+  return () => {
+    if (timer) clearTimeout(timer);
+  };
+}

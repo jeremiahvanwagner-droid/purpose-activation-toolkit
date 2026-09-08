@@ -3,11 +3,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import ProductCard from "@/components/store/ProductCard";
+import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { findCollection, getStore } from "@/lib/store/catalog";
 import { COLLECTIONS, SERIES_TITLE } from "@/lib/store/overlay";
 
-type Params = { params: { collection: string } };
+type Params = { params: { collection: string }; searchParams?: { b?: string } };
 
 export function generateMetadata({ params }: Params): Metadata {
   const c = findCollection(params.collection);
@@ -19,7 +20,7 @@ export function generateMetadata({ params }: Params): Metadata {
   };
 }
 
-export default async function CollectionPage({ params }: Params) {
+export default async function CollectionPage({ params, searchParams }: Params) {
   const collection = findCollection(params.collection);
   if (!collection) notFound();
 
@@ -30,8 +31,17 @@ export default async function CollectionPage({ params }: Params) {
   const gridClass = ratio === "wide" ? "st-grid st-grid-2" : ratio === "tall" ? "st-grid st-grid-4" : "st-grid";
   const others = COLLECTIONS.filter((c) => c.key !== collection.key);
 
+  // The product feed sends each of the twelve books to /library?b=N, because
+  // the Library has no page per book. A visitor arriving from a book's ad is
+  // reported as having viewed that book, with the id the catalog knows.
+  const viewedBook =
+    collection.key === "library" && searchParams?.b ? store.books.find((b) => String(b.n) === searchParams.b) ?? null : null;
+
   return (
     <>
+      {viewedBook ? (
+        <ViewContent id={viewedBook.id} name={`${SERIES_TITLE} — Book ${viewedBook.n}: ${viewedBook.title}`} category={collection.title} />
+      ) : null}
       <section className="st-section" style={{ paddingBottom: 0 }}>
         <div className="st-container">
           <nav className="st-crumbs" aria-label="Breadcrumb">

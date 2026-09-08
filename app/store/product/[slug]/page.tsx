@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import CheckoutButton from "@/components/store/CheckoutButton";
 import ProductArt from "@/components/store/ProductArt";
 import ProductCard from "@/components/store/ProductCard";
+import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore } from "@/lib/store/catalog";
 
@@ -38,6 +39,7 @@ export default async function ProductPage({ params }: Params) {
 
   return (
     <>
+      <ViewContent id={item.id} name={item.name} category={item.collection.title} amount={item.amount} />
       <div className="st-container">
         <nav className="st-crumbs" aria-label="Breadcrumb">
           <Link href={storeHref(base, "/")}>The Store</Link>
