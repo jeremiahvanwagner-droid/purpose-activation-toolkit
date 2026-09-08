@@ -16,6 +16,19 @@ import { NextResponse, type NextRequest } from "next/server";
 const STORE_HOSTS = new Set(["store.truthjblue.com"]);
 
 /**
+ * shop.truthjblue.com is the address printed on the imprint page of the ten
+ * Life Enhancement books, including every Lulu print copy already sold — text
+ * that can never be re-issued. The domain joined this project on 2026-09-08,
+ * but on its own it answers with the Toolkit homepage, because only the store
+ * host is rewritten onto /store. Send it to the store's canonical host with
+ * the path intact, so a reader typing the printed URL lands in the store and
+ * search engines see one store rather than two. 308 so the method and path
+ * survive; nothing else will ever live on this hostname.
+ */
+const SHOP_HOST = "shop.truthjblue.com";
+const STORE_ORIGIN = "https://store.truthjblue.com";
+
+/**
  * The WooCommerce store that used to answer on store.truthjblue.com is gone,
  * but its URLs are still what search engines hold for this domain: on
  * 2026-09-06 every indexed result was /product/*, /product-tag/* or
@@ -53,6 +66,11 @@ export function middleware(req: NextRequest) {
   }
 
   const host = (req.headers.get("host") ?? "").toLowerCase().split(":")[0];
+
+  if (host === SHOP_HOST) {
+    return NextResponse.redirect(new URL(`${pathname}${req.nextUrl.search}`, STORE_ORIGIN), 308);
+  }
+
   if (!STORE_HOSTS.has(host)) return NextResponse.next();
 
   // The paid Audit is taken on www: a reader's sign-in session and saved
