@@ -69,7 +69,7 @@ async function syncToGhl(email: string, name: string | null): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        locationId,
+        locationId: credentials.locationId,
         email,
         ...(name ? { name } : {}),
         tags: AUDIT_TAGS,
