@@ -16,6 +16,7 @@
  */
 
 import snapshot from "./snapshot.json";
+import { getTjbGhlCredentials, requestTjbGhl } from "@/lib/ghl/tjb";
 
 export type StorePrice = {
   id: string;
@@ -39,8 +40,6 @@ export type StoreProduct = {
   prices: StorePrice[];
 };
 
-const GHL_BASE = "https://services.leadconnectorhq.com";
-const GHL_VERSION = "2021-07-28";
 const REVALIDATE_SECONDS = 1800;
 export const CATALOG_TAG = "store-catalog";
 
@@ -66,27 +65,16 @@ type RawProduct = {
   productType?: string;
 };
 
-function credentials(): { token: string; locationId: string } | null {
-  const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
-  const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
-  if (!token || !locationId) return null;
-  return { token, locationId };
-}
-
-async function ghlGet<T>(path: string, params: Record<string, string>, token: string): Promise<T | null> {
+async function ghlGet<T>(path: string, params: Record<string, string>): Promise<T | null> {
   const qs = new URLSearchParams(params).toString();
   try {
-    const res = await fetch(`${GHL_BASE}${path}?${qs}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Version: GHL_VERSION,
-        Accept: "application/json",
-        "User-Agent": UA,
-      },
+    const res = await requestTjbGhl(`${path}?${qs}`, {
+      headers: { Accept: "application/json", "User-Agent": UA },
       next: { revalidate: REVALIDATE_SECONDS, tags: [CATALOG_TAG] },
     });
+    if (!res) return null;
     if (!res.ok) {
-      console.error("[store] GHL", path, res.status, (await res.text()).slice(0, 200));
+      console.error("[store] GHL", path, res.status);
       return null;
     }
     return (await res.json()) as T;
@@ -115,10 +103,10 @@ function normalisePrice(x: RawPrice): StorePrice | null {
 }
 
 async function fetchLiveCatalog(): Promise<StoreProduct[] | null> {
-  const creds = credentials();
+  const creds = getTjbGhlCredentials();
   if (!creds) return null;
 
-  const list = await ghlGet<{ products?: RawProduct[] }>("/products/", { locationId: creds.locationId, limit: "100" }, creds.token);
+  const list = await ghlGet<{ products?: RawProduct[] }>("/products/", { locationId: creds.locationId, limit: "100" });
   const raw = list?.products;
   if (!Array.isArray(raw)) return null;
 
@@ -128,7 +116,7 @@ async function fetchLiveCatalog(): Promise<StoreProduct[] | null> {
     wanted.map(async (p): Promise<StoreProduct> => {
       let prices: StorePrice[] = [];
       if (p.availableInStore === true) {
-        const pr = await ghlGet<{ prices?: RawPrice[] }>(`/products/${p._id}/price`, { locationId: creds.locationId, limit: "50" }, creds.token);
+        const pr = await ghlGet<{ prices?: RawPrice[] }>(`/products/${p._id}/price`, { locationId: creds.locationId, limit: "50" });
         prices = (pr?.prices ?? []).map(normalisePrice).filter((x): x is StorePrice => x !== null);
       }
       return {

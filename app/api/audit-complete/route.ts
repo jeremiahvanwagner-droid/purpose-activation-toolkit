@@ -17,8 +17,7 @@
 // here — not by this route. That keeps sending on truthjblue.com's already-
 // warm GHL sender instead of requiring fresh SPF/DKIM for a new domain.
 
-const GHL_BASE = "https://services.leadconnectorhq.com";
-const GHL_VERSION = "2021-07-28";
+import { getTjbGhlCredentials, requestTjbGhl } from "@/lib/ghl/tjb";
 
 /** Tags the GHL delivery workflow keys off of. */
 const AUDIT_TAGS = ["audit-completed", "interest:audit"];
@@ -61,32 +60,25 @@ function normalizeEmail(raw: unknown): string | null {
  *  is a lead we can still email, so a pipeline failure must never cost us the
  *  contact. Never throws — returns whether the contact landed, for logging. */
 async function syncToGhl(email: string, name: string | null): Promise<boolean> {
-  const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
-  const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
-  if (!token || !locationId) return false;
-
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    Version: GHL_VERSION,
-    "Content-Type": "application/json",
-    Accept: "application/json",
-  };
+  const credentials = getTjbGhlCredentials();
+  if (!credentials) return false;
 
   let contactId: string | null = null;
   try {
-    const res = await fetch(`${GHL_BASE}/contacts/upsert`, {
+    const res = await requestTjbGhl("/contacts/upsert", {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        locationId,
+        locationId: credentials.locationId,
         email,
         ...(name ? { name } : {}),
         tags: AUDIT_TAGS,
         source: "Inner Alignment Audit",
       }),
     });
+    if (!res) return false;
     if (!res.ok) {
-      console.error("[audit-complete] GHL upsert failed:", res.status, (await res.text()).slice(0, 300));
+      console.error("[audit-complete] GHL upsert failed:", res.status);
       return false;
     }
     const body = (await res.json()) as { contact?: { id?: string } };
@@ -97,7 +89,7 @@ async function syncToGhl(email: string, name: string | null): Promise<boolean> {
   }
 
   // The contact is safe at this point. Everything below is upside.
-  if (contactId) await createOpportunity(headers, locationId, contactId, name);
+  if (contactId) await createOpportunity(credentials.locationId, contactId, name);
   return true;
 }
 
@@ -108,15 +100,14 @@ async function syncToGhl(email: string, name: string | null): Promise<boolean> {
  *  the second call returns the same opportunity id with `new: false`.
  *  Never throws — a missing opportunity costs us reporting, not the lead. */
 async function createOpportunity(
-  headers: Record<string, string>,
   locationId: string,
   contactId: string,
   name: string | null,
 ): Promise<void> {
   try {
-    const res = await fetch(`${GHL_BASE}/opportunities/upsert`, {
+    const res = await requestTjbGhl("/opportunities/upsert", {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         locationId,
         contactId,
@@ -127,12 +118,9 @@ async function createOpportunity(
         monetaryValue: OPPORTUNITY_VALUE,
       }),
     });
+    if (!res) return;
     if (!res.ok) {
-      console.error(
-        "[audit-complete] opportunity upsert failed:",
-        res.status,
-        (await res.text()).slice(0, 300),
-      );
+      console.error("[audit-complete] opportunity upsert failed:", res.status);
     }
   } catch (err) {
     console.error("[audit-complete] opportunity upsert error:", err);

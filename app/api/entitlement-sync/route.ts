@@ -24,10 +24,8 @@
 // payment record as `entitySourceId` — so a discount, a promo, or a future
 // price change still grants access, and one product can never unlock another.
 
+import { getTjbGhlCredentials, requestTjbGhl } from "@/lib/ghl/tjb";
 import { AUDIT_PAYMENT_LINK_ID, BLUEPRINT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
-
-const GHL_BASE = "https://services.leadconnectorhq.com";
-const GHL_VERSION = "2021-07-28";
 
 /** Products this route can grant, and the payment links that sell each.
  *  Ids match lib/entitlements.ts. Historical links belong here too — someone
@@ -81,26 +79,21 @@ async function emailFromAccessToken(token: string): Promise<string | null> {
 /** The first succeeded, live purchase of one of `sourceIds` that GHL has
  *  recorded against this email. */
 async function findPurchase(email: string, sourceIds: Set<string>): Promise<GhlTransaction | null> {
-  const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
-  const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
-  if (!token || !locationId) return null;
+  const credentials = getTjbGhlCredentials();
+  if (!credentials) return null;
 
   try {
     const qs = new URLSearchParams({
-      altId: locationId,
+      altId: credentials.locationId,
       altType: "location",
       limit: "100",
     });
-    const res = await fetch(`${GHL_BASE}/payments/transactions?${qs}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Version: GHL_VERSION,
-        Accept: "application/json",
-      },
+    const res = await requestTjbGhl(`/payments/transactions?${qs}`, {
       cache: "no-store",
     });
+    if (!res) return null;
     if (!res.ok) {
-      console.error("[entitlement-sync] GHL transactions failed:", res.status, (await res.text()).slice(0, 300));
+      console.error("[entitlement-sync] GHL transactions failed:", res.status);
       return null;
     }
 
