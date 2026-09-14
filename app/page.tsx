@@ -58,7 +58,7 @@ const DIFF = [
   },
   {
     title: "Faith-first, unapologetically.",
-    body: "This isn't self-help with a Christian veneer. It's stewardship of a Divine assignment, Scripture-grounded from the first page.",
+    body: "This isn't self-help with a faith veneer. It's stewardship of a Divine assignment, Scripture-grounded from the first page.",
   },
   {
     title: "Sync across every device.",
@@ -94,7 +94,7 @@ export default function Landing() {
           </h1>
           <p className="mk-lede">
             An interactive, faith-first digital workbook that turns spiritual clarity into daily, aligned
-            action — for Christians who love God but feel the gap between knowing and living.
+            action — for believers who love God but feel the gap between knowing and living.
           </p>
           <div className="mk-cta-row">
             <Link className="mk-btn mk-btn-primary" href="/audit">

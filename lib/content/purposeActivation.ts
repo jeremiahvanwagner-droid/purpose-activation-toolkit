@@ -128,7 +128,7 @@ export const STATEMENT_PARTS = [
     id: "pa.stmt.audience",
     leadIn: "for…",
     hint: "the people you serve",
-    placeholder: "Christian women stepping into their second act",
+    placeholder: "women of faith stepping into their second act",
   },
   {
     id: "pa.stmt.method",

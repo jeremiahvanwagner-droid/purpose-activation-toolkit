@@ -18,7 +18,7 @@ export default function StoreFooter({ base }: { base: string }) {
                 <span className="st-brand-tag">Growth by Choice</span>
               </span>
             </Link>
-            <p className="st-foot-tag">Tools for the walk — made for Christians and awakened souls who intend to live what they know.</p>
+            <p className="st-foot-tag">Tools for the walk — made for believers and awakened souls who intend to live what they know.</p>
           </div>
 
           <div>
