@@ -33,7 +33,7 @@ const PILLARS = [
   {
     kicker: "Module 2",
     title: "Proper Decision-Making",
-    body: "Trade reactive choices for stewardship. Walk any decision through the 7-Step Divine Decision Framework and a scored Values-Based Grid — with peace as the final arbiter.",
+    body: "Trade reactive choices for stewardship. Walk any decision through the 7-Step Divine Decision Framework and a scored Values-Based Grid — weighed with prayer, counsel, and peace.",
   },
   {
     kicker: "Module 3",

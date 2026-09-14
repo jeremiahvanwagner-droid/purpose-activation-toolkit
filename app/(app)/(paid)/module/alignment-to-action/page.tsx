@@ -90,14 +90,16 @@ export default function AlignmentToActionModule() {
         <h2>Name and bypass resistance</h2>
         <div className="body-copy">
           <p>
-            Resistance wears five familiar faces — {RESIST_FORMS.join(", ").toLowerCase()} — and it always
-            lies. The antidote is truth, grace, and micro-steps: name the lie, release perfectionism, and
-            shrink the action until resistance can't argue with it.
+            Resistance wears five familiar faces — {RESIST_FORMS.join(", ").toLowerCase()} — and it often
+            lies. Test what it tells you against Scripture, reality, and trusted counsel: discomfort may accompany a
+            worthwhile step, or point to a constraint that needs attention. The antidote is truth, grace, and
+            micro-steps: name the lie, release perfectionism, and shrink the action until resistance can't argue
+            with it.
           </p>
         </div>
         <div className="scripture">
-          You have everything you need. Resistance is a liar.
-          <cite>Alignment-to-Action</cite>
+          God has not given us a spirit of fear, but of power and of love and of a sound mind.
+          <cite>2 Timothy 1:7</cite>
         </div>
         <ResistancePairs />
         <div style={{ marginTop: 20 }}>
@@ -144,8 +146,10 @@ export default function AlignmentToActionModule() {
         <span className="tag">Section 7 · The Challenge</span>
         <h2>The 21-Day Alignment Challenge</h2>
         <p className="hint">
-          Twenty-one days to rewire your life: one clear, purpose-aligned action every day, written down, with
-          a one-sentence reflection. The rules keep it honest — and grace keeps it going.
+          Use these 21 days to practice one small action consistently and notice what helps you repeat it. Habit
+          formation varies by person and behavior; this challenge is a starting period, not a deadline for
+          transformation. Each day: one clear, purpose-aligned action, written down, with a one-sentence
+          reflection. The rules keep it honest — and grace keeps it going.
         </p>
         <Tracker21 />
       </section>
@@ -169,7 +173,7 @@ export default function AlignmentToActionModule() {
         <h2>Your 90-day alignment focus plan</h2>
         <div className="body-copy">
           <p>
-            The challenge builds the habit; the 90-day cycle builds the life. Choose one focus, three
+            The challenge starts the practice; the 90-day cycle keeps it going. Choose one focus, three
             non-negotiables, and the structures that will hold you — then seal it.
           </p>
         </div>

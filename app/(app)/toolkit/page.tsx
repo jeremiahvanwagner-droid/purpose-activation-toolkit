@@ -37,6 +37,27 @@ export default function Home() {
         )}
       </div>
 
+      <section className="card start-here" aria-labelledby="start-here-title">
+        <span className="tag">Start here</span>
+        <h2 id="start-here-title">Your first sitting</h2>
+        <ol>
+          <li>
+            <b>Begin in Module 1.</b> Answer the two opening questions (about five minutes each), then draft your
+            purpose statement. You&apos;ll leave with a working statement you can use right away.
+          </li>
+          <li>
+            <b>Use what fits today.</b> You don&apos;t need to finish every exercise before the toolkit helps. Each
+            answer saves as you write — bring a live decision to Module 2&apos;s seven steps, or choose one or two
+            prompts from Module 4 for your morning.
+          </li>
+          <li>
+            <b>Come back later.</b> The 30-day plan, the 21-Day Alignment Challenge, and the 90-day focus plan each
+            end with reflections for when their days are done. Your keepsake gathers every answer whenever you
+            want to print it.
+          </li>
+        </ol>
+      </section>
+
       {audit.complete && audit.primaryLever ? (
         <Link href="/audit#profile" className="audit-banner lever-banner">
           <span className="audit-banner-k">Your Alignment Profile</span>
@@ -75,7 +96,7 @@ export default function Home() {
                     <i style={{ width: `${p.pct}%` }} />
                   </div>
                   <div className="j-status">
-                    {p.done} of {p.total} steps · {p.pct}%
+                    {p.done} of {p.total} exercises started
                   </div>
                 </>
               ) : (

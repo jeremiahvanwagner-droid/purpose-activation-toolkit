@@ -70,14 +70,73 @@ export const DM_S2_REFLECTION = {
 
 /* Section 3 — The 7-Step Divine Decision Framework */
 export const SEVEN_FIELD = "dm.s3.seven";
+
+/** Teaching and worked examples are the workbook's own (PDF 2 pp. 9–10). The
+ *  examples are shown on request and never written into the reader's answers. */
 export const SEVEN_STEPS = [
-  { key: "question", title: "Clarify the real question", label: "The real question is…" },
-  { key: "values", title: "Name the values and purpose at stake", label: "The values and purpose related to this decision are…" },
-  { key: "facts", title: "Gather facts and counsel", label: "The facts I need and the counsel I'll seek…" },
-  { key: "thoughts", title: "Examine your thoughts and emotions", label: "Thought patterns I need to examine…" },
-  { key: "prayer", title: "Pray, listen, and reflect", label: "What I sense in prayer and listening…" },
-  { key: "choice", title: "Choose and commit", label: "My choice and commitment…" },
-  { key: "review", title: "Review and learn", label: "My review date and learning plan…" },
+  {
+    key: "question",
+    title: "Clarify the real question",
+    label: "The real question is…",
+    guide:
+      "Often, the surface question is not the real question. “Should I take this job?” might actually be “Am I running from something, or running toward my calling?” Spend time defining what you're actually deciding.",
+    example:
+      "Instead of “Should I move to a new city?” ask “What is God calling me to in this season, and does this move serve that calling?”",
+  },
+  {
+    key: "values",
+    title: "Name the values and purpose at stake",
+    label: "The values and purpose related to this decision are…",
+    guide:
+      "Every decision intersects with your core values and Divine purpose. Identify which values are at stake (e.g., family, integrity, service, stewardship) and how this decision relates to your calling.",
+    example:
+      "“This decision involves my values of family, financial stewardship, and long-term Kingdom impact. My purpose is to equip others, so I need to ask: does this opportunity enhance or distract from that?”",
+  },
+  {
+    key: "facts",
+    title: "Gather facts and counsel",
+    label: "The facts I need and the counsel I'll seek…",
+    guide:
+      "Proverbs 15:22 says, “Plans fail for lack of counsel, but with many advisers they succeed.” Seek input from wise, spiritually mature people. Gather objective data. Don't decide in isolation.",
+    example:
+      "“I'll talk to my mentor, my spouse, and two friends who know me well. I'll also research salary ranges, cost of living, and organizational culture.”",
+  },
+  {
+    key: "thoughts",
+    title: "Examine your thoughts and emotions",
+    label: "Thought patterns I need to examine…",
+    guide:
+      "Cognitive-behavioral therapy teaches that thoughts drive emotions, and emotions drive behavior. Identify any distorted thinking (catastrophizing, all-or-nothing, people-pleasing) and challenge it with truth.",
+    example:
+      "“I'm thinking ‘If I don't take this, I'll never get another chance’ (catastrophizing). The truth is: God is not limited by one opportunity.”",
+  },
+  {
+    key: "prayer",
+    title: "Pray, listen, and reflect",
+    label: "What I sense in prayer and listening…",
+    guide:
+      "Set aside time for stillness. Ask the Spirit for wisdom (James 1:5). Journal what you sense. Pay attention to peace or unsettledness (Colossians 3:15).",
+    example:
+      "“After 20 minutes of listening prayer, I sense peace about the direction, but caution about the timeline. I'll ask for more time to decide.”",
+  },
+  {
+    key: "choice",
+    title: "Choose and commit",
+    label: "My choice and commitment…",
+    guide:
+      "Indecision is a decision—it's a decision to stay stuck. Once you have clarity, choose and commit fully. Trust that God will guide your steps and redeem any mistakes (Proverbs 16:9).",
+    example:
+      "“I'm choosing Option B. I'm committing for the next 90 days and will review with my mentor at that point.”",
+  },
+  {
+    key: "review",
+    title: "Review and learn",
+    label: "My review date and learning plan…",
+    guide:
+      "After you've acted on your decision, review the outcome. What worked? What didn't? What did you learn about yourself, God, and discernment? This step turns every decision into a learning opportunity.",
+    example:
+      "“Three months in, I see that I made the right call, but I underestimated the relational cost. Next time, I'll factor that in more intentionally.”",
+  },
 ];
 
 /* Section 4 — Cognitive & Spiritual Checkpoints */
@@ -90,6 +149,9 @@ export const DISTORTIONS = [
   { name: "Emotional Reasoning", ex: "“I feel afraid, so this must be the wrong door.”" },
   { name: "People-Pleasing", ex: "“I can't say no — they're counting on me.”" },
 ];
+/** Reconciles the emotional-reasoning warning with the role of felt peace in the grid. */
+export const EMOTIONS_NOTE =
+  "Naming emotional reasoning doesn't mean ignoring what you feel. Notice your emotions alongside the facts, your responsibilities, prayer, and trusted counsel. Discomfort may accompany a worthwhile step; it may also point to a constraint that needs attention.";
 export const REWRITE_FIELDS = ["dm.s4.r1", "dm.s4.r2", "dm.s4.r3"];
 export const DM_S4_REFLECTION = {
   id: "dm.s4.reflect",

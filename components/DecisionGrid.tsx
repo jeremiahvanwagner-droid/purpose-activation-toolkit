@@ -106,8 +106,10 @@ export default function DecisionGrid() {
       </div>
 
       <div className="callout">
-        <b>Peace is the final arbiter.</b> The highest score doesn't always carry peace — if the numbers and
-        your spirit disagree, that discrepancy is information. Bring it to prayer before you choose.
+        <b>Let the peace of Christ rule in your heart (Colossians 3:15).</b> The highest score doesn&apos;t always
+        carry peace. If the numbers and your spirit disagree, treat that gap as information to bring to prayer and
+        trusted counsel before you choose — not as a verdict from your feelings alone. Discomfort may accompany a
+        worthwhile step; it may also point to a constraint that needs attention.
       </div>
     </div>
   );

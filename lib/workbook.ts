@@ -5,7 +5,7 @@
  * renders it.
  */
 
-import { isFilled } from "./store";
+import { isFilled } from "./sync/workbookSync";
 import * as PA from "./content/purposeActivation";
 import * as DM from "./content/decisionMaking";
 import * as ATA from "./content/alignmentToAction";
@@ -18,7 +18,12 @@ export type Entry =
   | { k: "list"; label: string; items: string[]; ranked?: boolean }
   | { k: "kv"; label: string; rows: { k: string; v: string }[] }
   | { k: "statement"; text: string }
-  | { k: "grid"; decision: string; options: { name: string; total: number }[] }
+  | {
+      k: "grid";
+      decision: string;
+      options: { name: string; total: number }[];
+      criteria: { label: string; scores: (number | null)[] }[];
+    }
   | { k: "tracker"; done: number; total: number; days: { n: number; date: string; action: string; note: string }[] }
   | { k: "covenant"; body: string; name: string; date: string; signature: string; sealed: boolean }
   | { k: "prompts"; label: string; items: { prompt: string; answer: string }[] }
@@ -81,6 +86,12 @@ function buildPA(all: Any): Section[] {
     s4.push({
       k: "statement",
       text: `Because God designed me as ${stmt[0]}, I am called to ${stmt[1]} for ${stmt[2]} by ${stmt[3]}.`,
+    });
+  } else if (stmt.some(Boolean)) {
+    s4.push({
+      k: "kv",
+      label: "Purpose statement (in progress)",
+      rows: PA.STATEMENT_PARTS.map((p, i) => ({ k: p.leadIn, v: stmt[i] })).filter((r) => r.v),
     });
   }
   push(s4, textEntry(all, PA.STATEMENT_WORKING_FIELD, "My working purpose statement"));
@@ -176,7 +187,6 @@ function buildDM(all: Any): Section[] {
   DM.DM_S1_REFLECTIONS.forEach((r) => push(s1, textEntry(all, r.id, r.prompt)));
   if (s1.length) s.push({ heading: "Bring one decision into the light", entries: s1 });
 
-  push(s1, null);
   const filt = obj(all[DM.FILTER_FIELD]);
   const s2: Entry[] = [];
   if (str(filt.decision)) s2.push({ k: "text", label: "Current decision", text: str(filt.decision) });
@@ -196,21 +206,43 @@ function buildDM(all: Any): Section[] {
   const s3: Entry[] = [];
   if (str(seven.decision)) s3.push({ k: "text", label: "My decision", text: str(seven.decision) });
   const steps = DM.SEVEN_STEPS.map((st) => ({ k: st.title, v: str(seven[st.key]) })).filter((r) => r.v);
-  if (steps.length) s3.push({ k: "kv", label: "The 7 steps", rows: steps });
+  if (steps.length)
+    s3.push({ k: "kv", label: `The 7 steps — ${steps.length} of ${DM.SEVEN_STEPS.length} written`, rows: steps });
   if (s3.length) s.push({ heading: "7-Step Divine Decision Framework", entries: s3 });
+
+  const s4: Entry[] = [];
+  DM.REWRITE_FIELDS.forEach((id, i) =>
+    push(
+      s4,
+      kvEntry(all, id, `Distorted thought ${i + 1}`, [
+        ["thought", "The thought"],
+        ["type", "Distortion"],
+        ["truth", "Truth"],
+        ["scripture", "Scripture / evidence"],
+      ])
+    )
+  );
+  push(s4, textEntry(all, DM.DM_S4_REFLECTION.id, DM.DM_S4_REFLECTION.prompt));
+  if (s4.length) s.push({ heading: "Renewing the mind", entries: s4 });
 
   const grid = obj(all[DM.GRID_FIELD]);
   const s5: Entry[] = [];
   if (str(grid.decision) || arr(grid.options).some((o) => str(o))) {
     const scores = obj(grid.scores);
-    const options = [0, 1, 2]
-      .map((i) => {
-        const name = str(arr(grid.options)[i]);
-        const total = DM.GRID_CRITERIA.reduce((sum, c) => sum + (Number(arr(scores[c.key])[i]) || 0), 0);
-        return { name, total };
-      })
-      .filter((o) => o.name);
-    if (options.length) s5.push({ k: "grid", decision: str(grid.decision), options });
+    const names = [0, 1, 2].map((i) => str(arr(grid.options)[i]));
+    const used = [0, 1, 2].filter((i) => names[i]);
+    const options = used.map((i) => ({
+      name: names[i],
+      total: DM.GRID_CRITERIA.reduce((sum, c) => sum + (Number(arr(scores[c.key])[i]) || 0), 0),
+    }));
+    const criteria = DM.GRID_CRITERIA.map((c) => ({
+      label: c.label,
+      scores: used.map((i) => {
+        const n = Number(arr(scores[c.key])[i]);
+        return n > 0 ? n : null;
+      }),
+    }));
+    if (options.length) s5.push({ k: "grid", decision: str(grid.decision), options, criteria });
   }
   DM.DM_S5_REFLECTIONS.forEach((r) => push(s5, textEntry(all, r.id, r.prompt)));
   push(s5, textEntry(all, DM.DM_S5_SPIRIT.id, DM.DM_S5_SPIRIT.prompt));
@@ -220,8 +252,32 @@ function buildDM(all: Any): Section[] {
   DM.LISTENING_PROMPTS.forEach((r) => push(s6, textEntry(all, r.id, r.prompt)));
   if (s6.length) s.push({ heading: "Listening prayer", entries: s6 });
 
+  const s7: Entry[] = [];
+  DM.DM_DOMAINS.forEach((d) =>
+    push(
+      s7,
+      kvEntry(all, DM.domainAppField(d.key), d.name, [
+        ["q", "Real question"],
+        ["v", "Values & purpose at stake"],
+        ["c", "My choice"],
+      ])
+    )
+  );
+  push(s7, textEntry(all, DM.DM_S7_REFLECTION.id, DM.DM_S7_REFLECTION.prompt));
+  if (s7.length) s.push({ heading: "Decisions in every domain", entries: s7 });
+
   const s8: Entry[] = [];
   push(s8, listEntry(all, DM.PRACTICES_FIELD, "My non-negotiable practices"));
+  push(
+    s8,
+    kvEntry(all, DM.PENDING_FIELD, "One pending decision", [
+      ["facing", "I am facing"],
+      ["action", "My chosen action"],
+      ["commitDate", "Committed as of"],
+      ["reviewDate", "Review on"],
+      ["accountability", "Accountability"],
+    ])
+  );
   const cov = obj(all[DM.DM_COMMIT_FIELD]);
   if (str(cov.name) || str(cov.signature)) {
     s8.push({
@@ -235,12 +291,15 @@ function buildDM(all: Any): Section[] {
   }
   if (s8.length) s.push({ heading: "Decision Covenant", entries: s8 });
 
+  const s9: Entry[] = [];
+  DM.DM_CLOSING.forEach((r) => push(s9, textEntry(all, r.id, r.prompt)));
+  if (s9.length) s.push({ heading: "Closing reflection", entries: s9 });
+
   return s;
 }
 
 /* ---------------------------------- Module 3 ---------------------------------- */
 function buildATA(all: Any): Section[] {
-  const s: Entry[] = [];
   const out: Section[] = [];
 
   const s1: Entry[] = [];
@@ -267,6 +326,48 @@ function buildATA(all: Any): Section[] {
   );
   if (s3.length) out.push({ heading: "The Aligned Action Formula", entries: s3 });
 
+  const s4: Entry[] = [];
+  const resistance = arr(obj(all[ATA.RESISTANCE_FIELD]).pairs)
+    .map((p) => obj(p))
+    .filter((p) => str(p.r) || str(p.bypass));
+  if (resistance.length)
+    s4.push({
+      k: "kv",
+      label: "Resistance → 5-minute bypass",
+      rows: resistance.map((p) => ({ k: str(p.r) || "—", v: str(p.bypass) })),
+    });
+  push(s4, textEntry(all, ATA.ATA_S4_REFLECTION.id, ATA.ATA_S4_REFLECTION.prompt));
+  if (s4.length) out.push({ heading: "Removing friction", entries: s4 });
+
+  const s5: Entry[] = [];
+  push(
+    s5,
+    kvEntry(all, ATA.RITUAL_FIELD, "Daily aligned-action ritual", [
+      ["morning", "Morning"],
+      ["middayTime", "Midday check-in"],
+      ["recalibrate", "Recalibration"],
+      ["evening", "Evening"],
+    ])
+  );
+  if (s5.length) out.push({ heading: "Daily ritual", entries: s5 });
+
+  const s6: Entry[] = [];
+  push(
+    s6,
+    kvEntry(all, ATA.ECO_FIELD, "Accountability ecosystem", [
+      ["partnerName", "Partner / mentor"],
+      ["partnerFreq", "How often we'll connect"],
+      ["partnerShare", "What I'll share"],
+      ["communityName", "Community"],
+      ["communityHow", "How I'll engage"],
+      ["serviceAct", "Act of service"],
+      ["serviceWho", "How often · who it serves"],
+      ["serviceWhy", "How it connects to my purpose"],
+    ])
+  );
+  ATA.ATA_S6_REFLECTIONS.forEach((r) => push(s6, textEntry(all, r.id, r.prompt)));
+  if (s6.length) out.push({ heading: "Accountability, community, and service", entries: s6 });
+
   const tr = arr(all[ATA.TRACKER_FIELD]).map((d) => obj(d));
   const days = tr
     .map((d, i) => ({ n: i + 1, date: str(d.date), action: str(d.action), note: str(d.note) }))
@@ -278,9 +379,38 @@ function buildATA(all: Any): Section[] {
     });
   }
 
+  const s8: Entry[] = [];
+  push(s8, textEntry(all, ATA.POST_CHALLENGE.id, ATA.POST_CHALLENGE.prompt));
+  ATA.INTEGRATION.forEach((r) => push(s8, textEntry(all, r.id, r.prompt)));
+  if (s8.length) out.push({ heading: "Integration", entries: s8 });
+
   const s9: Entry[] = [];
   push(s9, textEntry(all, ATA.P90_FOCUS, "90-day focus"));
   push(s9, listEntry(all, ATA.P90_ACTIONS, "Core aligned actions"));
+  push(
+    s9,
+    kvEntry(all, ATA.P90_RITUALS, "Daily ritual commitments", [
+      ["morning", "Morning"],
+      ["midday", "Midday"],
+      ["evening", "Evening"],
+    ])
+  );
+  push(
+    s9,
+    kvEntry(all, ATA.P90_ACCT, "Accountability structure", [
+      ["partner", "Partner / mentor"],
+      ["community", "Community"],
+      ["service", "Service commitment"],
+    ])
+  );
+  push(
+    s9,
+    kvEntry(all, ATA.P90_REVIEWS, "Monthly review dates", [
+      ["m1", "Month 1"],
+      ["m2", "Month 2"],
+      ["m3", "Month 3"],
+    ])
+  );
   push(s9, textEntry(all, ATA.P90_SUCCESS, "What success looks like"));
   const cov = obj(all[ATA.ATA_COMMIT_FIELD]);
   if (str(cov.name) || str(cov.signature)) {
@@ -323,6 +453,20 @@ function buildEP(all: Any): Section[] {
     if (rows.length) lab.push({ k: "kv", label: `My prompt set ${i + 1}`, rows });
   });
   if (lab.length) out.push({ heading: "Custom prompt lab", entries: lab });
+
+  const toolkit = obj(all[EP.TOOLKIT_FIELD]);
+  const kit: Entry[] = [];
+  EP.TOOLKIT_SLOTS.forEach((slot) => {
+    const items = Object.entries(toolkit)
+      .filter(([, where]) => where === slot.key)
+      .map(([key]) => {
+        const [deckKey, idx] = key.split(":");
+        return EP.DECKS.find((d) => d.key === deckKey)?.prompts[Number(idx)] ?? "";
+      })
+      .filter(Boolean);
+    if (items.length) kit.push({ k: "list", label: slot.label, items });
+  });
+  if (kit.length) out.push({ heading: "My personal prompt toolkit", entries: kit });
 
   return out;
 }

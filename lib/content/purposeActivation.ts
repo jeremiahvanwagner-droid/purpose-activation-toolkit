@@ -33,6 +33,32 @@ export const DIVINE = [
   "“I was made for this”",
 ];
 
+/** PDF 1 p. 5 — the four interconnected levels of purpose. */
+export const FOUR_COMPONENTS = [
+  {
+    name: "Calling",
+    desc: "Your macro-level identity and mission. The “why” you're here.",
+    example: "“To empower others to see their Divine design.”",
+  },
+  {
+    name: "Gifts",
+    desc: "The Spirit-given abilities, talents, and capacities that equip you.",
+    example: "Teaching, encouragement, administration, creativity.",
+  },
+  {
+    name: "Assignments",
+    desc: "Specific projects, roles, or seasons where your calling and gifts are expressed.",
+    example: "Leading a Skool community, writing a book, mentoring a group.",
+  },
+  {
+    name: "Seasons",
+    desc: "The timing and context in which assignments unfold. God's purposes have rhythms; discernment includes knowing when to start, sustain, or release.",
+    example: null,
+  },
+];
+export const FOUR_COMPONENTS_INSIGHT =
+  "Many people are stuck because they confuse these levels. They may know their calling but don't recognize their current assignment. Or they have gifts but haven't clarified their calling. This toolkit will help you integrate all four.";
+
 export const S1_REFLECTIONS = [
   {
     id: "pa.s1.here",
@@ -138,6 +164,12 @@ export const STATEMENT_PARTS = [
   },
 ] as const;
 export const STATEMENT_WORKING_FIELD = "pa.stmt.working";
+
+/** PDF 1 p. 12 — the workbook's own examples. */
+export const STATEMENT_EXAMPLES = [
+  "Because God designed me as a teacher and encourager, I am called to empower believers to walk in their Divine identity for the glory of Christ by creating transformational learning experiences.",
+  "Because God made me a builder and strategist, I am called to equip entrepreneurs to steward their gifts for Kingdom impact by providing mentorship, systems, and community.",
+];
 
 /* ------------------------------------------------------------------ */
 /* Section 5 — Purpose Domains (the six-domain life map)               */

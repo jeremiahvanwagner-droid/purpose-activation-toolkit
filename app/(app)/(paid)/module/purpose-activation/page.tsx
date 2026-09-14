@@ -17,6 +17,8 @@ import {
   DESIGN_DOMAINS,
   DIVINE,
   EGOIC,
+  FOUR_COMPONENTS,
+  FOUR_COMPONENTS_INSIGHT,
   PA_META,
   S1_REFLECTIONS,
   S2_LISTS,
@@ -25,6 +27,7 @@ import {
   S5_REFLECTION,
   S6_REFLECTION,
   S7_REFLECTION,
+  STATEMENT_EXAMPLES,
 } from "@/lib/content/purposeActivation";
 
 export default function PurposeActivationModule() {
@@ -40,6 +43,12 @@ export default function PurposeActivationModule() {
       </header>
 
       <ModuleMeta slug="purpose-activation" />
+
+      <div className="callout" style={{ marginTop: 0, marginBottom: 22 }}>
+        <b>Where to begin.</b> Start with the two questions in Section 1, then draft your purpose statement in
+        Section 4 — you&apos;ll leave your first sitting with a working statement to live with. You don&apos;t need
+        to finish every exercise at once: each answer saves as you write, and every section is here to return to.
+      </div>
 
       {/* ---------- Section 1 — Orientation ---------- */}
       <section className="card">
@@ -75,6 +84,24 @@ export default function PurposeActivationModule() {
             </ul>
           </div>
         </div>
+        <div className="body-copy" style={{ marginTop: 18 }}>
+          <p>
+            Purpose operates at four interconnected levels. Understanding them helps you discern where you are and
+            what&apos;s next.
+          </p>
+        </div>
+        <div className="components">
+          {FOUR_COMPONENTS.map((c) => (
+            <div className="comp" key={c.name}>
+              <h4>{c.name}</h4>
+              <p>{c.desc}</p>
+              {c.example ? <p className="ex">Example: {c.example}</p> : null}
+            </div>
+          ))}
+        </div>
+        <p className="hint" style={{ marginTop: 12 }}>
+          <b>Key insight:</b> {FOUR_COMPONENTS_INSIGHT}
+        </p>
       </section>
 
       <section className="card">
@@ -125,9 +152,16 @@ export default function PurposeActivationModule() {
         <span className="tag">Section 4 · The Payoff</span>
         <h2>Craft your purpose statement</h2>
         <p className="hint">
-          Fill in the four parts and watch your statement take shape — then illuminate it. This becomes the
-          compass for the entire toolkit.
+          A purpose statement is not a rigid life sentence; it&apos;s a flexible, living compass. Fill in the four
+          parts and watch your statement take shape — then illuminate it. Write quickly and redraft as often as you
+          like: the printed workbook asks for three quick versions, and here you can rewrite each part until one
+          lands.
         </p>
+        <ul className="statement-examples" aria-label="Examples">
+          {STATEMENT_EXAMPLES.map((x) => (
+            <li key={x}>{x}</li>
+          ))}
+        </ul>
         <PurposeStatement />
       </section>
 
@@ -196,7 +230,8 @@ export default function PurposeActivationModule() {
           <p>
             Insight becomes transformation through commitment — clarity without commitment is just
             inspiration. Choose one focus, set four weekly targets, and name the tiny actions you'll take
-            every single day.
+            every single day. Use these 30 days to practice consistently and notice what helps you repeat it;
+            they are a starting period, not a deadline for transformation.
           </p>
         </div>
         <Plan30 />

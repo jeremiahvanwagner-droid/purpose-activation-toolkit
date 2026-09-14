@@ -55,13 +55,34 @@ function EntryView({ e }: { e: Entry }) {
       return (
         <div className="wb-qa">
           <div className="wb-q">Decision grid{e.decision ? `: ${e.decision}` : ""}</div>
-          <ul className="wb-a wb-ul">
-            {e.options.map((o, i) => (
-              <li key={i}>
-                <b>{o.name}</b> — total score {o.total}
-              </li>
-            ))}
-          </ul>
+          <table className="wb-grid">
+            <thead>
+              <tr>
+                <th scope="col">Criteria (1–5)</th>
+                {e.options.map((o, i) => (
+                  <th scope="col" key={i}>
+                    {o.name}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {e.criteria.map((c) => (
+                <tr key={c.label}>
+                  <th scope="row">{c.label}</th>
+                  {c.scores.map((n, i) => (
+                    <td key={i}>{n ?? "—"}</td>
+                  ))}
+                </tr>
+              ))}
+              <tr className="wb-grid-total">
+                <th scope="row">Total</th>
+                {e.options.map((o, i) => (
+                  <td key={i}>{o.total}</td>
+                ))}
+              </tr>
+            </tbody>
+          </table>
         </div>
       );
     case "tracker":
