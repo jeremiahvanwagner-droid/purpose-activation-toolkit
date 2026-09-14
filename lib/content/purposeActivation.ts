@@ -30,6 +30,7 @@ export const DIVINE = [
   "Service & stewardship",
   "Fruit that outlasts you",
   "Dependence on the Spirit",
+  "Joy in the process, not just the outcome",
   "“I was made for this”",
 ];
 

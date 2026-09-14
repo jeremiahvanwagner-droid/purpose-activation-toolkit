@@ -254,8 +254,9 @@ export const DM_S7_REFLECTION = {
 export const PRACTICES_FIELD = "dm.s8.practices"; // string[3]
 export const PENDING_FIELD = "dm.s8.pending"; // { facing, action, commitDate, reviewDate, accountability }
 export const DM_COMMIT_FIELD = "dm.s8.commitment";
+/** PDF 2 p. 23, verbatim. */
 export const DM_COVENANT_BODY =
-  ", commit to making decisions from my Higher Self in Christ, aligned with my values and Divine purpose, for the next 30 days. I recognize that this is not about perfect outcomes, but about faithful process. I will pause, pray, and listen before I choose — and I trust that as I acknowledge Him in all my ways, He will make my paths straight.";
+  ", commit to making decisions from my Higher Self in Christ, aligned with my values and Divine purpose, for the next 30 days. I will not rush, react, or decide in isolation. I will steward my calling, time, relationships, and resources with intentionality, wisdom, and faith. I trust that God will guide my steps and make my paths straight as I submit my choices to Him.";
 
 /* Section 9 — Closing Reflection (after 30 days) */
 export const DM_CLOSING = [
