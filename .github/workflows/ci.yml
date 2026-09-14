@@ -37,6 +37,11 @@ jobs:
       # No secrets are set here on purpose. Every env read in the app is
       # guarded, so a keyless build is the honest check that the app still
       # compiles for someone cloning it fresh.
+      # Targeted regression tests for saving/sync, purchase matching, and the
+      # keepsake (tests/*.test.ts, run by Node's built-in test runner).
+      - name: Test
+        run: npm test
+
       - name: Build
         run: npm run build
 

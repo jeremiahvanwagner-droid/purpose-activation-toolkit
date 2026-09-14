@@ -1,99 +1,129 @@
 "use client";
 
 /**
- * Local-first response store.
+ * The response store every exercise reads and writes.
  *
- * Every answer saves to localStorage instantly, so nothing is ever lost.
- * When the user signs in (Supabase configured), lib/sync.ts pulls their cloud
- * copy and pushes local changes — the component API below never changes.
+ * Components keep the same small API — useResponse(id), useResponses(),
+ * setResponse(id, value) — while persistence lives in lib/sync/workbookSync.ts:
+ * every answer is written to this device immediately, signed-out answers and
+ * each account's answers are kept apart, and signed-in answers reach the
+ * account through a merge that cannot overwrite newer or unsynced work. See
+ * that file for the rules and the failures they replace.
+ *
+ * useSaveStatus() reports what actually happened to the latest answers, so the
+ * labels around the workbook ("Saved on this device", "Synced to your
+ * account", "not synced yet") are outcomes, never assumptions.
  */
 
 import { useCallback, useSyncExternalStore } from "react";
-
-const KEY = "pat:responses:v1";
-const TS_KEY = "pat:updatedAt:v1";
+import {
+  ACCOUNT_KEY_PREFIX,
+  GUEST_KEY,
+  WorkbookSync,
+  isFilled as isFilledValue,
+  type KeyValueStore,
+  type SaveStatus,
+} from "./sync/workbookSync";
+import { supabaseWorkbookRemote } from "./sync/supabaseRemote";
+import { getSupabase } from "./supabase";
 
 export type Values = Record<string, unknown>;
 
-let cache: Values | null = null;
-let updatedAt = 0;
-const listeners = new Set<() => void>();
-
-function load(): Values {
-  if (cache) return cache;
-  if (typeof window === "undefined") return EMPTY;
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    cache = raw ? (JSON.parse(raw) as Values) : {};
-    updatedAt = Number(window.localStorage.getItem(TS_KEY)) || 0;
-  } catch {
-    cache = {};
-  }
-  return cache;
-}
-
-function persist() {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(cache ?? {}));
-    window.localStorage.setItem(TS_KEY, String(updatedAt));
-  } catch {
-    /* storage full or blocked — the in-memory copy still works this session */
-  }
-}
-
-function emit() {
-  listeners.forEach((l) => l());
-}
-
-function now(): number {
-  return typeof Date.now === "function" ? Date.now() : 0;
-}
-
-export function setResponse(id: string, value: unknown) {
-  const current = load();
-  cache = { ...current, [id]: value };
-  updatedAt = now();
-  persist();
-  emit();
-}
-
-export function getResponse<T = unknown>(id: string, fallback: T): T {
-  const v = load()[id];
-  return v === undefined ? fallback : (v as T);
-}
-
-/** True when a saved answer counts as "completed" for progress purposes. */
-export function isFilled(value: unknown): boolean {
-  if (value == null) return false;
-  if (typeof value === "string") return value.trim().length > 0;
-  if (Array.isArray(value)) return value.some(isFilled);
-  if (typeof value === "object") return Object.values(value as object).some(isFilled);
-  return Boolean(value);
-}
+/** True when a saved answer holds anything a person wrote or chose. */
+export const isFilled = isFilledValue;
 
 const EMPTY: Values = {};
 
-function subscribe(cb: () => void): () => void {
-  listeners.add(cb);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === KEY) {
-      cache = null; // force reload from the other tab's write
-      cb();
+const OFF_STATUS: SaveStatus = {
+  scope: "guest",
+  email: null,
+  deviceSave: "ok",
+  cloud: "off",
+  pending: 0,
+  lastSyncedAt: null,
+  lastError: null,
+  nextRetryAt: null,
+  conflicts: [],
+  guestAnswers: 0,
+  adoptedGuestAnswers: 0,
+};
+
+let instance: WorkbookSync | null = null;
+
+/** localStorage, with reads that fail soft and writes that report failure. */
+const browserStorage: KeyValueStore = {
+  get(key) {
+    try {
+      return window.localStorage.getItem(key);
+    } catch {
+      return null;
     }
-  };
-  if (typeof window !== "undefined") window.addEventListener("storage", onStorage);
-  return () => {
-    listeners.delete(cb);
-    if (typeof window !== "undefined") window.removeEventListener("storage", onStorage);
-  };
+  },
+  set(key, value) {
+    window.localStorage.setItem(key, value); // throws when full or blocked — the sync records it
+  },
+  remove(key) {
+    window.localStorage.removeItem(key);
+  },
+};
+
+/** The signed-in account supabase-js last persisted in this browser, if any.
+ *  Used only to show that account's device copy on first paint; nothing syncs
+ *  until SyncProvider confirms the session. */
+function persistedSessionUser(): { id: string; email: string | null } | null {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!url) return null;
+  try {
+    const key = `sb-${new URL(url).hostname.split(".")[0]}-auth-token`;
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const session = JSON.parse(raw) as { user?: { id?: unknown; email?: unknown } };
+    const id = session?.user?.id;
+    if (typeof id !== "string" || !id) return null;
+    return { id, email: typeof session.user?.email === "string" ? session.user.email : null };
+  } catch {
+    return null;
+  }
+}
+
+/** The single browser-side store, created on first use. Null during server rendering. */
+export function getWorkbookSync(): WorkbookSync | null {
+  if (typeof window === "undefined") return null;
+  if (!instance) {
+    const supa = getSupabase();
+    instance = new WorkbookSync({
+      storage: browserStorage,
+      remote: supa ? supabaseWorkbookRemote(supa) : null,
+    });
+    if (supa) instance.hintAccount(persistedSessionUser());
+    const sync = instance;
+    window.addEventListener("storage", (e) => {
+      if (e.key === null || e.key === GUEST_KEY || e.key.startsWith(ACCOUNT_KEY_PREFIX)) sync.onStorageKey(e.key);
+    });
+  }
+  return instance;
+}
+
+function subscribe(cb: () => void): () => void {
+  const sync = getWorkbookSync();
+  return sync ? sync.subscribe(cb) : () => {};
 }
 
 function getSnapshot(): Values {
-  return load();
+  return getWorkbookSync()?.getDoc() ?? EMPTY;
 }
+
 function getServerSnapshot(): Values {
   return EMPTY;
+}
+
+export function setResponse(id: string, value: unknown) {
+  getWorkbookSync()?.setField(id, value);
+}
+
+export function getResponse<T = unknown>(id: string, fallback: T): T {
+  const v = getSnapshot()[id];
+  return v === undefined ? fallback : (v as T);
 }
 
 /** Subscribe to the whole response map (re-renders on any change). */
@@ -115,39 +145,11 @@ export function useFilledCount(ids: string[]): number {
   return ids.reduce((n, id) => (isFilled(all[id]) ? n + 1 : n), 0);
 }
 
-/* ----------------------------- cloud-sync support ----------------------------- */
-
-/** Snapshot for pushing to the cloud. */
-export function getAllData(): { data: Values; updatedAt: number } {
-  return { data: load(), updatedAt };
-}
-
-/** Replace the entire store (used when the cloud copy is newer than local). */
-export function replaceAll(data: Values, ts: number) {
-  cache = { ...data };
-  updatedAt = ts || now();
-  persist();
-  emit();
-}
-
-/** Wipe local state — called on sign-out so a shared device doesn't leak the
- *  previous user's workbook into the next signer's cloud row. */
-export function clearAll() {
-  cache = {};
-  updatedAt = 0;
-  if (typeof window !== "undefined") {
-    try {
-      window.localStorage.removeItem(KEY);
-      window.localStorage.removeItem(TS_KEY);
-    } catch {
-      /* ignore */
-    }
-  }
-  emit();
-}
-
-/** Raw (non-React) subscription to store changes, for the sync pusher. */
-export function subscribeStore(cb: () => void): () => void {
-  listeners.add(cb);
-  return () => listeners.delete(cb);
+/** Where the latest answers actually are: this device, the account, or neither yet. */
+export function useSaveStatus(): SaveStatus {
+  return useSyncExternalStore(
+    subscribe,
+    () => getWorkbookSync()?.getStatus() ?? OFF_STATUS,
+    () => OFF_STATUS
+  );
 }

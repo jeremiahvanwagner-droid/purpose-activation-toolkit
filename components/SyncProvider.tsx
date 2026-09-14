@@ -1,102 +1,62 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import type { Session } from "@supabase/supabase-js";
+import { useEffect } from "react";
+import type { AuthChangeEvent } from "@supabase/supabase-js";
 import { getSupabase } from "@/lib/supabase";
-import { clearAll, getAllData, replaceAll, subscribeStore } from "@/lib/store";
+import { getWorkbookSync } from "@/lib/store";
+import type { AccountEvent } from "@/lib/sync/workbookSync";
 
 /**
- * Cloud sync (no UI). When a user is signed in:
- *  - on start, pull their cloud copy; if it's newer than local, adopt it,
- *    otherwise push local up (first sign-in seeds the cloud from this device);
- *  - thereafter, push local changes up, debounced.
- * On sign-out, wipes local so shared devices don't leak between users.
- * Renders nothing and no-ops entirely when Supabase isn't configured.
+ * Tells the workbook store who is signed in. Renders nothing.
+ *
+ * All saving, merging, retrying, and sign-out handling lives in
+ * lib/sync/workbookSync.ts. This component only forwards Supabase auth events
+ * and the browser's "back online" / "tab visible again" moments.
+ *
+ * A token refresh is forwarded as exactly that: it no longer re-reads the
+ * cloud copy over what is on screen. onAuthStateChange delivers the current
+ * session as INITIAL_SESSION when subscribing, so there is no separate
+ * getSession() call racing it.
  */
-export const WORKBOOK_TABLE = "workbooks";
+function toAccountEvent(event: AuthChangeEvent): AccountEvent {
+  switch (event) {
+    case "INITIAL_SESSION":
+      return "initial";
+    case "TOKEN_REFRESHED":
+      return "token-refreshed";
+    case "USER_UPDATED":
+      return "user-updated";
+    case "SIGNED_OUT":
+      return "signed-out";
+    default:
+      return "signed-in";
+  }
+}
 
 export default function SyncProvider() {
-  // Track the last-authenticated uid so we only "seed" from local on truly
-  // fresh sign-ins, and never push one user's data into another user's row.
-  const lastUidRef = useRef<string | null>(null);
-
   useEffect(() => {
     const supa = getSupabase();
-    if (!supa) return;
+    const sync = getWorkbookSync();
+    if (!supa || !sync) return;
 
-    let active = true;
-    let unsubPush: (() => void) | null = null;
-    let pushTimer: ReturnType<typeof setTimeout> | null = null;
+    const { data: sub } = supa.auth.onAuthStateChange((event, session) => {
+      const user = session?.user ? { id: session.user.id, email: session.user.email ?? null } : null;
+      // Leave the auth callback before doing anything: supabase-js holds its
+      // auth lock while callbacks run, and the sync's requests need that lock.
+      setTimeout(() => sync.setAccount(user, toAccountEvent(event)), 0);
+    });
 
-    async function push(uid: string) {
-      const { data, updatedAt } = getAllData();
-      await supa!
-        .from(WORKBOOK_TABLE)
-        .upsert({ user_id: uid, data, updated_at: new Date(updatedAt || Date.now()).toISOString() });
-    }
-
-    async function pull(uid: string) {
-      const { data: row } = await supa!
-        .from(WORKBOOK_TABLE)
-        .select("data, updated_at")
-        .eq("user_id", uid)
-        .maybeSingle();
-      const cloudTs = row?.updated_at ? Date.parse(row.updated_at as string) : 0;
-
-      if (row) {
-        // Cloud row exists — always adopt on sign-in. This prevents the
-        // shared-device leak where a previous user's local edits would
-        // otherwise overwrite the incoming user's cloud row.
-        replaceAll((row.data as Record<string, unknown>) ?? {}, cloudTs);
-      } else {
-        // No cloud row yet — first sign-in for this user. Push whatever is
-        // local (e.g., their pre-signup local-first work). Safe because
-        // sign-out already clears any prior signed-in user's data.
-        await push(uid);
-      }
-    }
-
-    function startPush(uid: string) {
-      unsubPush?.();
-      unsubPush = subscribeStore(() => {
-        if (pushTimer) clearTimeout(pushTimer);
-        pushTimer = setTimeout(() => {
-          void push(uid);
-        }, 1200);
-      });
-    }
-
-    async function onSession(session: Session | null) {
-      if (!active) return;
-      const uid = session?.user?.id ?? null;
-      if (uid) {
-        await pull(uid);
-        if (active) {
-          lastUidRef.current = uid;
-          startPush(uid);
-        }
-      } else {
-        // Session gone. Only clear the local store if this is a *sign-out*
-        // transition (we had a uid before) — not on initial page load for
-        // a signed-out user, which would wipe their local-first work.
-        unsubPush?.();
-        unsubPush = null;
-        if (pushTimer) clearTimeout(pushTimer);
-        if (lastUidRef.current) {
-          clearAll();
-          lastUidRef.current = null;
-        }
-      }
-    }
-
-    supa.auth.getSession().then(({ data }) => void onSession(data.session));
-    const { data: authSub } = supa.auth.onAuthStateChange((_event, session) => void onSession(session));
+    const onOnline = () => void sync.syncNow();
+    const onVisible = () => {
+      if (document.visibilityState === "visible") sync.refreshIfIdle();
+    };
+    window.addEventListener("online", onOnline);
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
-      active = false;
-      authSub.subscription.unsubscribe();
-      unsubPush?.();
-      if (pushTimer) clearTimeout(pushTimer);
+      sub.subscription.unsubscribe();
+      window.removeEventListener("online", onOnline);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
