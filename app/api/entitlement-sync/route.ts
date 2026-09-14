@@ -25,6 +25,7 @@
 // price change still grants access, and one product can never unlock another.
 
 import { getTjbGhlCredentials, requestTjbGhl } from "@/lib/ghl/tjb";
+import { lookupPurchase, type GhlTransaction, type PurchaseLookup } from "@/lib/entitlementMatch";
 import { AUDIT_PAYMENT_LINK_ID, BLUEPRINT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "@/lib/links";
 
 /** Products this route can grant, and the payment links that sell each.
@@ -42,18 +43,6 @@ const DEFAULT_PRODUCT_ID = "purpose-activation-toolkit";
 /** Test-mode charges must not open a paid product. Flip only to exercise the
  *  matcher against GHL's sandbox. */
 const REQUIRE_LIVE_MODE = true;
-
-type GhlTransaction = {
-  _id?: string;
-  amount?: number;
-  status?: string;
-  liveMode?: boolean;
-  contactId?: string;
-  contactEmail?: string | null;
-  entitySourceId?: string;
-  entitySourceName?: string;
-  createdAt?: string;
-};
 
 /** Resolve the caller's verified email from their Supabase access token.
  *  Returns null for anything we can't positively authenticate. */
@@ -76,46 +65,49 @@ async function emailFromAccessToken(token: string): Promise<string | null> {
   }
 }
 
-/** The first succeeded, live purchase of one of `sourceIds` that GHL has
- *  recorded against this email. */
-async function findPurchase(email: string, sourceIds: Set<string>): Promise<GhlTransaction | null> {
+/** Page size and page cap for the transactions lookup. Ten pages of live
+ *  transactions is far beyond this location's history; hitting the cap
+ *  reports "unavailable", never "no purchase". */
+const PAGE_SIZE = 100;
+const MAX_PAGES = 10;
+
+/** Look for a succeeded, live purchase of one of `sourceIds` recorded against
+ *  this email (rules in lib/entitlementMatch.ts). */
+async function findPurchase(email: string, sourceIds: Set<string>): Promise<PurchaseLookup> {
   const credentials = getTjbGhlCredentials();
-  if (!credentials) return null;
-
-  try {
-    const qs = new URLSearchParams({
-      altId: credentials.locationId,
-      altType: "location",
-      limit: "100",
-    });
-    const res = await requestTjbGhl(`/payments/transactions?${qs}`, {
-      cache: "no-store",
-    });
-    if (!res) return null;
-    if (!res.ok) {
-      console.error("[entitlement-sync] GHL transactions failed:", res.status);
-      return null;
-    }
-
-    const body = (await res.json()) as { data?: GhlTransaction[] };
-    const rows = Array.isArray(body.data) ? body.data : [];
-
-    // "succeeded" is the refund guard: GHL moves a refunded charge to status
-    // "refunded", so a refund stops this from ever granting. It does not take
-    // back an entitlement already written — revoking on refund is a separate
-    // sweep nobody has asked for yet.
-    const match = rows.find((tx) => {
-      if (tx.status !== "succeeded") return false;
-      if (REQUIRE_LIVE_MODE && tx.liveMode !== true) return false;
-      if (!tx.entitySourceId || !sourceIds.has(tx.entitySourceId)) return false;
-      return (tx.contactEmail ?? "").trim().toLowerCase() === email;
-    });
-
-    return match ?? null;
-  } catch (err) {
-    console.error("[entitlement-sync] GHL transactions error:", err);
-    return null;
+  if (!credentials) {
+    console.error("[entitlement-sync] GHL credentials are not configured.");
+    return { status: "unavailable", reason: "lookup-not-configured", pagesRead: 0 };
   }
+
+  return lookupPurchase(
+    async (offset, limit) => {
+      try {
+        const qs = new URLSearchParams({
+          altId: credentials.locationId,
+          altType: "location",
+          limit: String(limit),
+          offset: String(offset),
+        });
+        // Narrow the query to live charges; the matcher still checks liveMode.
+        if (REQUIRE_LIVE_MODE) qs.set("paymentMode", "live");
+        const res = await requestTjbGhl(`/payments/transactions?${qs}`, { cache: "no-store" });
+        if (!res) return { ok: false, reason: "lookup-not-configured" };
+        if (!res.ok) {
+          console.error("[entitlement-sync] GHL transactions failed:", res.status);
+          return { ok: false, reason: `lookup-http-${res.status}` };
+        }
+        const body = (await res.json()) as { data?: GhlTransaction[] };
+        return { ok: true, rows: Array.isArray(body.data) ? body.data : [] };
+      } catch (err) {
+        console.error("[entitlement-sync] GHL transactions error:", err);
+        return { ok: false, reason: "lookup-error" };
+      }
+    },
+    email,
+    sourceIds,
+    { requireLive: REQUIRE_LIVE_MODE, pageSize: PAGE_SIZE, maxPages: MAX_PAGES }
+  );
 }
 
 /** Write the entitlement. Idempotent on (email, product_id). */
@@ -192,13 +184,20 @@ export async function POST(req: Request) {
     return Response.json({ entitled: false, error: "Could not verify your session." }, { status: 401 });
   }
 
-  const purchase = await findPurchase(email, PRODUCTS[productId].sourceIds);
-  if (!purchase) {
+  const lookup = await findPurchase(email, PRODUCTS[productId].sourceIds);
+  if (lookup.status === "unavailable") {
+    // We could not look (credentials, GHL error, page cap). Say so: the reader
+    // must not be told they haven't paid when we simply couldn't check.
+    return Response.json({ entitled: false, checked: false, reason: "lookup-unavailable", productId });
+  }
+  if (lookup.status === "not-found") {
     // No purchase on file. Not an error — most callers are readers who haven't
     // bought yet, and the paywall's unlock screen is the correct answer.
-    return Response.json({ entitled: false, checked: true, productId });
+    return Response.json({ entitled: false, checked: true, reason: "not-found", productId });
   }
 
-  const granted = await grant(email, productId, purchase);
-  return Response.json({ entitled: granted, checked: true, productId });
+  const granted = await grant(email, productId, lookup.transaction);
+  return granted
+    ? Response.json({ entitled: true, checked: true, productId })
+    : Response.json({ entitled: false, checked: true, found: true, reason: "grant-failed", productId });
 }

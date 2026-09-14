@@ -24,6 +24,7 @@ import {
   DM_S5_REFLECTIONS,
   DM_S5_SPIRIT,
   DM_S7_REFLECTION,
+  EMOTIONS_NOTE,
   FILTER_QUESTION,
   HIGHER,
   LISTENING_PROMPTS,
@@ -167,6 +168,7 @@ export default function DecisionMakingModule() {
             </ul>
           </div>
         </div>
+        <p className="hint" style={{ marginTop: 12 }}>{EMOTIONS_NOTE}</p>
         <p className="hint" style={{ marginTop: 16 }}>
           For your live decision, catch three distorted thoughts and rewrite each as truth.
         </p>

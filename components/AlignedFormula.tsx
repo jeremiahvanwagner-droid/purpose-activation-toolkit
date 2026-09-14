@@ -1,7 +1,7 @@
 "use client";
 
 import { useResponse } from "@/lib/store";
-import { FORMULA_CHAIN, FORMULA_DOMAINS, FORMULA_FIELD } from "@/lib/content/alignmentToAction";
+import { FORMULA_CHAIN, FORMULA_DOMAINS, FORMULA_EXAMPLE, FORMULA_FIELD } from "@/lib/content/alignmentToAction";
 
 type Formula = {
   domain?: string;
@@ -26,6 +26,17 @@ export default function AlignedFormula() {
           </span>
         ))}
       </div>
+
+      <details className="step-example" style={{ marginBottom: 14 }}>
+        <summary>See an example</summary>
+        <p>
+          {FORMULA_EXAMPLE.map((row) => (
+            <span key={row.k} style={{ display: "block" }}>
+              <b style={{ fontStyle: "normal" }}>{row.k}:</b> {row.v}
+            </span>
+          ))}
+        </p>
+      </details>
 
       <div className="field" style={{ maxWidth: 320 }}>
         <label htmlFor="af-domain">Domain</label>

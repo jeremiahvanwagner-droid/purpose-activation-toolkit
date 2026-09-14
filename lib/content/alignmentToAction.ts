@@ -41,6 +41,18 @@ export const ATA_S2_REFLECTIONS = [
 /* Section 3 — The Aligned Action Formula */
 export const FORMULA_FIELD = "ata.s3.formula"; // { domain, purpose, values, intend, smallest, outcome }
 export const FORMULA_CHAIN = ["Higher Purpose", "Core Values", "Clear Intentions", "Tiny Actions", "Visible Outcomes"];
+/** PDF 3 p. 8 — "Example for Clarity". Shown on request; never written into answers. */
+export const FORMULA_EXAMPLE = [
+  { k: "Domain", v: "Work/Vocation" },
+  { k: "Because my purpose is", v: "To equip believers to walk in their Divine identity through teaching and community" },
+  { k: "And my core values in this domain are", v: "Integrity, service, excellence, creativity" },
+  { k: "This week, I intend to", v: "Create one piece of transformational content that serves my audience" },
+  { k: "My smallest aligned action is", v: "Write for 15 minutes on one key teaching point" },
+  {
+    k: "The outcome I expect from consistent action over 21 days is",
+    v: "A library of 5–7 teachings, deeper clarity on my message, and increased engagement from my community",
+  },
+];
 export const FORMULA_DOMAINS = [
   "Work / Vocation",
   "Relationships",

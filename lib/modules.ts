@@ -1,10 +1,13 @@
 "use client";
 
-import { isFilled, useResponses } from "./store";
+import { useResponses } from "./store";
+import { isStarted } from "./progress";
 import { PA_FIELD_IDS } from "./content/purposeActivation";
 import { DM_FIELD_IDS } from "./content/decisionMaking";
 import { ATA_FIELD_IDS } from "./content/alignmentToAction";
 import { EP_FIELD_IDS } from "./content/executionPrompts";
+
+export { isStarted };
 
 export type ModuleMeta = {
   slug: string;
@@ -61,13 +64,13 @@ export function moduleBySlug(slug: string): ModuleMeta | undefined {
 
 export type Progress = { done: number; total: number; pct: number };
 
-/** Progress for every module in one pass (reads the store once). */
+/** Exercises started, per module, in one pass (reads the store once). */
 export function useAllModuleProgress(): Record<string, Progress> {
   const all = useResponses();
   const out: Record<string, Progress> = {};
   for (const m of MODULES) {
     const total = m.fieldIds.length;
-    const done = m.fieldIds.reduce((n, id) => (isFilled(all[id]) ? n + 1 : n), 0);
+    const done = m.fieldIds.reduce((n, id) => (isStarted(id, all[id]) ? n + 1 : n), 0);
     out[m.slug] = { done, total, pct: total ? Math.round((done / total) * 100) : 0 };
   }
   return out;

@@ -19,7 +19,7 @@
  * renders. That's the safe default.
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getSupabase } from "./supabase";
 
 /** The $247 Purpose Activation Toolkit. */
@@ -37,11 +37,34 @@ export const DAB_PRODUCT_ID = "divine-alignment-blueprint";
 export type EntitlementState =
   | { state: "loading" }
   | { state: "signed-out" }
-  | { state: "unentitled"; email: string }
+  | {
+      state: "unentitled";
+      email: string;
+      /** not-found: we looked and there is no qualifying purchase for this email.
+       *  unavailable: we could not look (network, payment lookup, or a purchase
+       *  found but not yet recorded) — never presented as "you haven't paid". */
+      lookup: "not-found" | "unavailable";
+      checking: boolean;
+      checkedAt: number;
+    }
   | { state: "entitled"; email: string; purchasedAt: string };
 
-export function useEntitlement(productId: string): EntitlementState {
+export type EntitlementHandle = EntitlementState & {
+  /** Ask again: re-read the entitlement and re-check the payment record. */
+  recheck: () => void;
+};
+
+type SyncAnswer = "entitled" | "not-found" | "unavailable";
+
+/** A returning buyer's tab regains focus: re-check at most this often. */
+const FOCUS_RECHECK_MS = 20_000;
+
+export function useEntitlement(productId: string): EntitlementHandle {
   const [result, setResult] = useState<EntitlementState>({ state: "loading" });
+  const resultRef = useRef(result);
+  resultRef.current = result;
+  const [nonce, setNonce] = useState(0);
+  const recheck = useCallback(() => setNonce((n) => n + 1), []);
 
   useEffect(() => {
     const supa = getSupabase();
@@ -53,76 +76,112 @@ export function useEntitlement(productId: string): EntitlementState {
     }
 
     let cancelled = false;
+    let seq = 0;
+    let current: EntitlementState = resultRef.current;
+    const publish = (next: EntitlementState) => {
+      current = next;
+      setResult(next);
+    };
 
     /** Ask the server to reconcile this reader against GHL's payment record
-     *  for this product. Best-effort: any failure just leaves them
-     *  unentitled, which is the same answer they'd have got without it. */
-    async function syncFromPayments(): Promise<boolean> {
+     *  for this product. Any failure is reported as "unavailable" rather than
+     *  folded into "not found". */
+    async function syncFromPayments(): Promise<SyncAnswer> {
       try {
         const { data } = await supa!.auth.getSession();
         const token = data.session?.access_token;
-        if (!token) return false;
+        if (!token) return "unavailable";
 
         const res = await fetch("/api/entitlement-sync", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ productId }),
         });
-        if (!res.ok) return false;
-        const body = (await res.json()) as { entitled?: boolean };
-        return body.entitled === true;
+        if (!res.ok) return "unavailable";
+        const body = (await res.json()) as { entitled?: boolean; checked?: boolean; reason?: string };
+        if (body.entitled === true) return "entitled";
+        if (body.checked === true && body.reason === "not-found") return "not-found";
+        return "unavailable";
       } catch {
-        return false;
+        return "unavailable";
       }
     }
 
-    async function readRow(email: string) {
-      const { data } = await supa!
+    async function readRow(email: string): Promise<{ ok: true; purchasedAt: string | null } | { ok: false }> {
+      const { data, error } = await supa!
         .from("entitlements")
         .select("purchased_at")
         .eq("email", email)
         .eq("product_id", productId)
         .maybeSingle();
-      return data;
+      if (error) return { ok: false };
+      return { ok: true, purchasedAt: data ? (data.purchased_at as string) : null };
     }
 
     async function check() {
+      const mine = ++seq;
+      const stale = () => cancelled || mine !== seq;
       const { data: userData } = await supa!.auth.getUser();
       const email = userData.user?.email ?? null;
+      if (stale()) return;
 
       if (!email) {
-        if (!cancelled) setResult({ state: "signed-out" });
+        publish({ state: "signed-out" });
         return;
       }
 
+      if (current.state === "unentitled" && current.email === email) publish({ ...current, checking: true });
+
       let row = await readRow(email);
-      if (cancelled) return;
+      if (stale()) return;
+      if (row.ok && row.purchasedAt) {
+        publish({ state: "entitled", email, purchasedAt: row.purchasedAt });
+        return;
+      }
 
-      // No row yet — they may have just bought. Reconcile once, then re-read.
-      if (!row && (await syncFromPayments())) {
-        if (cancelled) return;
+      // No row yet — they may have just bought. Reconcile, then re-read.
+      const answer = await syncFromPayments();
+      if (stale()) return;
+      if (answer === "entitled") {
         row = await readRow(email);
+        if (stale()) return;
+        if (row.ok && row.purchasedAt) {
+          publish({ state: "entitled", email, purchasedAt: row.purchasedAt });
+          return;
+        }
       }
-
-      if (cancelled) return;
-      if (row) {
-        setResult({ state: "entitled", email, purchasedAt: row.purchased_at as string });
-      } else {
-        setResult({ state: "unentitled", email });
-      }
+      const lookup: "not-found" | "unavailable" =
+        answer === "not-found" && row.ok ? "not-found" : "unavailable";
+      publish({ state: "unentitled", email, lookup, checking: false, checkedAt: Date.now() });
     }
 
     void check();
 
-    const { data: sub } = supa.auth.onAuthStateChange(() => {
-      void check();
+    const { data: sub } = supa.auth.onAuthStateChange((event) => {
+      // INITIAL_SESSION is the check above; a token refresh doesn't change who
+      // is signed in or what they bought.
+      if (event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED") return;
+      setTimeout(() => void check(), 0);
     });
+
+    // Checkout opens in a new tab. When the buyer comes back to this one,
+    // look again instead of leaving them on a stale "unlock" screen.
+    let lastFocusCheck = Date.now();
+    const onVisible = () => {
+      if (document.visibilityState !== "visible") return;
+      if (Date.now() - lastFocusCheck < FOCUS_RECHECK_MS) return;
+      if (current.state !== "unentitled") return;
+      lastFocusCheck = Date.now();
+      void check();
+    };
+    document.addEventListener("visibilitychange", onVisible);
 
     return () => {
       cancelled = true;
       sub.subscription.unsubscribe();
+      document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [productId]);
+  }, [productId, nonce]);
 
-  return result;
+  return { ...result, recheck };
 }

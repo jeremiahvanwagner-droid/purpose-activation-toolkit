@@ -1,46 +1,32 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import SaveStatus from "@/components/SaveStatus";
 import { useAllModuleProgress } from "@/lib/modules";
-import { useResponses } from "@/lib/store";
 
-export default function ModuleMeta({ slug, label = "Module progress" }: { slug: string; label?: string }) {
+/**
+ * The module header strip: how many exercises have been started, where the
+ * answers are saved, and the way to the keepsake. "Started" is deliberate —
+ * the count moves when an exercise has real content in it, which is not the
+ * same as the exercise being finished.
+ */
+export default function ModuleMeta({ slug, label = "Exercises started" }: { slug: string; label?: string }) {
   const progress = useAllModuleProgress()[slug] ?? { done: 0, total: 0, pct: 0 };
-  const responses = useResponses();
-
-  const [saving, setSaving] = useState(false);
-  const [touched, setTouched] = useState(false);
-  const first = useRef(true);
-  const saveTimer = useRef<ReturnType<typeof setTimeout>>();
-
-  useEffect(() => {
-    if (first.current) {
-      first.current = false;
-      return;
-    }
-    setTouched(true);
-    setSaving(true);
-    clearTimeout(saveTimer.current);
-    saveTimer.current = setTimeout(() => setSaving(false), 700);
-    return () => clearTimeout(saveTimer.current);
-  }, [responses]);
 
   return (
     <div className="meta">
       <div className="prog">
         <div className="row">
           <span>{label}</span>
-          <b>{progress.pct}%</b>
+          <b>
+            {progress.done} of {progress.total}
+          </b>
         </div>
         <div className="bar">
           <i style={{ width: `${progress.pct}%` }} />
         </div>
       </div>
-      <span className={`saved${saving ? " saving" : ""}`} role="status" aria-live="polite">
-        <span className="pip" aria-hidden="true" />
-        <span>{saving ? "Saving…" : touched ? "Saved just now" : "Saved"}</span>
-      </span>
+      <SaveStatus />
       <Link className="btn ghost" href="/workbook">
         Export my workbook
       </Link>

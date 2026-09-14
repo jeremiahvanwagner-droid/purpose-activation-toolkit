@@ -67,9 +67,9 @@ export default function Rail() {
           const active = pathname === `/module/${m.slug}`;
           const done = p.total > 0 && p.done >= p.total;
           const className = `mod${active ? " active" : ""}${done ? " done" : ""}`;
-          const stateWord = done ? "complete" : p.pct > 0 ? "in progress" : "not started";
+          const stateWord = done ? "every exercise started" : p.done > 0 ? "in progress" : "not started";
           const linkAria = m.available
-            ? `${m.title} — ${m.blurb}. ${p.pct}% ${stateWord}.`
+            ? `${m.title} — ${m.blurb}. ${p.done} of ${p.total} exercises started, ${stateWord}.`
             : `${m.title} — ${m.blurb}. Not yet available.`;
           const label = (
             <>
@@ -122,7 +122,7 @@ export default function Rail() {
       <AccountWidget />
 
       <div className="rail-foot">
-        Your progress saves automatically on this device.
+        Answers save on this device as you write. Sign in to keep them in your account.
         <br />
         <b>Divine Path Walkers</b> · your community awaits.
       </div>

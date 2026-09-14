@@ -41,8 +41,8 @@ export const TOOLKIT_PAYWALL: PaywallProduct = {
   ),
   unentitledLede: (
     <>
-      Everything you&apos;ve written so far is safe. The four modules and your keepsake export unlock the moment
-      your purchase is on file. <b>$247</b> — lifetime access, one-time.
+      Everything you&apos;ve written so far is still saved. The four modules and your keepsake export unlock
+      once your purchase is on file. <b>$247</b> — lifetime access, one-time.
     </>
   ),
   cta: {
@@ -133,13 +133,32 @@ export default function Paywall({
             </div>
             <AccountWidget redirectTo={product.signInRedirect} />
           </div>
-        ) : (
-          <p className="paywall-note">
-            Signed in as <b>{ent.state === "unentitled" ? ent.email : ""}</b>. Purchases are matched to your
-            email automatically — no code required. This page refreshes once your entitlement is on file
-            (usually within a minute).
-          </p>
-        )}
+        ) : ent.state === "unentitled" ? (
+          <div className="paywall-note" role="status" aria-live="polite">
+            {ent.lookup === "unavailable" ? (
+              <p>
+                <b>We couldn&apos;t check for your purchase just now.</b> That&apos;s a problem on our side. If
+                you&apos;ve already paid, please don&apos;t pay again — check again in a moment, or email{" "}
+                <a href="mailto:support@truthjblue.com">support@truthjblue.com</a>.
+              </p>
+            ) : (
+              <p>
+                We haven&apos;t found a {product.eyebrow} purchase for this email yet. Purchases are matched to the
+                email entered at checkout, so if you just paid, give it a moment and check again. Paid with a
+                different email? Sign out below and sign in with that address. Still not showing? Email{" "}
+                <a href="mailto:support@truthjblue.com">support@truthjblue.com</a> before buying again.
+              </p>
+            )}
+            <div className="paywall-note-actions">
+              <button type="button" className="btn ghost" onClick={ent.recheck} disabled={ent.checking}>
+                {ent.checking ? "Checking…" : "Check my purchase again"}
+              </button>
+            </div>
+            <div className="paywall-signin paywall-account">
+              <AccountWidget redirectTo={product.signInRedirect} />
+            </div>
+          </div>
+        ) : null}
 
         <div className="paywall-inclusions">
           <div className="paywall-inc-title">What&apos;s included</div>
