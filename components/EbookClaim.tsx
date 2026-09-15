@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { COMMUNITY_URL, EBOOK_PDF_PATH, ebookDownloadUrl } from "@/lib/links";
 import { track } from "@/lib/metaPixel";
 import { CLAIM_KEY, writeClaim } from "@/lib/auditClaim";
+import { readAttribution } from "@/lib/attribution";
 
 const FALLBACK_URL = process.env.NEXT_PUBLIC_EBOOK_URL ?? "";
 
@@ -70,7 +71,10 @@ export default function EbookClaim({
       const res = await fetch("/api/audit-complete", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, name, website, profile }),
+        // Attribution travels with the claim: it is the only moment this reader
+        // becomes a contact, so it is the only moment the CRM can learn where
+        // they came from (a TikTok LIVE, a bio link, an email).
+        body: JSON.stringify({ email, name, website, profile, attribution: readAttribution() }),
       });
       const data = await res.json();
 

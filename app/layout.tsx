@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
 import SyncProvider from "@/components/SyncProvider";
+import AttributionCapture from "@/components/AttributionCapture";
 import { COMMUNITY_URL } from "@/lib/links";
 
 const SITE_URL = "https://www.truthjblue.com";
@@ -75,6 +76,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         />
         <MetaPixel />
         <SyncProvider />
+        <AttributionCapture />
         {children}
       </body>
     </html>
