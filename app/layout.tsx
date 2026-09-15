@@ -53,6 +53,7 @@ const ORGANIZATION = {
     "@id": "https://jeremiahvanwagner.com/#person",
     name: "Jeremiah Van Wagner",
     url: "https://jeremiahvanwagner.com/",
+    sameAs: ["https://www.linkedin.com/in/vanwagnerjeremiah/"],
   },
   sameAs: [
     "https://facebook.com/TruthjBlue",
