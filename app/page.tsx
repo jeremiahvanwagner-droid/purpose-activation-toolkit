@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import CheckoutLink from "@/components/CheckoutLink";
 import { BEYOND_THE_VEIL_URL } from "@/lib/links";
@@ -6,6 +7,17 @@ import { BEYOND_THE_VEIL_URL } from "@/lib/links";
  * Marketing landing — the public face at "/".
  * The signed-in product surface lives under (app)/ with its own layout.
  */
+
+/**
+ * Self-canonical. Search Console (2026-09-14) reported this page as
+ * "Duplicate without user-selected canonical" and picked
+ * store.truthjblue.com as the canonical, because the storefront declares one
+ * and the brand homepage declared none. The storefront keeps its own
+ * canonical (app/store/page.tsx); this one anchors the brand entity to www.
+ */
+export const metadata: Metadata = {
+  alternates: { canonical: "https://www.truthjblue.com/" },
+};
 
 function Glyph() {
   return (
