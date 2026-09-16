@@ -587,19 +587,21 @@ h1, h2, h3, h4 { text-wrap: balance; }
 :root[data-theme="dark"] .likert-n { color: var(--gold-bright); }
 .likert-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
 .likert { min-width: 0; }
-/* On a phone the five answers stay in one row so the whole scale is in view —
-   "Never" sitting off-screen would bias every answer toward "Always". The
-   pills shrink instead; 44px tall keeps them tappable. */
-@media (max-width: 540px) {
-  .likert-scale { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
-  .likert-pill { min-height: 44px; padding: 8px 2px; font-size: 0.68rem; line-height: 1.15; letter-spacing: 0;
-    display: grid; place-items: center; }
-}
 .likert-pill { font-family: var(--sans); font-size: 0.74rem; padding: 9px 5px; border-radius: 10px; cursor: pointer;
   border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-soft); transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease; text-align: center; }
 .likert-pill:hover { border-color: var(--gold); color: var(--ink); }
 .likert-pill:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .likert-pill.on { background: linear-gradient(180deg, var(--gold-bright), var(--gold)); color: #20180A; border-color: transparent; font-weight: 700; }
+/* On a phone the five answers stay in one row so the whole scale is in view —
+   "Never" sitting off-screen would bias every answer toward "Always". The
+   pills shrink instead; 44px tall keeps them tappable. */
+@media (max-width: 540px) {
+  .likert-scale { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+  /* The label scales with the viewport so "Sometimes" fits its fifth of the
+     row on a 320px phone as well as a 375px one, without ever wrapping. */
+  .likert-pill { min-height: 44px; padding: 8px 0; font-size: clamp(0.56rem, 2.75vw, 0.7rem); line-height: 1.15;
+    letter-spacing: 0; display: grid; place-items: center; }
+}
 
 .profile-locked { text-align: center; padding: 12px 0 4px; }
 .profile-locked .bar { max-width: 320px; margin: 0 auto 12px; }
