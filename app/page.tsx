@@ -91,8 +91,14 @@ export default function Landing() {
           </span>
         </Link>
         <div className="mk-nav-right">
-          <Link href="/audit" className="mk-nav-link">Take the Audit</Link>
-          <Link href="/toolkit" className="mk-nav-link">Enter the Toolkit</Link>
+          {/* On a phone the leading words hide (.mk-nav-long) and the links
+              become "Audit" / "Toolkit" pills, so the bar stays one row. */}
+          <Link href="/audit" className="mk-nav-link">
+            <span className="mk-nav-long">Take the </span>Audit
+          </Link>
+          <Link href="/toolkit" className="mk-nav-link">
+            <span className="mk-nav-long">Enter the </span>Toolkit
+          </Link>
         </div>
       </nav>
 

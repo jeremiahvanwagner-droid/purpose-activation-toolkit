@@ -294,13 +294,21 @@
   .st-hero-inner { grid-template-columns: 1fr; gap: 28px; }
   .st-hero-art { max-width: 240px; margin: 0; order: -1; }
   .st-product { grid-template-columns: 1fr; gap: 32px; }
-  .st-product-art { position: static; }
+  /* Unstick the art but keep it positioned: the plate inside is absolutely
+     placed with inset:0, and with `static` here it escaped to the page and
+     covered the whole first screen of every product on a phone. */
+  .st-product-art { position: relative; top: auto; }
   .st-foot-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 720px) {
   .st-nav { flex-wrap: wrap; padding: 12px 20px; gap: 12px; }
-  .st-nav-links { order: 3; width: 100%; overflow-x: auto; gap: 18px; padding-bottom: 4px; scrollbar-width: none; }
+  /* The collection links scroll sideways; the fade on the right edge is the
+     cue that there is more, since the last one is cut mid-word otherwise. */
+  .st-nav-links { order: 3; width: 100%; overflow-x: auto; gap: 18px; padding: 2px 32px 6px 0; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 0, #000 calc(100% - 40px), transparent); }
   .st-nav-links::-webkit-scrollbar { display: none; }
+  .st-nav-link { min-height: 32px; display: inline-flex; align-items: center; }
   .st-hero { padding: 60px 22px 72px; }
   .st-section { padding: 64px 22px; }
   .st-related { padding: 0 22px 64px; }
@@ -312,6 +320,42 @@
   .st-books { grid-template-columns: repeat(3, 1fr); gap: 14px 12px; }
   .st-book-row { grid-template-columns: 84px 1fr; gap: 14px; }
   .st-buy-price .st-price { font-size: 1.7rem; }
+  .st-prose, .st-card-tag, .st-buy-note { font-size: 0.96rem; }
+}
+/* Phone: the constellation shrinks to an ornament so the headline is on the
+   first screen, the two hero buttons stack at full width, and the gutters
+   come in to 18px. */
+@media (max-width: 560px) {
+  .st-nav { padding: 10px 16px; gap: 10px; }
+  .st-brand { gap: 9px; }
+  .st-brand .st-glyph { width: 28px; height: 28px; }
+  .st-brand-name { font-size: 0.86rem; letter-spacing: 0.12em; white-space: nowrap; }
+  .st-brand-tag { font-size: 0.5rem; }
+  .st-nav-cta { padding: 8px 11px; font-size: 0.74rem; }
+  .st-hero { padding: 40px 18px 60px; }
+  .st-hero-inner { gap: 18px; }
+  .st-hero-art { max-width: 132px; }
+  .st-h1 { margin-bottom: 16px; }
+  .st-lede { margin-bottom: 26px; }
+  .st-cta-row { gap: 10px; }
+  .st-cta-row .st-btn { width: 100%; align-items: center; text-align: center; }
+  .st-hero-trust { margin-top: 24px; gap: 8px 14px; }
+  .st-section { padding: 56px 18px; }
+  .st-related { padding: 0 18px 56px; }
+  .st-final { padding: 64px 18px; }
+  .st-foot { padding: 36px 18px 28px; }
+  .st-container { padding: 0 18px; }
+  .st-grid, .st-grid-2, .st-grid-4, .st-grid-fill { grid-template-columns: 1fr; gap: 16px; }
+  .st-card-body { padding: 16px 16px 18px; }
+  .st-card-title { font-size: 1.24rem; }
+  .st-crumbs { margin: 18px 0 16px; }
+  .st-product { gap: 24px; padding-bottom: 56px; }
+  .st-product-art .st-plate { padding: 22px; }
+  .st-buy { padding: 18px 16px; }
+  .st-buy .st-btn { align-self: stretch; align-items: center; text-align: center; }
+  .st-book-list { gap: 20px; }
+  .st-foot-fine { flex-direction: column; gap: 6px; }
+  .bp-scores { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 /* ============================================================

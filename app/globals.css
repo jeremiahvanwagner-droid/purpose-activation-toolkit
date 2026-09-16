@@ -88,6 +88,7 @@ body {
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
+@media (max-width: 880px) { body { background-attachment: scroll; } }
 
 a { color: inherit; }
 h1, h2, h3, h4 { text-wrap: balance; }
@@ -117,6 +118,10 @@ h1, h2, h3, h4 { text-wrap: balance; }
   display: flex; flex-direction: column; gap: 24px;
   overflow: hidden;
 }
+/* The header bar and the drawer only exist as boxes on a phone (see the 880px
+   breakpoint); here they dissolve so the rail's flex column is unchanged. */
+.rail-bar, .rail-drawer { display: contents; }
+.rail-toggle { display: none; }
 .rail::before {
   content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
   background-image:
@@ -194,7 +199,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .acct-conflict-v span { color: var(--gold-bright); }
 
 /* ---------------- canvas ---------------- */
-.canvas { position: relative; overflow: hidden; }
+.canvas { position: relative; overflow: hidden; min-width: 0; }
 .canvas::before {
   content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.4s ease;
   background-image:
@@ -581,11 +586,14 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (prefers-color-scheme: dark) { .likert-n { color: var(--gold-bright); } }
 :root[data-theme="dark"] .likert-n { color: var(--gold-bright); }
 .likert-scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.likert { min-width: 0; }
+/* On a phone the five answers stay in one row so the whole scale is in view —
+   "Never" sitting off-screen would bias every answer toward "Always". The
+   pills shrink instead; 44px tall keeps them tappable. */
 @media (max-width: 540px) {
-  .likert-scale { grid-auto-flow: column; grid-auto-columns: 72px; grid-template-columns: none;
-    overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
-  .likert-pill { min-height: 44px; padding: 10px 6px; scroll-snap-align: start; }
-  .likert-scale { scroll-snap-type: x mandatory; }
+  .likert-scale { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
+  .likert-pill { min-height: 44px; padding: 8px 2px; font-size: 0.68rem; line-height: 1.15; letter-spacing: 0;
+    display: grid; place-items: center; }
 }
 .likert-pill { font-family: var(--sans); font-size: 0.74rem; padding: 9px 5px; border-radius: 10px; cursor: pointer;
   border: 1px solid var(--line-strong); background: var(--surface-2); color: var(--ink-soft); transition: color 0.16s ease, border-color 0.16s ease, background 0.16s ease; text-align: center; }
@@ -918,6 +926,7 @@ h1, h2, h3, h4 { text-wrap: balance; }
 @media (max-width: 720px) {
   .mk-nav { padding: 12px 20px; }
   .mk-nav-right { gap: 14px; }
+  .mk-nav-link { white-space: nowrap; }
   .mk-hero { padding: 72px 24px 96px; }
   .mk-section { padding: 72px 24px; }
   .mk-container { padding: 0 24px; }
@@ -928,6 +937,38 @@ h1, h2, h3, h4 { text-wrap: balance; }
   .mk-foot-links { justify-content: center; }
   .mk-brand { justify-content: center; }
 }
+/* Phone: the wordmark stays on one line, the two nav links become compact
+   pills with their short labels ("Audit", "Toolkit"), and every CTA fills
+   the width so the pair reads as one stack rather than a wide and a narrow. */
+@media (max-width: 560px) {
+  .mk-nav { padding: 10px 16px; gap: 10px; }
+  .mk-brand { justify-content: flex-start; gap: 9px; }
+  .mk-brand .mk-glyph { width: 28px; height: 28px; }
+  .mk-brand-name { font-size: 0.86rem; letter-spacing: 0.12em; white-space: nowrap; }
+  .mk-brand-tag { font-size: 0.5rem; letter-spacing: 0.26em; }
+  .mk-nav-right { gap: 8px; flex: 0 0 auto; }
+  .mk-nav-long { display: none; }
+  .mk-nav-link { font-size: 0.8rem; font-weight: 600; color: var(--ink); padding: 8px 13px; min-height: 38px;
+    display: inline-flex; align-items: center; border: 1px solid var(--line-strong); border-radius: 999px;
+    background: var(--surface); }
+  .mk-nav-link:last-child { border-color: color-mix(in srgb, var(--gold) 70%, var(--line-strong)); }
+  .mk-hero { padding: 56px 20px 72px; }
+  .mk-h1 { margin-bottom: 18px; }
+  .mk-lede { margin-bottom: 28px; }
+  .mk-section { padding: 60px 20px; }
+  .mk-container { padding: 0 20px; }
+  .mk-cta-row { gap: 10px; }
+  .mk-cta-row .mk-btn { width: 100%; align-items: center; text-align: center; }
+  .mk-pillars { gap: 14px; margin-top: 32px; }
+  .mk-pillar { padding: 22px 18px; }
+  .mk-diff-grid { gap: 22px; margin-top: 30px; }
+  .mk-diff-item { grid-template-columns: 40px 1fr; gap: 12px; }
+  .mk-diff-mark { width: 40px; height: 40px; }
+  .mk-scripture { padding: 22px 6px; margin-top: 40px; }
+  .mk-steps { gap: 26px; }
+  .mk-foot { padding: 34px 20px; }
+  .mk-foot-links { gap: 12px 18px; }
+}
 
 /* ---------------- paywall / unlock screen ---------------- */
 .paywall-loading { text-align: center; padding: 80px 20px; color: var(--slate); font-family: var(--serif); font-style: italic; }
@@ -937,6 +978,13 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .paywall-lede { font-family: var(--serif); font-size: 1.08rem; line-height: 1.65; color: var(--ink-soft); margin: 0 0 26px; }
 .paywall-cta { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; }
 .paywall-cta .btn { padding: 14px 22px; font-size: 0.92rem; }
+@media (max-width: 540px) {
+  .paywall { padding: 8px 0; }
+  .paywall-cta .btn { width: 100%; justify-content: center; }
+  .paywall-signin { padding: 16px; }
+  .paywall-signin .acct-input, .paywall-signin .acct-btn { width: 100%; max-width: none; }
+  .paywall-signin .acct-btn { min-height: 44px; }
+}
 .paywall-signin { border: 1px solid var(--line); background: var(--surface); border-radius: 16px; padding: 20px 22px; margin-bottom: 28px; }
 .paywall-signin .acct { display: block !important; border-top: none; padding-top: 0; color: var(--ink); }
 .paywall-signin .acct-title { color: var(--ink); font-family: var(--serif); font-size: 1.05rem; }
@@ -970,20 +1018,47 @@ h1, h2, h3, h4 { text-wrap: balance; }
 .paywall-inclusions li::before { content: "✦"; position: absolute; left: 0; color: var(--gold); font-size: 0.86rem; top: 1px; }
 
 /* ---------------- responsive ---------------- */
+/* Tablet and phone: the rail becomes a sticky header. The brand and a Menu
+   button sit in .rail-bar; .rail-drawer (modules, sign-in, footnote) drops
+   down beneath it when the button is pressed. The desktop rail's styling
+   for the module list and account widget carries over unchanged inside the
+   drawer, so the two never drift apart. */
 @media (max-width: 880px) {
   .app { grid-template-columns: 1fr; }
-  .rail { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 14px 18px; padding: 16px 18px; }
-  .rail-title, .rail-foot { display: none; }
-  /* Keep AccountWidget visible on mobile so phone users can actually sign in. */
-  .acct { flex: 1 1 100%; border-top: none; padding-top: 0; margin-top: 6px; }
-  .acct-title, .acct-note { display: none; }
-  .acct-input { max-width: 240px; }
-  .acct-btn { padding: 8px 14px; }
-  .nav .thread { display: none; }
-  .brand { flex: 1 1 100%; }
-  .nav { flex-direction: row; flex-wrap: wrap; gap: 8px; width: 100%; }
-  .mod { grid-template-columns: 34px 1fr; flex: 1 1 44%; padding: 10px 8px; }
-  .mod .mini-ring, .mod .m-d { display: none; }
+  .rail { position: sticky; top: 0; z-index: 40; height: auto; display: block; padding: 0; overflow: visible;
+    border-right: none; border-bottom: 1px solid rgba(231, 201, 127, 0.16); }
+  .rail::before { overflow: hidden; }
+  .rail-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    min-height: 60px; padding: 10px 16px; position: relative; }
+  .brand { gap: 10px; min-width: 0; }
+  .brand .glyph { width: 30px; height: 30px; }
+  .brand .wm-name { font-size: 0.92rem; letter-spacing: 0.12em; white-space: nowrap; }
+  .brand .wm-tag { font-size: 0.52rem; letter-spacing: 0.28em; }
+  .rail-toggle { display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto; min-height: 40px;
+    padding: 6px 12px 6px 11px; border-radius: 10px; border: 1px solid rgba(231, 201, 127, 0.32);
+    background: rgba(255, 255, 255, 0.04); color: #F1EAD7; cursor: pointer;
+    font-family: var(--sans); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
+  .rail-toggle:hover, .rail-open .rail-toggle { background: rgba(231, 201, 127, 0.12); border-color: rgba(231, 201, 127, 0.5); }
+  .rail-toggle-icon { display: grid; gap: 4px; width: 16px; }
+  .rail-toggle-icon i { display: block; height: 2px; border-radius: 2px; background: var(--gold-bright);
+    transition: transform 0.2s ease, opacity 0.2s ease; transform-origin: center; }
+  .rail-open .rail-toggle-icon i:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .rail-open .rail-toggle-icon i:nth-child(2) { opacity: 0; }
+  .rail-open .rail-toggle-icon i:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+  .rail-drawer { display: none; position: absolute; top: 100%; left: 0; right: 0; z-index: 39;
+    max-height: calc(100dvh - 60px); overflow-y: auto; overscroll-behavior: contain;
+    flex-direction: column; gap: 20px; padding: 6px 16px 22px;
+    background: linear-gradient(180deg, var(--navy), var(--navy-deep));
+    border-bottom: 1px solid rgba(231, 201, 127, 0.22); box-shadow: 0 34px 50px -24px rgba(0, 0, 0, 0.7); }
+  .rail-open .rail-drawer { display: flex; }
+  .rail-title { padding-top: 6px; }
+  .nav { flex: 0 0 auto; }
+  .mod { padding: 12px 8px; }
+  .acct { padding-top: 16px; }
+  .acct-input { font-size: 16px; padding: 10px 12px; }
+  .acct-btn { min-height: 42px; }
+  .rail-foot { padding-bottom: 4px; }
+
   .canvas-inner { padding: 26px 20px 96px; }
   .values-wrap { grid-template-columns: 1fr; }
   .teach { grid-template-columns: 1fr; }
@@ -997,6 +1072,47 @@ h1, h2, h3, h4 { text-wrap: balance; }
   .trk-row.trk-head { display: none; }
   .p-body { padding-left: 12px; }
   .tk-row { grid-template-columns: 1fr; }
+
+  /* Touch: 16px inputs stop iOS zooming the page on focus; 44px targets. */
+  .field input, .field textarea, .field select, .lh-pair textarea, .lh-pair input, .trk-row input,
+  .dgrid input, .dgrid select, .tk-row select { font-size: 16px; }
+  .btn { min-height: 44px; }
+  .chip { min-height: 40px; padding: 8px 14px; }
+  .rk-item button { min-width: 36px; min-height: 36px; }
+  .p-item summary { min-height: 48px; }
+  .likert-pill { min-height: 44px; }
+}
+
+/* Phone: tighter frame, cards edge to edge with a 16px gutter, and the
+   primary actions in each card stacked at full width. */
+@media (max-width: 540px) {
+  .canvas-inner { padding: 22px 16px 84px; }
+  .page-title { line-height: 1.06; }
+  .card { padding: 20px 16px 22px; border-radius: 16px; margin-bottom: 18px; }
+  .card h2 { font-size: clamp(1.35rem, 1.2rem + 1vw, 1.6rem); }
+  .meta { padding: 12px 14px; gap: 12px; margin: 18px 0 22px; }
+  .statement, .covenant { padding: 22px 18px; }
+  .covenant .seal, .statement .seal { top: 10px; right: 10px; }
+  .timer { padding: 18px 14px; }
+  .timer .t-clock { font-size: 2.6rem; }
+  .teach > div { padding: 14px; }
+  .dm-row { padding: 12px 14px 14px; }
+  .rank { padding: 12px; }
+  .audit-banner { display: grid; grid-template-columns: 1fr auto; gap: 8px 12px; padding: 14px; align-items: center; }
+  .audit-banner-k { justify-self: start; }
+  .audit-banner-t { grid-column: 1 / -1; font-size: 0.96rem; }
+  .profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .pcard { padding: 16px 10px; }
+  .journey-grid { grid-template-columns: 1fr; }
+  .jcard { padding: 18px; }
+  .wb-actions { flex-direction: column; }
+  .wb-doc { padding: 28px 18px; }
+  .wb-kv-row { grid-template-columns: 1fr; gap: 2px; }
+  .wb-sig { flex-direction: column; align-items: flex-start; }
+  .wb-profile-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cta-card .btn, .wb-actions .btn, .timer .t-actions .btn, .paywall-note-actions .btn,
+  .canvas-inner .card > div > .btn, .canvas-inner > div > .btn { width: 100%; justify-content: center; }
+  .toast { bottom: 16px; max-width: calc(100vw - 32px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
