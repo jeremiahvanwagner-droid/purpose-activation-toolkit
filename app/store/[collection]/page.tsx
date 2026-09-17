@@ -8,10 +8,11 @@ import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { findCollection, getStore } from "@/lib/store/catalog";
 import { COLLECTIONS, SERIES_TITLE } from "@/lib/store/overlay";
 
-type Params = { params: { collection: string }; searchParams?: { b?: string } };
+// Next 15 hands route params and the query string to the page as promises.
+type Params = { params: Promise<{ collection: string }>; searchParams?: Promise<{ b?: string }> };
 
-export function generateMetadata({ params }: Params): Metadata {
-  const c = findCollection(params.collection);
+export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const c = findCollection((await params).collection);
   if (!c) return {};
   return {
     title: c.title,
@@ -21,10 +22,11 @@ export function generateMetadata({ params }: Params): Metadata {
 }
 
 export default async function CollectionPage({ params, searchParams }: Params) {
-  const collection = findCollection(params.collection);
+  const collection = findCollection((await params).collection);
   if (!collection) notFound();
 
-  const base = storeBase();
+  const query = (await searchParams) ?? {};
+  const base = await storeBase();
   const store = await getStore();
   const items = store.inCollection(collection.key);
   const ratio = collection.key === "work-with-jeremiah" ? "tall" : collection.key === "programs-mentorship" || collection.key === "start-here" ? "wide" : "std";
@@ -35,7 +37,7 @@ export default async function CollectionPage({ params, searchParams }: Params) {
   // the Library has no page per book. A visitor arriving from a book's ad is
   // reported as having viewed that book, with the id the catalog knows.
   const viewedBook =
-    collection.key === "library" && searchParams?.b ? store.books.find((b) => String(b.n) === searchParams.b) ?? null : null;
+    collection.key === "library" && query.b ? store.books.find((b) => String(b.n) === query.b) ?? null : null;
 
   return (
     <>

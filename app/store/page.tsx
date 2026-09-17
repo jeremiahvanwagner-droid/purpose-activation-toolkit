@@ -41,7 +41,7 @@ function SectionHead({
 }
 
 export default async function StoreHome() {
-  const base = storeBase();
+  const base = await storeBase();
   const store = await getStore();
   const start = store.inCollection("start-here");
   const courses = store.inCollection("courses-workbooks");

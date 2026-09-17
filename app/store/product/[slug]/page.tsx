@@ -8,7 +8,8 @@ import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore } from "@/lib/store/catalog";
 
-type Params = { params: { slug: string } };
+// Next 15 hands route params to the page as a promise.
+type Params = { params: Promise<{ slug: string }> };
 
 function plain(html: string, max = 160): string {
   const t = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -16,8 +17,9 @@ function plain(html: string, max = 160): string {
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
+  const { slug } = await params;
   const store = await getStore();
-  const item = store.bySlug(params.slug);
+  const item = store.bySlug(slug);
   if (!item) return {};
   return {
     title: item.name,
@@ -28,9 +30,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Params) {
-  const base = storeBase();
+  const { slug } = await params;
+  const base = await storeBase();
   const store = await getStore();
-  const item = store.bySlug(params.slug);
+  const item = store.bySlug(slug);
   if (!item) notFound();
 
   const related = store.inCollection(item.collection.key).filter((i) => i.id !== item.id).slice(0, 3);

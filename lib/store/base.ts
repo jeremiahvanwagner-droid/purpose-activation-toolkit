@@ -12,9 +12,10 @@ import { headers } from "next/headers";
  */
 const STORE_HOSTS = ["store.truthjblue.com"];
 
-/** "" on the store host, "/store" anywhere else. Server components only. */
-export function storeBase(): string {
-  const host = (headers().get("host") ?? "").toLowerCase().split(":")[0];
+/** "" on the store host, "/store" anywhere else. Server components only.
+ *  Async because Next 15 resolves the request headers asynchronously. */
+export async function storeBase(): Promise<string> {
+  const host = ((await headers()).get("host") ?? "").toLowerCase().split(":")[0];
   return STORE_HOSTS.includes(host) ? "" : "/store";
 }
 

@@ -34,8 +34,8 @@ export const metadata: Metadata = {
 const THEME_HOOK =
   '(function(){try{var q=new URLSearchParams(location.search).get("theme");var t=q||localStorage.getItem("tjb-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t)}}catch(e){}})();';
 
-export default function StoreLayout({ children }: { children: React.ReactNode }) {
-  const base = storeBase();
+export default async function StoreLayout({ children }: { children: React.ReactNode }) {
+  const base = await storeBase();
   return (
     <div className="st">
       <script dangerouslySetInnerHTML={{ __html: THEME_HOOK }} />
