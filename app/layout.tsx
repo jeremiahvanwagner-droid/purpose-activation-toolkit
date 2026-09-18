@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
 import SyncProvider from "@/components/SyncProvider";
@@ -6,6 +7,31 @@ import AttributionCapture from "@/components/AttributionCapture";
 import { COMMUNITY_URL } from "@/lib/links";
 
 const SITE_URL = "https://www.truthjblue.com";
+
+/**
+ * GA4, picked by hostname.
+ *
+ * One Vercel project answers on both truthjblue.com and store.truthjblue.com,
+ * and each has its own GA4 property. A single hardcoded id would have pushed
+ * every storefront session into the brand property and left the store's own
+ * permanently empty, so the id is chosen from the request host. The store host
+ * is rewritten onto /store by middleware, which preserves the Host header, so
+ * this still reads the address the visitor actually typed.
+ *
+ * Deliberately PLAIN script tags, not next/script. next/script at
+ * afterInteractive injects after hydration, so the tag never appears in the
+ * server-rendered HTML — which is why MetaPixel is invisible to curl and why
+ * "is analytics installed?" could not be answered by looking at the page. On
+ * 2026-09-17 GA4 had been reporting "no data received" and nothing in this
+ * repo referenced a measurement id at all. These tags render into the HTML, so
+ * a plain fetch proves whether tracking is live.
+ *
+ * Ids are public by design; an env var would only add a way for this to
+ * silently not ship again.
+ */
+const GA_BRAND = "G-4TF57DLDBH";
+const GA_STORE = "G-JP0HS6X4S8";
+const GA_STORE_HOSTS = new Set(["store.truthjblue.com", "shop.truthjblue.com"]);
 const TITLE = "Truth J Blue LLC — Faith-First Purpose Activation Toolkit";
 const DESCRIPTION =
   "From Truth J Blue LLC: an interactive, faith-first digital workbook to help you recognize your Divine design, align with your Higher Self in Christ, and walk in your purpose.";
@@ -66,7 +92,13 @@ const ORGANIZATION = {
   ],
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const requestHeaders = await headers();
+  const host = (requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host") ?? "")
+    .toLowerCase()
+    .split(":")[0];
+  const gaId = GA_STORE_HOSTS.has(host) ? GA_STORE : GA_BRAND;
+
   return (
     <html lang="en">
       <body>
@@ -78,6 +110,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <SyncProvider />
         <AttributionCapture />
         {children}
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
+        <script
+          id="ga4-init"
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', '${gaId}');`,
+          }}
+        />
       </body>
     </html>
   );
