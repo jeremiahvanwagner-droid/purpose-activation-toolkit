@@ -1,17 +1,71 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import JsonLd from "@/components/JsonLd";
 import ProductCard from "@/components/store/ProductCard";
 import { Constellation } from "@/components/store/Glyph";
 import { COMMUNITY_URL } from "@/lib/links";
-import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
-import { getStore } from "@/lib/store/catalog";
+import { faqPageSchema, type Faq } from "@/lib/seo";
+import { STORE_URL, SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
+import { formatPrice, getStore, type StoreData } from "@/lib/store/catalog";
 import { SERIES_TITLE } from "@/lib/store/overlay";
 
 export const metadata: Metadata = {
   title: "The Store — Truth J Blue",
   alternates: { canonical: STORE_URL },
 };
+
+/**
+ * The questions people ask before they begin, answered in plain sentences.
+ *
+ * Every page here was written to convert, which left nothing for a search
+ * engine or an AI assistant to quote when someone asks what the Audit is or
+ * how delivery works. This block is that answer, and it is also rendered as
+ * FAQPage schema from the same list, so the two can never drift.
+ *
+ * Each answer restates something already published — a product page, the
+ * Audit itself, or /legal — with the live GHL price where one is named.
+ * Nothing here may promise what the store does not sell. Voice as everywhere
+ * in the store: calm, invitational, no urgency, nothing asserted about the
+ * reader.
+ */
+function storeFaq(store: StoreData): Faq[] {
+  const audit = store.bySlug("inner-alignment-audit");
+  const toolkit = store.items.find((i) => i.meta.featured) ?? null;
+  const auditPrice = audit?.amount != null ? `, ${formatPrice(audit.amount)},` : "";
+  const toolkitPrice = toolkit?.amount != null ? `${formatPrice(toolkit.amount)} once, ` : "";
+
+  return [
+    {
+      q: "Where should I begin?",
+      a: "Most people begin with the Inner Alignment Audit or the Purpose Activation Toolkit. The Audit shows you where you stand; the Toolkit walks you forward. Begin with one and grow into the other.",
+    },
+    {
+      q: "What is the Inner Alignment Audit?",
+      a: `Twenty-eight honest statements across four domains of alignment — Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure — with clear scoring that shows where you're aligned, where there's drift, and the best place to begin. A free version is at truthjblue.com/audit. The store edition${auditPrice} adds a focused follow-up call to integrate what you find.`,
+    },
+    {
+      q: "What is the Purpose Activation Toolkit?",
+      a: `An interactive, faith-first digital workbook in four modules that turn spiritual clarity into daily, aligned action. Every answer saves as you write it, your work follows you to any device, and the finished workbook is yours for life — ${toolkitPrice}no subscription.`,
+    },
+    {
+      q: "How do checkout and delivery work?",
+      a: `Checkout is secure, on HighLevel, our payments platform, and no account is needed. Your access details arrive by email right after purchase. The Toolkit and the Audit open at truthjblue.com when you sign in with the email you used at checkout.`,
+    },
+    {
+      q: "How do the programs and one-to-one work begin?",
+      a: "With a conversation. The Beyond the Veil Mentorship runs twelve weeks and begins with an interview. The Ascension Intensive runs six weeks, by application, with a payment plan available. A Deep Dive Call with Jeremiah is thirty minutes, booked from the calendar and paid as you book.",
+    },
+    {
+      q: "Can I return a digital product?",
+      a: `Digital products — the Toolkit, the Audit, the Divine Alignment Blueprint, courses, and eBooks — are not returnable, because access is granted the moment you purchase. If an order is wrong or a purchase never reaches you, write to ${SUPPORT_EMAIL} and we will make it right at no cost to you. The full policy is at truthjblue.com/legal.`,
+    },
+    {
+      q: "Who is Truth J Blue?",
+      a: "Truth J Blue LLC is the company founded by Jeremiah Van Wagner — author of 23 books, founder of Divine Path Walkers and the Beyond the Veil mentorship, and founder of the nonprofit Inspire Build Motivate. Everything here is faith-first and built to be lived, not just read.",
+    },
+  ];
+}
 
 function SectionHead({
   kicker,
@@ -48,9 +102,11 @@ export default async function StoreHome() {
   const programs = store.inCollection("programs-mentorship");
   const work = store.inCollection("work-with-jeremiah");
   const toolkit = start.find((i) => i.meta.featured);
+  const faq = storeFaq(store);
 
   return (
     <>
+      <JsonLd data={faqPageSchema(faq)} />
       <header className="st-hero">
         <div className="st-hero-inner">
           <div>
@@ -175,6 +231,30 @@ export default async function StoreHome() {
                 <span className="st-book-title">{b.title}</span>
                 <span className="st-book-link">Read on Amazon ↗</span>
               </a>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="questions" className="st-section st-section-alt" aria-labelledby="st-faq-title">
+        <div className="st-container">
+          <div className="st-head">
+            <div>
+              <div className="st-kicker">Good to know</div>
+              <h2 id="st-faq-title" className="st-h2">
+                Questions, answered.
+              </h2>
+              <p className="st-blurb">
+                The short version of what people ask before they begin. A person answers the rest at {SUPPORT_EMAIL}.
+              </p>
+            </div>
+          </div>
+          <div className="st-faq">
+            {faq.map(({ q, a }) => (
+              <details key={q} className="st-faq-item">
+                <summary className="st-faq-q">{q}</summary>
+                <p className="st-faq-a">{a}</p>
+              </details>
             ))}
           </div>
         </div>

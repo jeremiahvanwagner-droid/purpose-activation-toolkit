@@ -6,7 +6,10 @@ const WWW = "https://www.truthjblue.com";
 /**
  * One sitemap, two hosts, every page at its canonical address.
  *
- * The brand pages and the paid Audit/Blueprint are canonical on www. The
+ * The brand pages and the free Audit are canonical on www. The paid Audit
+ * and Blueprint (/store/audit, /store/blueprint) are a buyer's own documents
+ * and declare noindex, so they are not listed — a sitemap entry for a noindex
+ * page is a contradiction Search Console reports as an error. The
  * storefront declares canonical on store.truthjblue.com (app/store/page.tsx,
  * product/[slug]/page.tsx, [collection]/page.tsx), so its pages are listed
  * there — listing them under www would have Google discard every one as a
@@ -20,16 +23,7 @@ const WWW = "https://www.truthjblue.com";
  * product is added or retired, update the list. Every URL below returned 200
  * on its canonical host when this was written (2026-09-06).
  */
-const BRAND_PAGES = [
-  "/",
-  "/about",
-  "/books",
-  "/start",
-  "/connect",
-  "/legal",
-  "/store/audit",
-  "/store/blueprint",
-];
+const BRAND_PAGES = ["/", "/audit", "/about", "/books", "/start", "/connect", "/legal"];
 
 const STORE_COLLECTIONS = [
   "start-here",

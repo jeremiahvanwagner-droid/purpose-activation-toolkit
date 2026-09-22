@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
 import CheckoutButton from "@/components/store/CheckoutButton";
 import ProductArt from "@/components/store/ProductArt";
 import ProductCard from "@/components/store/ProductCard";
 import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore } from "@/lib/store/catalog";
+import { productSchema } from "@/lib/store/schema";
 
 // Next 15 hands route params to the page as a promise.
 type Params = { params: Promise<{ slug: string }> };
@@ -42,6 +44,7 @@ export default async function ProductPage({ params }: Params) {
 
   return (
     <>
+      <JsonLd data={productSchema(item)} />
       <ViewContent id={item.id} name={item.name} category={item.collection.title} amount={item.amount} />
       <div className="st-container">
         <nav className="st-crumbs" aria-label="Breadcrumb">

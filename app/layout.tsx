@@ -5,6 +5,7 @@ import MetaPixel from "@/components/MetaPixel";
 import SyncProvider from "@/components/SyncProvider";
 import AttributionCapture from "@/components/AttributionCapture";
 import { COMMUNITY_URL } from "@/lib/links";
+import { ORGANIZATION_ID, PERSON_ID } from "@/lib/seo";
 
 const SITE_URL = "https://www.truthjblue.com";
 
@@ -67,8 +68,9 @@ const ORGANIZATION = {
   "@type": "Organization",
   // Same @id, name and url as the graph on jeremiahvanwagner.com — the
   // official entity page (2026-08-28) — so Google merges the two into one
-  // Organization instead of seeing a second one on the www host.
-  "@id": "https://truthjblue.com/#organization",
+  // Organization instead of seeing a second one on the www host. The ids
+  // live in lib/seo.ts; the store's Product and Book schema refer to them.
+  "@id": ORGANIZATION_ID,
   name: "Truth J Blue LLC",
   alternateName: "Truth J Blue",
   legalName: "Truth J Blue LLC",
@@ -77,7 +79,7 @@ const ORGANIZATION = {
   telephone: "+1-877-779-3107",
   founder: {
     "@type": "Person",
-    "@id": "https://jeremiahvanwagner.com/#person",
+    "@id": PERSON_ID,
     name: "Jeremiah Van Wagner",
     url: "https://jeremiahvanwagner.com/",
     sameAs: ["https://www.linkedin.com/in/vanwagnerjeremiah/"],

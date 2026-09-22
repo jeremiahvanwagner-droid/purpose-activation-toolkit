@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import JsonLd from "@/components/JsonLd";
 import ProductCard from "@/components/store/ProductCard";
 import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { findCollection, getStore } from "@/lib/store/catalog";
 import { COLLECTIONS, SERIES_TITLE } from "@/lib/store/overlay";
+import { librarySchema } from "@/lib/store/schema";
 
 // Next 15 hands route params and the query string to the page as promises.
 type Params = { params: Promise<{ collection: string }>; searchParams?: Promise<{ b?: string }> };
@@ -41,6 +43,7 @@ export default async function CollectionPage({ params, searchParams }: Params) {
 
   return (
     <>
+      {collection.key === "library" ? <JsonLd data={librarySchema(store.books)} /> : null}
       {viewedBook ? (
         <ViewContent id={viewedBook.id} name={`${SERIES_TITLE} — Book ${viewedBook.n}: ${viewedBook.title}`} category={collection.title} />
       ) : null}

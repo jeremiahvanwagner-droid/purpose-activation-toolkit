@@ -260,6 +260,36 @@
 .st-steps .n { font-family: var(--serif); font-size: 1rem; font-variant-numeric: tabular-nums; }
 .st-related { padding: 0 32px 88px; }
 
+/* ---- questions, answered ---- */
+/* Native <details>: no script, so the answers are in the HTML a crawler reads
+   and the list stays short on a page that is already long. The marker is a
+   serif "+" that turns into "×" when open, in place of the browser triangle. */
+.st-faq { max-width: 74ch; border-top: 1px solid var(--line); }
+.st-faq-item { border-bottom: 1px solid var(--line); }
+.st-faq-q {
+  list-style: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: space-between; gap: 18px;
+  padding: 18px 0;
+  font-family: var(--serif); font-weight: 500; font-size: 1.14rem; line-height: 1.3; color: var(--ink);
+  transition: color 0.2s ease;
+}
+.st-faq-q::-webkit-details-marker { display: none; }
+.st-faq-q::after {
+  content: "+"; flex: 0 0 auto;
+  font-family: var(--serif); font-size: 1.5rem; line-height: 1; color: var(--gold-deep);
+  transition: transform 0.2s ease;
+}
+.st-faq-q:hover { color: var(--gold-deep); }
+.st-faq-item[open] .st-faq-q::after { transform: rotate(45deg); }
+.st-faq-a { margin: 0 0 22px; max-width: 64ch; font-size: 0.98rem; line-height: 1.7; color: var(--ink-soft); }
+/* Same deep-on-parchment, bright-on-navy rule as the small caps above. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .st-faq-q::after,
+  :root:not([data-theme="light"]) .st-faq-q:hover { color: var(--gold-bright); }
+}
+:root[data-theme="dark"] .st-faq-q::after,
+:root[data-theme="dark"] .st-faq-q:hover { color: var(--gold-bright); }
+
 /* ---- closing band ---- */
 .st-final {
   position: relative; overflow: hidden; padding: 96px 32px; text-align: center; color: #F1EAD7;
