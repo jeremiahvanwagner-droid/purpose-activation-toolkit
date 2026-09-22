@@ -25,7 +25,17 @@
     'https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '815130848255492');
     fbq('track', 'PageView');
-  </script><noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=815130848255492&ev=PageView&noscript=1"></noscript><link rel="stylesheet" href="/_astro/about.CjIhwQzM.css">
+  </script><noscript><img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=815130848255492&ev=PageView&noscript=1"></noscript><!--
+    GA4, brand property (G-4TF57DLDBH) — the same tag the Next app prints in
+    app/layout.tsx for its www pages and /start carries in its own head. These
+    pages bypass that layout, so until 2026-09-21 they sent nothing to GA4.
+    Plain script tags, so a fetch of the HTML proves the tag is there.
+  --><script async src="https://www.googletagmanager.com/gtag/js?id=G-4TF57DLDBH"></script><script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-4TF57DLDBH');
+  </script><link rel="stylesheet" href="/_astro/about.CjIhwQzM.css">
 <style>.final-cta-section[data-astro-cid-66itwakk]{background:var(--surface);text-align:center;position:relative;overflow:hidden}.final-cta-inner[data-astro-cid-66itwakk]{position:relative;z-index:1}.final-cta-bg[data-astro-cid-66itwakk]{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 70% at 50% 110%,rgba(201,162,77,.14) 0%,transparent 60%)}.final-cta-eyebrow[data-astro-cid-66itwakk]{margin-bottom:var(--space-6)}.final-cta-title[data-astro-cid-66itwakk]{font-family:var(--font-display);font-size:var(--text-3xl);font-weight:700;color:var(--text);max-width:18ch;margin:0 auto var(--space-6)}.final-cta-sub[data-astro-cid-66itwakk]{font-size:var(--text-lg);color:var(--text-muted);max-width:52ch;margin:0 auto var(--space-10);line-height:1.72}.final-cta-buttons[data-astro-cid-66itwakk]{display:flex;flex-wrap:wrap;gap:var(--space-4);justify-content:center}@media(max-width:480px){.final-cta-buttons[data-astro-cid-66itwakk]{flex-direction:column;align-items:center}}
 .books-section[data-astro-cid-faalltie]{background:var(--bg)}.books-header[data-astro-cid-faalltie]{margin-bottom:var(--space-12)}.books-lede[data-astro-cid-faalltie]{max-width:56ch}.books-grid[data-astro-cid-faalltie]{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(200px,100%),1fr));gap:var(--space-4);margin-bottom:var(--space-10)}.book-card[data-astro-cid-faalltie]{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-5);transition:transform var(--transition),border-color var(--transition),box-shadow var(--transition)}.book-card[data-astro-cid-faalltie]:hover{transform:translateY(-3px);border-color:#c9a24d40;box-shadow:var(--shadow-md)}.book-card--more[data-astro-cid-faalltie]{border-style:dashed;border-color:var(--gold-dim)}.book-topic[data-astro-cid-faalltie]{font-family:var(--font-ui);font-size:var(--text-xs);color:var(--gold);letter-spacing:.1em;text-transform:uppercase;margin-bottom:var(--space-2)}.book-topic--muted[data-astro-cid-faalltie]{opacity:.5}.book-title[data-astro-cid-faalltie]{font-family:var(--font-display);font-size:var(--text-sm);font-weight:700;color:var(--text);line-height:1.35;margin-bottom:var(--space-2)}.book-title--muted[data-astro-cid-faalltie]{color:var(--text-muted)}.book-isbn[data-astro-cid-faalltie]{font-family:var(--font-ui);font-size:.68rem;color:var(--text-faint);letter-spacing:.04em}.books-cta[data-astro-cid-faalltie]{text-align:center}
 </style>
