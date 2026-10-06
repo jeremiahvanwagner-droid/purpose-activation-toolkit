@@ -8,6 +8,16 @@
  * register as a single page view for the whole session; the pathname effect
  * covers those. The ref guard is what stops the first render being counted
  * twice — once by the snippet, once by the effect's initial run.
+ *
+ * autoConfig is switched off before init. Meta's automatic configuration
+ * installs click listeners that send every button's label to Meta as a
+ * SubscribedButtonClick — on the Inner Alignment Audit that is the answer
+ * text ("Rarely", "Often"...). The pixel is initialised once per session and
+ * the Audit is usually reached by client-side navigation, so a per-route
+ * switch would not cover it; the whole site runs with inferred events off.
+ * Every event we want (PageView, ViewContent, Lead, Purchase, StartTrial)
+ * is fired explicitly through lib/metaPixel.ts, so nothing intended is lost.
+ * Decided by Axiom 2026-10-02 (Notion decision 3ed5dec117258135868ded6f34243dec).
  */
 
 import Script from "next/script";
@@ -38,6 +48,7 @@ n.queue=[];t=b.createElement(e);t.async=!0;
 t.src=v;s=b.getElementsByTagName(e)[0];
 s.parentNode.insertBefore(t,s)}(window,document,'script',
 'https://connect.facebook.net/en_US/fbevents.js');
+fbq('set', 'autoConfig', false, '${META_PIXEL_ID}');
 fbq('init', '${META_PIXEL_ID}');
 fbq('track', 'PageView');`}
       </Script>
