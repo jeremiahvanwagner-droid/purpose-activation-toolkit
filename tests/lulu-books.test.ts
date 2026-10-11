@@ -454,6 +454,23 @@ test("the sitemap lists the print shelf and each published edition, and still li
   assert.equal(new Set(urls).size, urls.length);
 });
 
+// ── The brand site's /books page ────────────────────────────────────────────
+
+test("the brand site's books page sends each title to its page in the store", () => {
+  // public/books is built in the truthjblue-website repository and copied here.
+  const page = readFileSync("public/books/index.html", "utf8");
+  for (const b of publishedPrintBooks()) {
+    assert.ok(page.includes(`href="https://store.truthjblue.com/books/${b.slug}"`), b.slug);
+    assert.ok(page.includes(b.isbn13!.slice(-6, -1)), `${b.slug}: ISBN on the brand page`);
+  }
+  assert.ok(page.includes('href="https://store.truthjblue.com/books"'), "link to the shelf");
+  // Every store link on that page is a book this store actually has.
+  const linked = [...page.matchAll(/href="https:\/\/store\.truthjblue\.com\/books\/([a-z0-9-]+)"/g)].map((m) => m[1]);
+  for (const slug of linked) assert.ok(printBookBySlug(slug), `brand page links to a book the store does not have: ${slug}`);
+  // No price is stated there: Lulu sets it and the store shows it.
+  assert.equal(/\$\d+\.\d{2}/.test(page.replace(/<script[\s\S]*?<\/script>/g, "")), false);
+});
+
 // ── Returns ─────────────────────────────────────────────────────────────────
 
 test("what the book pages say about returns is what the published policy says", async () => {
