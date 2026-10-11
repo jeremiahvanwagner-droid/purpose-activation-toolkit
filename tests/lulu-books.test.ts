@@ -25,7 +25,16 @@ import {
   validatePrintBooks,
   type PublishedPrintBook,
 } from "../lib/store/lulu-books.ts";
-import { PRINT_FEED_COLUMNS, buildPrintBooksCsv, csvCell, printBookFeedRow, printBooksFeed } from "../lib/store/lulu-feed.ts";
+import {
+  PRINT_FEED_COLUMNS,
+  buildGoogleBooksTsv,
+  buildPrintBooksCsv,
+  csvCell,
+  googleBooksFeed,
+  printBookFeedRow,
+  printBooksFeed,
+  tsvCell,
+} from "../lib/store/lulu-feed.ts";
 import sitemap from "../app/sitemap.ts";
 import { COLLECTIONS } from "../lib/store/overlay.ts";
 
@@ -419,6 +428,60 @@ test("the committed feed is either withheld or made only of released, published 
   const released = publishedPrintBooks().filter((b) => b.inMetaFeed === true);
   assert.ok(feed.count > 0);
   assert.deepEqual(parseCsv(feed.csv).slice(1), released.map(printBookFeedRow));
+});
+
+// ── Google ──────────────────────────────────────────────────────────────────
+
+test("the Google feed lists every published edition, tab-separated, with the page's own facts", () => {
+  const feed = googleBooksFeed(RAW_PRINT_BOOKS);
+  assert.equal(feed.ok, true);
+  if (!feed.ok) return;
+  const published = publishedPrintBooks();
+  assert.equal(feed.count, published.length);
+
+  const lines = feed.tsv.trimEnd().split("\n");
+  assert.deepEqual(lines[0].split("\t"), [...PRINT_FEED_COLUMNS]);
+  assert.equal(lines.length, published.length + 1);
+  const col = (name: (typeof PRINT_FEED_COLUMNS)[number]) => PRINT_FEED_COLUMNS.indexOf(name);
+
+  published.forEach((b, i) => {
+    const cells = lines[i + 1].split("\t");
+    assert.equal(cells.length, PRINT_FEED_COLUMNS.length, b.slug);
+    assert.equal(cells[col("id")], b.sku, b.slug);
+    assert.equal(cells[col("price")], `${minorToDecimal(b.priceMinor)} USD`, b.slug);
+    assert.equal(cells[col("link")], printBookUrl(b), b.slug);
+    assert.equal(cells[col("gtin")], b.isbn13, b.slug);
+    assert.equal(cells[col("availability")], "in_stock", b.slug);
+    assert.equal(cells[col("condition")], "new", b.slug);
+    assert.equal(cells[col("google_product_category")], "Media > Books > Print Books", b.slug);
+    assert.match(cells[col("image_link")], /^https:\/\/www\.truthjblue\.com\/store\/books\/[a-z0-9-]+\.jpg$/, b.slug);
+    // The price Google is told is the price in the page's own structured data.
+    assert.equal(printBookSchema(b).offers.price, cells[col("price")].replace(" USD", ""), b.slug);
+  });
+});
+
+test("a tab or a line break inside a value cannot break a row of the Google feed", () => {
+  const awkward = "First line.\r\nSecond line\twith a tab, a comma and \"quotes\".";
+  const books = publishedOf(parsePrintBooks([book({ description: awkward }), second({ availability: "out_of_stock" })]));
+  const lines = buildGoogleBooksTsv(books).trimEnd().split("\n");
+  assert.equal(lines.length, 3);
+  for (const line of lines) assert.equal(line.split("\t").length, PRINT_FEED_COLUMNS.length);
+  assert.equal(lines[1].split("\t")[PRINT_FEED_COLUMNS.indexOf("description")], 'First line. Second line with a tab, a comma and "quotes".');
+  assert.equal(lines[2].split("\t")[PRINT_FEED_COLUMNS.indexOf("availability")], "out_of_stock");
+  assert.equal(tsvCell("  plain  "), "plain");
+});
+
+test("the Google feed refuses rather than serve an empty or untrustworthy file", () => {
+  const broken = googleBooksFeed([book(), without("priceMinor")]);
+  assert.equal(!broken.ok && broken.status, 500);
+  const drafts = googleBooksFeed([{ ...book(), publication: "draft", inMetaFeed: false }]);
+  assert.equal(!drafts.ok && drafts.status, 503);
+  // It does not wait on the Meta pilot flag: a published book is listed either way.
+  const notInMeta = googleBooksFeed([book({ inMetaFeed: false })]);
+  assert.equal(notInMeta.ok && notInMeta.count, 1);
+  // And it reads the print manifest only.
+  const route = readFileSync("app/api/google-books-feed/route.ts", "utf8");
+  assert.equal(/getStore|getCatalog|@\/lib\/store\/(catalog|ghl|overlay)/.test(route), false);
 });
 
 // ── F05 ─────────────────────────────────────────────────────────────────────

@@ -97,6 +97,24 @@ Removing a book from the feed does not remove it from a catalog on an
 update-only schedule. Mark it `out_of_stock` first; retirement inside Meta is
 its own reviewed step.
 
+## The Google feed
+
+`/api/google-books-feed` is the same books for Google Merchant Center: every
+published edition, tab-separated, from the print manifest alone. Merchant
+Center fetches it as a file data source on a schedule. It answers 500 for an
+invalid manifest and 503 when nothing is published, never an empty file.
+
+Shipping is not in the feed. Lulu works out shipping at its own checkout, by
+destination, so the rates live in Merchant Center's shipping settings and must
+be at or above what Lulu actually charges.
+
+This is not HighLevel's Merchant Center app. That app creates its own data
+source in Merchant Center, named `leadconnector`, and pushes whatever products
+are assigned to HighLevel's storefront — digital products, programs and calls,
+at HighLevel's own store addresses. Those addresses are redirected to the live
+product pages (`middleware.ts`), but the listings themselves do not belong in
+Merchant Center; keep that app disconnected.
+
 ## Returns
 
 Printed books are final sale: each copy is printed for the reader who ordered
