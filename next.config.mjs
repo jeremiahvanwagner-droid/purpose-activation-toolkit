@@ -11,6 +11,8 @@ const nextConfig = {
     remotePatterns: [
       { protocol: 'https', hostname: 'storage.googleapis.com', pathname: '/msgsndr/**' },
       { protocol: 'https', hostname: 'assets.cdn.filesafe.space' },
+      // Lulu's own cover image for each print edition (lib/store/lulu-books).
+      { protocol: 'https', hostname: 'assets.lulu.com', pathname: '/cover_thumbs/**' },
     ],
   },
 

@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { STORE_URL } from "@/lib/links";
+import { printBookUrl, publishedPrintBooks } from "@/lib/store/lulu-books";
 
 const WWW = "https://www.truthjblue.com";
 
@@ -47,11 +48,21 @@ const STORE_PRODUCTS = [
   "truth-j-blue-strategic-partnership",
 ];
 
+/**
+ * The print books come from their own committed manifest rather than a pinned
+ * list: it is a file in this repo, so reading it keeps the sitemap static and
+ * asks nothing of HighLevel or Lulu at build time. Only published editions are
+ * listed, and an invalid manifest stops the build here rather than shipping a
+ * sitemap that disagrees with the shelf.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
+  const printBooks = publishedPrintBooks();
   return [
     ...BRAND_PAGES.map((p) => ({ url: `${WWW}${p}` })),
     { url: `${STORE_URL}/` },
     ...STORE_COLLECTIONS.map((c) => ({ url: `${STORE_URL}/${c}` })),
     ...STORE_PRODUCTS.map((s) => ({ url: `${STORE_URL}/product/${s}` })),
+    ...(printBooks.length ? [{ url: `${STORE_URL}/books` }] : []),
+    ...printBooks.map((b) => ({ url: printBookUrl(b) })),
   ];
 }

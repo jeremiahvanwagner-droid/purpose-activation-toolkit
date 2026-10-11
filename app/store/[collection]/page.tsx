@@ -7,6 +7,7 @@ import ProductCard from "@/components/store/ProductCard";
 import ViewContent from "@/components/store/ViewContent";
 import { STORE_URL, storeBase, storeHref } from "@/lib/store/base";
 import { findCollection, getStore } from "@/lib/store/catalog";
+import { PRINT_COLLECTION_TITLE } from "@/lib/store/lulu-books";
 import { COLLECTIONS, SERIES_TITLE } from "@/lib/store/overlay";
 import { librarySchema } from "@/lib/store/schema";
 
@@ -61,6 +62,11 @@ export default async function CollectionPage({ params, searchParams }: Params) {
                 {collection.title}
               </h1>
               <p className="st-blurb">{collection.blurb}</p>
+              {collection.key === "library" ? (
+                <p className="st-buy-note" style={{ marginTop: 12 }}>
+                  Looking for a printed book? <Link href={storeHref(base, "/books")}>Browse books in print</Link>.
+                </p>
+              ) : null}
             </div>
           </div>
         </div>
@@ -109,6 +115,9 @@ export default async function CollectionPage({ params, searchParams }: Params) {
                 {c.title}
               </Link>
             ))}
+            <Link className="st-btn st-btn-ghost" href={storeHref(base, "/books")}>
+              {PRINT_COLLECTION_TITLE}
+            </Link>
           </div>
         </div>
       </section>
