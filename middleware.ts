@@ -55,8 +55,36 @@ const LEGACY_PRODUCT_PATHS = new Set([
   "/product/unlocking-success-mastering-effective-communication-and-social-skills",
 ]);
 
+/**
+ * HighLevel still believes its own storefront answers on store.truthjblue.com,
+ * and writes product links in that storefront's shape —
+ * /product-details/product/<product id>?variant=<price id> — into what it
+ * generates. Its Google Merchant Center app pushed twelve of them: on
+ * 2026-10-11 every one returned 404, Google reported "landing page error" on
+ * the listings, and the account carried a Misrepresentation flag.
+ *
+ * The store already answers /product/<product id> for any product it sells
+ * (catalog.ts looks a product up by id as well as by slug), and that page names
+ * its slug address as canonical. So the old shape is sent there. An id the
+ * store does not sell lands on the store's own 404, as it should.
+ *
+ * A prefix is safe here for the reason it is safe for /product-tag/: nothing
+ * on any host lives under /product-details/. The variant is dropped — the
+ * store shows one price per product. 301, because this shape is never coming
+ * back to this hostname.
+ */
+const GHL_STORE_PRODUCT_PREFIX = "/product-details/product/";
+const GHL_ID = /^[0-9a-f]{24}$/;
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname.startsWith(GHL_STORE_PRODUCT_PREFIX)) {
+    const id = pathname.slice(GHL_STORE_PRODUCT_PREFIX.length).replace(/\/+$/, "");
+    if (GHL_ID.test(id)) {
+      return NextResponse.redirect(new URL(`/product/${id}`, STORE_ORIGIN), 301);
+    }
+  }
 
   if (pathname === LEGACY_AUDIT_PATH) {
     return NextResponse.redirect(new URL("/store/audit", "https://www.truthjblue.com"), 301);
