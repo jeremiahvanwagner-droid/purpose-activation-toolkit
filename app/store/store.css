@@ -215,6 +215,61 @@
 .st-book-row .st-book-cover { border-radius: 6px; }
 .st-book-row p { font-size: 0.88rem; color: var(--ink-soft); line-height: 1.55; margin: 6px 0 8px; }
 
+/* ---- books in print ---- */
+/* A cover is shown whole. The Library crops to 2:3 because its covers are
+   decoration beside a title; here the cover is how a reader tells one
+   edition from another, so the box takes the image's own shape. */
+.st-print-grid { display: grid; gap: 30px 22px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.st-print { display: flex; flex-direction: column; gap: 8px; text-decoration: none; color: inherit; border-radius: 8px; }
+.st-print:focus-visible { outline: 2px solid var(--focus); outline-offset: 4px; }
+.st-print-cover {
+  display: block; border-radius: 6px; overflow: hidden; background: var(--surface);
+  box-shadow: 0 18px 36px -22px rgba(16, 27, 64, 0.6); border: 1px solid var(--line);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.st-print-cover img, .st-print-art img { display: block; width: 100%; height: auto; }
+.st-print:hover .st-print-cover { transform: translateY(-4px); box-shadow: 0 24px 44px -22px rgba(16, 27, 64, 0.7); }
+.st-print-title { font-family: var(--serif); font-size: 1.02rem; line-height: 1.22; margin-top: 4px; }
+.st-print-meta { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 0.74rem; color: var(--slate); letter-spacing: 0.04em; }
+.st-print-meta .st-price { font-size: 1.02rem; }
+.st-print-note { font-size: 0.72rem; color: var(--slate); }
+/* The book's own page: the cover column is only as wide as a cover. */
+/* Written as .st-product.st-print-product throughout: the plain .st-product
+   rules further down this file would otherwise win on source order. */
+.st-product.st-print-product { grid-template-columns: minmax(0, 384px) minmax(0, 1fr); }
+.st-print-art {
+  position: sticky; top: 92px; border-radius: 8px; overflow: hidden; background: var(--surface);
+  box-shadow: var(--shadow); border: 1px solid var(--line);
+}
+.st-print-facts { margin: 0; display: grid; gap: 8px; font-size: 0.92rem; }
+.st-print-facts div { display: grid; grid-template-columns: 96px 1fr; gap: 12px; }
+.st-print-facts dt { color: var(--slate); }
+.st-print-facts dd { margin: 0; color: var(--ink-soft); }
+/* Lulu's Buy Button draws itself; this only reserves its place and keeps the
+   plain checkout link beside it looking like the secondary action it is. */
+.st-lulu { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Lulu's element is a fixed 273px wide, most of it padding around the button.
+   On a 320px phone that is wider than the buy box, so the padding is clipped
+   here rather than left to push the whole page sideways. */
+.st-lulu-widget { min-height: 48px; align-self: flex-start; max-width: 100%; overflow: hidden; border-radius: 14px; }
+/* Lulu's button takes its colours from the channel's theme in Lulu's
+   dashboard — black, as configured. On the dark surface it has no edge, so
+   it stands on a light plate there. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .st-lulu-widget { background: #F5F7FA; }
+}
+:root[data-theme="dark"] .st-lulu-widget { background: #F5F7FA; }
+.st-lulu-status:empty { display: none; }
+.st-lulu-direct {
+  align-self: flex-start; font-size: 0.9rem; font-weight: 600; color: var(--ink); text-decoration: none;
+  border-bottom: 1px solid var(--line-strong); padding: 6px 0 3px; min-height: 32px;
+  transition: border-color 0.2s ease;
+}
+.st-lulu-direct:hover { border-color: var(--gold); }
+.st-lulu-direct:focus-visible, .st-buy-note a:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.st-buy-note a { color: inherit; text-decoration: underline; }
+.st-sr { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
 /* ---- product page ---- */
 .st-crumbs { font-size: 0.74rem; color: var(--slate); margin: 26px 0 22px; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; letter-spacing: 0.04em; }
 .st-crumbs a { color: var(--ink-soft); text-decoration: none; }
@@ -328,6 +383,8 @@
      placed with inset:0, and with `static` here it escaped to the page and
      covered the whole first screen of every product on a phone. */
   .st-product-art { position: relative; top: auto; }
+  .st-product.st-print-product { grid-template-columns: minmax(0, 1fr); }
+  .st-print-art { position: relative; top: auto; max-width: 300px; }
   .st-foot-grid { grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 720px) {
@@ -348,6 +405,12 @@
   .st-head { flex-direction: column; align-items: flex-start; gap: 10px; }
   .st-container { padding: 0 22px; }
   .st-books { grid-template-columns: repeat(3, 1fr); gap: 14px 12px; }
+  .st-print-grid { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+  /* Small enough that the price and the button are still on a phone's first
+     screen under the longest title. */
+  .st-print-art { max-width: 150px; }
+  .st-product.st-print-product { gap: 20px; }
+  .st-lulu-direct { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
   .st-book-row { grid-template-columns: 84px 1fr; gap: 14px; }
   .st-buy-price .st-price { font-size: 1.7rem; }
   .st-prose, .st-card-tag, .st-buy-note { font-size: 0.96rem; }

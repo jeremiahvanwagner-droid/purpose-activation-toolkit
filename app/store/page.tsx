@@ -2,12 +2,14 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import JsonLd from "@/components/JsonLd";
+import PrintBookCard from "@/components/store/PrintBookCard";
 import ProductCard from "@/components/store/ProductCard";
 import { Constellation } from "@/components/store/Glyph";
 import { COMMUNITY_URL } from "@/lib/links";
 import { faqPageSchema, type Faq } from "@/lib/seo";
 import { STORE_URL, SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore, type StoreData } from "@/lib/store/catalog";
+import { PRINT_RETURNS_NOTE, publishedPrintBooks } from "@/lib/store/lulu-books";
 import { SERIES_TITLE } from "@/lib/store/overlay";
 
 export const metadata: Metadata = {
@@ -29,7 +31,7 @@ export const metadata: Metadata = {
  * in the store: calm, invitational, no urgency, nothing asserted about the
  * reader.
  */
-function storeFaq(store: StoreData): Faq[] {
+function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
   const audit = store.bySlug("inner-alignment-audit");
   const toolkit = store.items.find((i) => i.meta.featured) ?? null;
   const auditPrice = audit?.amount != null ? `, ${formatPrice(audit.amount)},` : "";
@@ -56,6 +58,17 @@ function storeFaq(store: StoreData): Faq[] {
       q: "How do the programs and one-to-one work begin?",
       a: "With a conversation. The Beyond the Veil Mentorship runs twelve weeks and begins with an interview. The Ascension Intensive runs six weeks, by application, with a payment plan available. A Deep Dive Call with Jeremiah is thirty minutes, booked from the calendar and paid as you book.",
     },
+    // Restates the print pages, Lulu's own account of the Buy Button, and the
+    // printed-books returns policy published at /legal. It promises no
+    // delivery date, because none is ours to promise.
+    ...(hasPrintBooks
+      ? [
+          {
+            q: "Do you sell printed books?",
+            a: `Yes. The paperbacks under Books in Print are printed to order and shipped by Lulu. You buy on Lulu's secure checkout, where shipping options and the estimated delivery are shown, and no account with us is needed. ${PRINT_RETURNS_NOTE} For help with an order, write to ${SUPPORT_EMAIL}.`,
+          },
+        ]
+      : []),
     {
       q: "Can I return a digital product?",
       a: `Digital products — the Toolkit, the Audit, the Divine Alignment Blueprint, courses, and eBooks — are not returnable, because access is granted the moment you purchase. If an order is wrong or a purchase never reaches you, write to ${SUPPORT_EMAIL} and we will make it right at no cost to you. The full policy is at truthjblue.com/legal.`,
@@ -102,7 +115,8 @@ export default async function StoreHome() {
   const programs = store.inCollection("programs-mentorship");
   const work = store.inCollection("work-with-jeremiah");
   const toolkit = start.find((i) => i.meta.featured);
-  const faq = storeFaq(store);
+  const printBooks = publishedPrintBooks();
+  const faq = storeFaq(store, printBooks.length > 0);
 
   return (
     <>
@@ -115,8 +129,8 @@ export default async function StoreHome() {
               Everything we make for the walk, <em>in one place.</em>
             </h1>
             <p className="st-lede">
-              Workbooks, courses, a twelve-book library, and the programs where we work together. Faith-first,
-              and built to be lived — not just read.
+              Workbooks, courses, books in print, a twelve-book library, and the programs where we work together.
+              Faith-first, and built to be lived — not just read.
             </p>
             <div className="st-cta-row">
               <a className="st-btn st-btn-primary" href="#start-here">
@@ -209,6 +223,25 @@ export default async function StoreHome() {
           </div>
         </div>
       </section>
+
+      {printBooks.length ? (
+        <section id="books" className="st-section">
+          <div className="st-container">
+            <SectionHead
+              kicker="In print"
+              title="Books you can hold."
+              blurb="Paperbacks by Jeremiah Van Wagner, printed to order and shipped by Lulu. Choose one and buy it — nothing else is asked of you first."
+              href={storeHref(base, "/books")}
+              more="Browse books in print"
+            />
+            <div className="st-print-grid">
+              {printBooks.map((b) => (
+                <PrintBookCard key={b.sku} book={b} base={base} />
+              ))}
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section id="library" className="st-section st-section-deep">
         <div className="st-container">
