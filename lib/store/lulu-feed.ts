@@ -99,3 +99,52 @@ export function printBooksFeed(raw: unknown): PrintFeedResult {
   }
   return { ok: true, csv: buildPrintBooksCsv(selected), count: selected.length };
 }
+
+/**
+ * The same books for Google Merchant Center.
+ *
+ * Google reads the same facts under the same attribute names, so a row is the
+ * Meta row with two differences in form: availability is spelled in_stock /
+ * out_of_stock, and the file is tab-separated — the one delimited format
+ * Google documents without qualification. A tab or line break inside a value
+ * would break a tab-separated row, so those become spaces.
+ *
+ * Every published edition is listed, not only the Meta pilot: the two are
+ * different catalogs with different owners' decisions behind them. Shipping is
+ * deliberately not in the file. Lulu works out shipping at its checkout by
+ * destination, so the rates belong in Merchant Center's own shipping settings,
+ * where they can be kept at or above what Lulu charges.
+ */
+export function tsvCell(value: string): string {
+  return value.replace(/[\t\r\n]+/g, " ").trim();
+}
+
+export function googleBookFeedRow(book: PublishedPrintBook): string[] {
+  const row = printBookFeedRow(book);
+  row[PRINT_FEED_COLUMNS.indexOf("availability")] = book.availability;
+  return row;
+}
+
+export function buildGoogleBooksTsv(books: PublishedPrintBook[]): string {
+  return [[...PRINT_FEED_COLUMNS], ...books.map(googleBookFeedRow)].map((row) => row.map(tsvCell).join("\t")).join("\n") + "\n";
+}
+
+export type GoogleFeedResult =
+  | { ok: true; tsv: string; count: number }
+  | { ok: false; status: 500 | 503; message: string };
+
+/** Same refusals as the Meta feed: 500 for a manifest that cannot be trusted,
+ *  503 when there is nothing to list — never an empty file that fetches fine. */
+export function googleBooksFeed(raw: unknown): GoogleFeedResult {
+  let published: PublishedPrintBook[];
+  try {
+    published = publishedOf(parsePrintBooks(raw));
+  } catch (err) {
+    const detail = err instanceof PrintBookManifestError ? err.message : "The print-book manifest could not be read.";
+    return { ok: false, status: 500, message: detail };
+  }
+  if (!published.length) {
+    return { ok: false, status: 503, message: "No print edition is published." };
+  }
+  return { ok: true, tsv: buildGoogleBooksTsv(published), count: published.length };
+}
