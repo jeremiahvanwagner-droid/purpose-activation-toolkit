@@ -86,7 +86,7 @@ export default function LuluPurchase({ buyButtonId, title }: { buyButtonId: stri
         onError={() => setPhase("unavailable")}
       />
       {phase === "unavailable" ? null : (
-        <div className="st-lulu-widget" aria-label={`Buy ${title} through Lulu`}>
+        <div className="st-lulu-widget" role="group" aria-label={`Buy ${title} through Lulu`}>
           <lulu-buy-button buy-button-id={buyButtonId} variant={VARIANT} />
         </div>
       )}
