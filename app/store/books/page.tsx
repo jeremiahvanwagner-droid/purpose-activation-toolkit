@@ -4,7 +4,14 @@ import Script from "next/script";
 import JsonLd from "@/components/JsonLd";
 import PrintBookCard from "@/components/store/PrintBookCard";
 import { STORE_URL, SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
-import { PRINT_COLLECTION_TITLE, PRINT_STEPS, printBookUrl, publishedPrintBooks } from "@/lib/store/lulu-books";
+import {
+  PRINT_COLLECTION_TITLE,
+  PRINT_RETURNS_NOTE,
+  PRINT_STEPS,
+  RETURNS_POLICY_URL,
+  printBookUrl,
+  publishedPrintBooks,
+} from "@/lib/store/lulu-books";
 import { LULU_SCRIPT_ID, LULU_SCRIPT_SRC } from "@/lib/store/lulu-script";
 import { COLLECTIONS } from "@/lib/store/overlay";
 
@@ -99,6 +106,9 @@ export default async function PrintBooksPage() {
             ))}
           </ol>
           <p className="st-buy-note" style={{ marginTop: 18 }}>
+            {PRINT_RETURNS_NOTE} The full policy is under <a href={RETURNS_POLICY_URL}>Returns &amp; Refunds</a>.
+          </p>
+          <p className="st-buy-note" style={{ marginTop: 10 }}>
             For help with an order, contact Truth J Blue Books at <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
             Prefer to read on Kindle? <Link href={storeHref(base, "/library")}>The Library</Link> has the twelve-book
             Palace of Excellence series on Amazon.

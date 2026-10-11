@@ -92,6 +92,19 @@ Removing a book from the feed does not remove it from a catalog on an
 update-only schedule. Mark it `out_of_stock` first; retirement inside Meta is
 its own reviewed step.
 
+## Returns
+
+Printed books are final sale: each copy is printed for the reader who ordered
+it, and Lulu does not take one back. A copy that arrives damaged, misprinted or
+wrong is replaced or refunded — Lulu covers verified print defects, and the
+reader writes to support@truthjblue.com, not to Lulu.
+
+The policy itself is published at `truthjblue.com/legal#returns` ("Printed
+books"). That page is built in the `truthjblue-website` repository and copied
+into `public/legal/` here; change the policy there, rebuild, and re-copy. The
+one-sentence version on the book pages is `PRINT_RETURNS_NOTE` in
+`lib/store/lulu-books.ts`, and a test fails if the two stop agreeing.
+
 ## What is deliberately not measured
 
 Book pages send no `ViewContent`, `InitiateCheckout` or `Purchase` to the Meta

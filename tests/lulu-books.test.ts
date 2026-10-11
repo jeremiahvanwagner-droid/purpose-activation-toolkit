@@ -454,6 +454,36 @@ test("the sitemap lists the print shelf and each published edition, and still li
   assert.equal(new Set(urls).size, urls.length);
 });
 
+// ── Returns ─────────────────────────────────────────────────────────────────
+
+test("what the book pages say about returns is what the published policy says", async () => {
+  const { PRINT_RETURNS_NOTE, RETURNS_POLICY_URL } = await import("../lib/store/lulu-books.ts");
+  const legal = readFileSync("public/legal/index.html", "utf8");
+  const returns = legal.slice(legal.indexOf('id="returns"'), legal.indexOf('id="ai-use"'));
+  const text = returns.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ");
+  const printed = text.slice(text.indexOf("Printed books"), text.indexOf("Other physical goods"));
+
+  // The policy: printed books are final sale; a damaged, misprinted or wrong copy is put right.
+  assert.ok(printed.length > 0, "the legal page has no Printed books policy");
+  assert.match(printed, /made to order/);
+  assert.match(printed, /not returnable/);
+  assert.match(printed, /damaged or misprinted/);
+  assert.match(printed, /replaced or refunded at no cost to you/);
+  // The 14-day terms still stand for other goods, and no longer cover printed books.
+  assert.equal(/14 days/.test(printed), false);
+  assert.match(text.slice(text.indexOf("Other physical goods")), /14 days of delivery/);
+
+  // The pages: the same three things, and a link to the policy itself.
+  assert.match(PRINT_RETURNS_NOTE, /made to order/);
+  assert.match(PRINT_RETURNS_NOTE, /not returnable/);
+  assert.match(PRINT_RETURNS_NOTE, /replaced or refunded at no cost to you/);
+  assert.equal(RETURNS_POLICY_URL, "https://www.truthjblue.com/legal#returns");
+  for (const file of ["app/store/books/page.tsx", "app/store/books/[slug]/page.tsx"]) {
+    const source = readFileSync(file, "utf8");
+    assert.ok(source.includes("{PRINT_RETURNS_NOTE}") && source.includes("href={RETURNS_POLICY_URL}"), file);
+  }
+});
+
 // ── P01 / P03 ───────────────────────────────────────────────────────────────
 
 test("the pixel still switches automatic configuration off before it initialises", () => {

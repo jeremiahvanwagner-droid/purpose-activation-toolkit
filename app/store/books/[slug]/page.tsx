@@ -8,7 +8,9 @@ import PrintBookCard from "@/components/store/PrintBookCard";
 import { SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
 import {
   PRINT_COLLECTION_TITLE,
+  PRINT_RETURNS_NOTE,
   PRINT_STEPS,
+  RETURNS_POLICY_URL,
   coverUrl,
   formatMinor,
   isbn13Digits,
@@ -121,6 +123,9 @@ export default async function PrintBookPage({ params }: Params) {
               <p className="st-buy-note">
                 Printed and shipped by Lulu. Shipping options and estimated delivery are shown at checkout. For help
                 with your order, contact Truth J Blue Books at <a href={`mailto:${SUPPORT_EMAIL}`}>{SUPPORT_EMAIL}</a>.
+              </p>
+              <p className="st-buy-note">
+                {PRINT_RETURNS_NOTE} <a href={RETURNS_POLICY_URL}>Returns &amp; Refunds</a>
               </p>
             </div>
 

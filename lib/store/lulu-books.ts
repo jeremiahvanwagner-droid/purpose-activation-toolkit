@@ -35,15 +35,27 @@ export const PRINT_COLLECTION_TITLE = "Books in Print";
  * Each sentence restates Lulu's own description of the Buy Button (help
  * articles 64000311603 and 64000311712, read 2026-10-11): Lulu's checkout
  * takes the payment, shows shipping and the delivery estimate, appears on the
- * card statement, prints the copy and emails tracking. No delivery date, no
- * return window and no guarantee is promised here, because none is ours to
- * promise.
+ * card statement, prints the copy and emails tracking. No delivery date is
+ * promised here, because none is ours to promise.
  */
 export const PRINT_STEPS: [string, string, string] = [
   "Add the book to Lulu’s cart on its page, or open Lulu’s checkout directly. No account with us is needed.",
   "Pay on Lulu’s secure checkout. Shipping options, tax and the estimated delivery are shown there, and your card statement will show Lulu.",
   "Lulu prints your copy to order and ships it. A shipping email follows, with tracking when your shipping method includes it.",
 ];
+
+/**
+ * Returns, in one sentence — the store's published policy for printed books
+ * (truthjblue.com/legal#returns, "Printed books", decided by Truth 2026-10-11).
+ * A copy printed for one reader cannot be taken back; a copy that arrives
+ * damaged, misprinted or wrong is put right. This must keep saying what the
+ * legal page says: a test reads both.
+ */
+export const PRINT_RETURNS_NOTE =
+  "Printed books are made to order, so they are not returnable. A copy that arrives damaged, misprinted or wrong is replaced or refunded at no cost to you.";
+
+/** Where the full returns policy is published. Always on www. */
+export const RETURNS_POLICY_URL = "https://www.truthjblue.com/legal#returns";
 
 export type Publication = "draft" | "published" | "retired";
 export type Availability = "in_stock" | "out_of_stock";

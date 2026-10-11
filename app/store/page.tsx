@@ -9,7 +9,7 @@ import { COMMUNITY_URL } from "@/lib/links";
 import { faqPageSchema, type Faq } from "@/lib/seo";
 import { STORE_URL, SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore, type StoreData } from "@/lib/store/catalog";
-import { publishedPrintBooks } from "@/lib/store/lulu-books";
+import { PRINT_RETURNS_NOTE, publishedPrintBooks } from "@/lib/store/lulu-books";
 import { SERIES_TITLE } from "@/lib/store/overlay";
 
 export const metadata: Metadata = {
@@ -58,14 +58,14 @@ function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
       q: "How do the programs and one-to-one work begin?",
       a: "With a conversation. The Beyond the Veil Mentorship runs twelve weeks and begins with an interview. The Ascension Intensive runs six weeks, by application, with a payment plan available. A Deep Dive Call with Jeremiah is thirty minutes, booked from the calendar and paid as you book.",
     },
-    // Restates the print pages and Lulu's own account of the Buy Button; it
-    // promises no delivery date and no return terms, because the store has
-    // published neither for printed books.
+    // Restates the print pages, Lulu's own account of the Buy Button, and the
+    // printed-books returns policy published at /legal. It promises no
+    // delivery date, because none is ours to promise.
     ...(hasPrintBooks
       ? [
           {
             q: "Do you sell printed books?",
-            a: `Yes. The paperbacks under Books in Print are printed to order and shipped by Lulu. You buy on Lulu's secure checkout, where shipping options and the estimated delivery are shown, and no account with us is needed. For help with an order, write to ${SUPPORT_EMAIL}.`,
+            a: `Yes. The paperbacks under Books in Print are printed to order and shipped by Lulu. You buy on Lulu's secure checkout, where shipping options and the estimated delivery are shown, and no account with us is needed. ${PRINT_RETURNS_NOTE} For help with an order, write to ${SUPPORT_EMAIL}.`,
           },
         ]
       : []),
