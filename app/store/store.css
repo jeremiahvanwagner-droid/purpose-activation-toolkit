@@ -234,7 +234,9 @@
 .st-print-meta .st-price { font-size: 1.02rem; }
 .st-print-note { font-size: 0.72rem; color: var(--slate); }
 /* The book's own page: the cover column is only as wide as a cover. */
-.st-print-product { grid-template-columns: minmax(0, 384px) minmax(0, 1fr); }
+/* Written as .st-product.st-print-product throughout: the plain .st-product
+   rules further down this file would otherwise win on source order. */
+.st-product.st-print-product { grid-template-columns: minmax(0, 384px) minmax(0, 1fr); }
 .st-print-art {
   position: sticky; top: 92px; border-radius: 8px; overflow: hidden; background: var(--surface);
   box-shadow: var(--shadow); border: 1px solid var(--line);
@@ -245,8 +247,11 @@
 .st-print-facts dd { margin: 0; color: var(--ink-soft); }
 /* Lulu's Buy Button draws itself; this only reserves its place and keeps the
    plain checkout link beside it looking like the secondary action it is. */
-.st-lulu { display: flex; flex-direction: column; gap: 10px; }
-.st-lulu-widget { min-height: 48px; align-self: flex-start; border-radius: 14px; }
+.st-lulu { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+/* Lulu's element is a fixed 273px wide, most of it padding around the button.
+   On a 320px phone that is wider than the buy box, so the padding is clipped
+   here rather than left to push the whole page sideways. */
+.st-lulu-widget { min-height: 48px; align-self: flex-start; max-width: 100%; overflow: hidden; border-radius: 14px; }
 /* Lulu's button takes its colours from the channel's theme in Lulu's
    dashboard — black, as configured. On the dark surface it has no edge, so
    it stands on a light plate there. */
@@ -378,7 +383,7 @@
      placed with inset:0, and with `static` here it escaped to the page and
      covered the whole first screen of every product on a phone. */
   .st-product-art { position: relative; top: auto; }
-  .st-print-product { grid-template-columns: 1fr; }
+  .st-product.st-print-product { grid-template-columns: minmax(0, 1fr); }
   .st-print-art { position: relative; top: auto; max-width: 300px; }
   .st-foot-grid { grid-template-columns: 1fr 1fr; }
 }
@@ -404,7 +409,7 @@
   /* Small enough that the price and the button are still on a phone's first
      screen under the longest title. */
   .st-print-art { max-width: 150px; }
-  .st-print-product { gap: 20px; }
+  .st-product.st-print-product { gap: 20px; }
   .st-lulu-direct { min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
   .st-book-row { grid-template-columns: 84px 1fr; gap: 14px; }
   .st-buy-price .st-price { font-size: 1.7rem; }

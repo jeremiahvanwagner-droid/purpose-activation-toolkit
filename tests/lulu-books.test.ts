@@ -135,6 +135,52 @@ test("the committed manifest carries Lulu's ten mappings exactly, in the sheet's
   });
 });
 
+/** The EAN-13 printed on the back of each edition's Lulu print wrap, read 2026-10-11. */
+const PRINTED_ISBN: Record<string, string> = {
+  "155747": "9781387859566",
+  "155746": "9781257023332",
+  "155745": "9781257023042",
+  "155744": "9781105922107",
+  "155743": "9781105926273",
+  "155742": "9781257014156",
+  "155741": "9781105921599",
+  "155740": "9781105921483",
+  "155739": "9781105921513",
+  "155737": "9798274233415",
+};
+
+test("each edition carries the ISBN printed on its own cover, and no other", () => {
+  for (const b of allPrintBooks()) {
+    assert.equal(b.isbn13, PRINTED_ISBN[b.channelProductId], b.slug);
+    assert.equal(isbn13Digits(b.isbn13 ?? ""), b.isbn13, b.slug);
+  }
+});
+
+/** Width and height from a JPEG's frame header — enough to check a cover file. */
+function jpegSize(file: string): { width: number; height: number } {
+  const buf = readFileSync(file);
+  assert.equal(buf.readUInt16BE(0), 0xffd8, `${file} is not a JPEG`);
+  let at = 2;
+  while (at < buf.length) {
+    assert.equal(buf[at], 0xff, `${file}: bad marker`);
+    const marker = buf[at + 1];
+    const length = buf.readUInt16BE(at + 2);
+    if (marker >= 0xc0 && marker <= 0xcf && marker !== 0xc4 && marker !== 0xc8 && marker !== 0xcc) {
+      return { height: buf.readUInt16BE(at + 5), width: buf.readUInt16BE(at + 7) };
+    }
+    at += 2 + length;
+  }
+  throw new Error(`${file}: no frame header`);
+}
+
+test("every published cover is a real file of the size the manifest says, large enough for a catalog", () => {
+  for (const b of publishedPrintBooks()) {
+    assert.match(b.coverPath, /^\/store\/books\/[a-z0-9-]+\.jpg$/, b.slug);
+    assert.deepEqual(jpegSize(`public${b.coverPath}`), { width: b.coverWidth, height: b.coverHeight }, b.slug);
+    assert.ok(Math.min(b.coverWidth, b.coverHeight) >= 500, b.slug);
+  }
+});
+
 test("the committed manifest is valid, and every published edition is findable by its slug", () => {
   assert.deepEqual(errorsFor(RAW_PRINT_BOOKS), []);
   for (const b of publishedPrintBooks()) assert.equal(printBookBySlug(b.slug)?.sku, b.sku);

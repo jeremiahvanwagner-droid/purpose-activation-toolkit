@@ -58,7 +58,17 @@ only its mapping and never appears on the site. A record marked `published`
 with anything missing fails the tests and the build.
 
 Leave `isbn13` out until the ISBN of *this printed edition* is confirmed. An
-ISBN from another edition, or a Kindle ASIN, is worse than none.
+ISBN from another edition, or a Kindle ASIN, is worse than none. The ten here
+were read from the barcode on the back of each book's Lulu print cover, and
+are written as thirteen digits with no hyphens.
+
+## Covers
+
+Each cover in `public/store/books/` is the front panel of that book's Lulu
+print cover, cut at the trim line and saved 1200px wide. It was checked against
+the cover Lulu shows at checkout for the same Buy Button, so the picture on the
+page is the book that arrives. `coverWidth` and `coverHeight` in the manifest
+must be the file's real size — a test reads the file and compares.
 
 Do not reuse an old edition's `sku` or slug for a different format. A hardcover
 is a new record with its own Lulu product.
@@ -74,10 +84,9 @@ Today no book is released to it, and the feed answers **503** rather than an
 empty file — an empty, successful feed can be read by a scheduled fetch as
 "every item is gone". An invalid manifest answers **500**. Neither is cached.
 
-To run the one-book pilot: add a cover file of sufficient size under
-`public/store/books/`, point that book's `coverPath`, `coverWidth` and
-`coverHeight` at it, set `inMetaFeed` to `true`, and release. Expanding to the
-other books is the same change, repeated.
+To run the one-book pilot: set that book's `inMetaFeed` to `true` and release.
+Every cover is already large enough. Expanding to the other books is the same
+one-line change, repeated.
 
 Removing a book from the feed does not remove it from a catalog on an
 update-only schedule. Mark it `out_of_stock` first; retirement inside Meta is
