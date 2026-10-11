@@ -80,13 +80,18 @@ print manifest. A book is in it only when its record says `"inMetaFeed": true`,
 which the validator allows only for a published book whose cover is at least
 500px on its short side (Meta's minimum for a catalog image).
 
-Today no book is released to it, and the feed answers **503** rather than an
-empty file — an empty, successful feed can be read by a scheduled fetch as
-"every item is gone". An invalid manifest answers **500**. Neither is cached.
+One book is released to it today — *The Alchemy of Intention*, the pilot — so
+the feed is a header and one row. The other nine wait for the pilot's result in
+Meta. Releasing one is a one-line change, `inMetaFeed: true`, and every cover is
+already large enough.
 
-To run the one-book pilot: set that book's `inMetaFeed` to `true` and release.
-Every cover is already large enough. Expanding to the other books is the same
-one-line change, repeated.
+If no book were released the feed would answer **503** rather than an empty
+file — an empty, successful feed can be read by a scheduled fetch as "every
+item is gone". An invalid manifest answers **500**. Neither is cached.
+
+In Meta the feed belongs in its own catalog of physical books, on an **update**
+schedule (add and change), not a replace schedule (which also deletes). It must
+never be added to the existing "Truth J Blue" catalog, which is ads-only.
 
 Removing a book from the feed does not remove it from a catalog on an
 update-only schedule. Mark it `out_of_stock` first; retirement inside Meta is
