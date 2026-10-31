@@ -61,9 +61,16 @@ const nextConfig = {
 
   async rewrites() {
     return {
-      beforeFiles: ['start', 'books', 'about', 'connect', 'legal'].map(
-        (p) => ({ source: `/${p}`, destination: `/${p}/index.html` })
-      ),
+      beforeFiles: [
+        ...['start', 'books', 'about', 'connect', 'legal'].map(
+          (p) => ({ source: `/${p}`, destination: `/${p}/index.html` })
+        ),
+        // The public eBook funnel uses the native HighLevel form and checkout.
+        // Exact routes keep its assets and existing application routes intact.
+        ...['', '/resource', '/toolkit', '/audit', '/community', '/purchase-support'].map(
+          (step) => ({ source: `/created-to-serve${step}`, destination: `/created-to-serve${step}/index.html` })
+        ),
+      ],
     };
   },
 };
