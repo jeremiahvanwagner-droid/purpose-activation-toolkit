@@ -12,6 +12,7 @@
  * struck-through anchors, and the retired assessment name never appears.
  */
 
+import { courseAccessHref } from "./course-access";
 import type { CheckoutAction } from "@/components/store/CheckoutButton";
 import { AUDIT_CHECKOUT_URL, BLUEPRINT_CHECKOUT_URL, CHECKOUT_URL, PAID_AUDIT_PATH, PAID_BLUEPRINT_PATH } from "@/lib/links";
 
@@ -174,6 +175,7 @@ export const PRODUCTS: ProductMeta[] = [
     tagline:
       "Short teachings, guided exercises, and reflection prompts that help you actually do the inner work your Audit reveals.",
     checkout: { kind: "buy", href: `${PAYMENT_LINK}69909e6c35e5ef228f37e300`, label: "Get the course" },
+    access: { href: courseAccessHref("inner-work"), label: "Get course access help" },
     note: "Secure checkout · instant access by email",
     art: { kind: "plate", title: "Inner-Work", accent: "Integration Course", variant: 3 },
     steps: STEPS_BUY,
@@ -206,6 +208,7 @@ export const PRODUCTS: ProductMeta[] = [
     tagline:
       "The opening experience of the Beyond the Veil path — for seekers who are done collecting information and ready for embodiment.",
     checkout: { kind: "buy", href: `${PAYMENT_LINK}6a9bf241a7f78e147447f113`, label: "Take the first step" },
+    access: { href: courseAccessHref("first-step"), label: "Get course access help" },
     note: "Secure checkout · instant access by email",
     art: { kind: "plate", title: "First Step", accent: "Through the Veil", variant: 2 },
     description:
