@@ -112,10 +112,15 @@ export default function AuditPage() {
           </Link>
         </div>
         <p className="assist" style={{ marginTop: 14 }}>
-          Finish the audit to unlock your free eBook, <i>You Were Created to Serve</i>, and 7-day
+          Finish the audit to unlock 7-day
           access to the{" "}
           <a href={IAA_META.ctaUrl} target="_blank" rel="noreferrer" style={{ color: "inherit" }}>
             Divine Path Walkers community
+          </a>
+          . Want the free eBook, <i>You Were Created to Serve</i>? It doesn&apos;t wait on the
+          audit —{" "}
+          <a href="/created-to-serve" style={{ color: "inherit" }}>
+            get it here
           </a>
           .
         </p>
