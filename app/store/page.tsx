@@ -299,7 +299,7 @@ export default async function StoreHome() {
           <h2 className="st-h2">Begin with the Toolkit, and walk with company.</h2>
           <p className="st-final-body">
             The Purpose Activation Toolkit is the path from wondering to walking. And you don&apos;t have to walk it
-            alone — Divine Path Walkers is yours to try, free, for seven days.
+            alone. Try Divine Path Walkers free for 7 days on Skool (card required; $47/month after the trial unless you cancel).
           </p>
           <div className="st-cta-row">
             {toolkit ? (
@@ -310,7 +310,9 @@ export default async function StoreHome() {
             ) : null}
             <a className="st-btn st-btn-ghost" href={COMMUNITY_URL} target="_blank" rel="noreferrer">
               Try Divine Path Walkers
-              <span className="st-btn-note">Free for 7 days</span>
+              <span className="st-btn-note" style={{ whiteSpace: "normal", maxWidth: "36ch" }}>
+                First 7 days free · card required, then $47/month unless you cancel
+              </span>
             </a>
           </div>
         </div>
