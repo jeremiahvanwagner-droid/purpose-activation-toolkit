@@ -24,7 +24,19 @@ const WWW = "https://www.truthjblue.com";
  * product is added or retired, update the list. Every URL below returned 200
  * on its canonical host when this was written (2026-09-06).
  */
-const BRAND_PAGES = ["/", "/audit", "/about", "/books", "/start", "/connect", "/legal"];
+const BRAND_PAGES = [
+  "/",
+  "/audit",
+  "/about",
+  "/books",
+  "/start",
+  "/connect",
+  "/legal",
+  // The free eBook opt-in, the main public entry since 2026-10-31. Static
+  // HTML in public/created-to-serve, served at this clean URL by the rewrite
+  // in next.config.mjs; canonical on www and indexable.
+  "/created-to-serve",
+];
 
 const STORE_COLLECTIONS = [
   "start-here",

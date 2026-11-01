@@ -64,3 +64,17 @@ test('only a successful message from the exact form can report a lead, once', ()
   assert.equal(s.ga().filter((x: any) => x[1] === 'generate_lead').length, 1);
   assert.equal(setup('https://www.truthjblue.com/created-to-serve/resource').ga().some((x: any) => /purchase|generate_lead/.test(String(x[1]))), false);
 });
+
+test('the free eBook is the main entry on /start, listed in the sitemap, and no longer gated behind the Audit', async () => {
+  const start = readFileSync('public/start/index.html', 'utf8');
+  const entry = start.match(/<a class="entry" href="([^"]+)"[^>]*data-slug="([^"]+)"/);
+  assert.equal(entry?.[1], 'https://www.truthjblue.com/created-to-serve');
+  assert.equal(entry?.[2], 'ebook');
+  assert.ok(start.includes('href="https://www.truthjblue.com/audit" data-utm data-slug="audit"'), 'Audit kept as a secondary link');
+  assert.doesNotMatch(start, /Finish all 28 questions|Get the Book|free when you finish|unlocks your profile and your book/);
+  const audit = readFileSync('app/(app)/audit/page.tsx', 'utf8');
+  assert.doesNotMatch(audit, /Finish the audit to unlock your free eBook/);
+  assert.ok(audit.includes('href="/created-to-serve"'));
+  const { default: sitemap } = await import('../app/sitemap.ts');
+  assert.ok(sitemap().map((e: { url: string }) => e.url).includes('https://www.truthjblue.com/created-to-serve'));
+});
