@@ -12,7 +12,6 @@
  * struck-through anchors, and the retired assessment name never appears.
  */
 
-import { courseAccessHref } from "./course-access";
 import type { CheckoutAction } from "@/components/store/CheckoutButton";
 import { AUDIT_CHECKOUT_URL, BLUEPRINT_CHECKOUT_URL, CHECKOUT_URL, PAID_AUDIT_PATH, PAID_BLUEPRINT_PATH } from "@/lib/links";
 
@@ -106,11 +105,6 @@ export type ProductMeta = {
   steps: [string, string, string];
 };
 
-const STEPS_BUY: [string, string, string] = [
-  "Secure checkout on HighLevel, our payments platform.",
-  "Your access details arrive by email right after purchase.",
-  "Need a hand? Write to support@truthjblue.com — a person answers.",
-];
 const STEPS_BOOK: [string, string, string] = [
   "Choose a time that suits you on the calendar.",
   "A confirmation arrives by email with everything you need.",
@@ -122,7 +116,6 @@ const STEPS_APPLY: [string, string, string] = [
   "No pressure and no obligation — an honest conversation first.",
 ];
 
-const PAYMENT_LINK = "https://site.truthjblue.com/payment-link/";
 const booking = (calendarId: string) => `https://site.truthjblue.com/widget/booking/${calendarId}`;
 const form = (formId: string) => `https://site.truthjblue.com/widget/form/${formId}`;
 
@@ -168,19 +161,6 @@ export const PRODUCTS: ProductMeta[] = [
 
   // ── Courses & workbooks ─────────────────────────────────────────────────
   {
-    id: "699f939f4346b061ac834235",
-    collection: "courses-workbooks",
-    order: 1,
-    kicker: "Self-paced mini-course",
-    tagline:
-      "Short teachings, guided exercises, and reflection prompts that help you actually do the inner work your Audit reveals.",
-    checkout: { kind: "buy", href: `${PAYMENT_LINK}69909e6c35e5ef228f37e300`, label: "Get the course" },
-    access: { href: courseAccessHref("inner-work"), label: "Get course access help" },
-    note: "Secure checkout · instant access by email",
-    art: { kind: "plate", title: "Inner-Work", accent: "Integration Course", variant: 3 },
-    steps: STEPS_BUY,
-  },
-  {
     id: "699fa003a14ffb50139b4b55",
     collection: "courses-workbooks",
     order: 2,
@@ -198,22 +178,6 @@ export const PRODUCTS: ProductMeta[] = [
       "Open your Blueprint at truthjblue.com/store/blueprint and sign in with the same email — it is written from your Audit answers.",
       "Read it, save it as a PDF, and walk the seven days.",
     ],
-  },
-  {
-    id: "6a4eb9eb6630447c7bd80f0d",
-    collection: "courses-workbooks",
-    order: 3,
-    slug: "first-step-through-the-veil",
-    kicker: "Beyond the Veil · the beginning",
-    tagline:
-      "The opening experience of the Beyond the Veil path — for seekers who are done collecting information and ready for embodiment.",
-    checkout: { kind: "buy", href: `${PAYMENT_LINK}6a9bf241a7f78e147447f113`, label: "Take the first step" },
-    access: { href: courseAccessHref("first-step"), label: "Get course access help" },
-    note: "Secure checkout · instant access by email",
-    art: { kind: "plate", title: "First Step", accent: "Through the Veil", variant: 2 },
-    description:
-      "<p>First Step Through the Veil is where the Beyond the Veil path begins: a guided opening for seekers who are no longer looking for information, but embodiment.</p><p>It introduces the ground the mentorship is built on — Identity, Purpose, Power, and Transformation — and gives you the first practices to walk it, so that when you are ready to go further, you arrive already in motion.</p>",
-    steps: STEPS_BUY,
   },
 
   // ── Programs & mentorship ───────────────────────────────────────────────

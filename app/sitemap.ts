@@ -50,8 +50,6 @@ const STORE_PRODUCTS = [
   "purpose-activation-toolkit",
   "inner-alignment-audit",
   "divine-alignment-blueprint",
-  "inner-work-integration-course-47",
-  "first-step-through-the-veil",
   "deep-dive-call",
   "ascension-intensive",
   "high-level-spiritual-mentorship",
