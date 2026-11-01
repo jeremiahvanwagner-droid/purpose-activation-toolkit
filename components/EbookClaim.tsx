@@ -151,8 +151,14 @@ export default function EbookClaim({
               EPUB for e-readers
             </a>
           ) : null}
-          <a className="btn ghost" href={COMMUNITY_URL} target="_blank" rel="noreferrer">
-            Start your 7 days in Divine Path Walkers
+          <a
+            className="btn ghost"
+            href={COMMUNITY_URL}
+            target="_blank"
+            rel="noreferrer"
+            style={{ whiteSpace: "normal", textAlign: "center" }}
+          >
+            Try Divine Path Walkers free for 7 days on Skool (card required; $47/month after the trial unless you cancel)
           </a>
         </div>
       </section>
@@ -167,21 +173,12 @@ export default function EbookClaim({
         {variant === "unlock" ? (
           <p>
             All 28 answered — your profile is ready. Tell us where to send it and it opens right
-            here, along with your free copy of <i>You Were Created to Serve</i> and 7-day access to
-            the{" "}
-            <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
-              Divine Path Walkers community
-            </a>
-            .
+            here, along with your free copy of <i>You Were Created to Serve</i>.
           </p>
         ) : (
           <p>
             You finished the audit — this book is yours, free. Tell us where to send it and your
-            download will appear right here, along with 7-day access to the{" "}
-            <a href={COMMUNITY_URL} target="_blank" rel="noreferrer">
-              Divine Path Walkers community
-            </a>
-            .
+            download will appear right here.
           </p>
         )}
       </div>
