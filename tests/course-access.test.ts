@@ -5,15 +5,16 @@ import { PRODUCTS } from "../lib/store/overlay.ts";
 import { NextRequest } from "next/server";
 import { middleware } from "../middleware.ts";
 
-test("both LMS products have a returning-buyer route without changing checkout", () => {
+test("paused courses stay off the shelf, and a returning buyer can still ask for access help", () => {
   for (const [key, id, paymentLink] of [
     ["inner-work", "699f939f4346b061ac834235", "69909e6c35e5ef228f37e300"],
     ["first-step", "6a4eb9eb6630447c7bd80f0d", "6a9bf241a7f78e147447f113"],
   ] as const) {
-    const product = PRODUCTS.find(p => p.id === id)!;
-    assert.equal(product.access?.href, courseAccessHref(key));
-    assert.equal(product.checkout.kind, "buy");
-    assert.equal("href" in product.checkout && product.checkout.href, `https://site.truthjblue.com/payment-link/${paymentLink}`);
+    assert.equal(PRODUCTS.find(p => p.id === id), undefined);
+    assert.equal(
+      PRODUCTS.some(p => p.checkout.kind === "buy" && "href" in p.checkout && p.checkout.href.includes(paymentLink)),
+      false,
+    );
     const help = getCourseAccessHelp(key)!;
     assert.equal(help.productId, id);
     const mail = new URL(help.supportHref);
