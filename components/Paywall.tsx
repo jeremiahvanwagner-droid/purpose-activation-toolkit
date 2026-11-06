@@ -76,7 +76,7 @@ export default function Paywall({
   children,
   product = TOOLKIT_PAYWALL,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   product?: PaywallProduct;
 }) {
   const ent = useEntitlement(product.id);

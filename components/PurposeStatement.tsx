@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse, useResponses } from "@/lib/store";
-import { STATEMENT_PARTS, STATEMENT_WORKING_FIELD } from "@/lib/content/purposeActivation";
 
 function Part({ id, leadIn, hint, placeholder }: { id: string; leadIn: string; hint: string; placeholder: string }) {
   const [value, setValue] = useResponse<string>(id, "");
@@ -24,6 +24,9 @@ function Part({ id, leadIn, hint, placeholder }: { id: string; leadIn: string; h
 }
 
 export default function PurposeStatement() {
+  const curriculum = usePaidCurriculum();
+  const STATEMENT_PARTS = curriculum.purposeActivation.STATEMENT_PARTS as { id: string; leadIn: string; hint: string; placeholder: string }[];
+  const STATEMENT_WORKING_FIELD = curriculum.purposeActivation.STATEMENT_WORKING_FIELD as string;
   const all = useResponses();
   const [working, setWorking] = useResponse<string>(STATEMENT_WORKING_FIELD, "");
   const [sealed, setSealed] = useResponse<boolean>("pa.stmt.sealed", false);
@@ -75,7 +78,7 @@ export default function PurposeStatement() {
           Now refine it into your working purpose statement
         </label>
         <p className="assist" style={{ margin: "0 0 2px" }}>
-          Read your statement aloud. Combine or reword until it lands deepest in your spirit — this becomes your compass for the whole toolkit.
+          {curriculum.page.purposeActivation.statementAssist}
         </p>
         <textarea
           id={STATEMENT_WORKING_FIELD}

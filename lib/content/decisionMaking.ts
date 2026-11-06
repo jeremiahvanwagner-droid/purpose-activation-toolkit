@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Module 2 — Proper Decision-Making Techniques
  * Content transcribed from the Truth J Blue source workbook.
@@ -184,6 +186,30 @@ export const DM_S5_SPIRIT = {
 
 /* Section 6 — Listening Prayer & Intuitive Discernment */
 export const CHANNELS = ["Scripture", "Wise Counsel", "The Inner Witness"];
+export const LISTENING_PHASES = [
+  {
+    name: "Center",
+    secs: 120,
+    hint: "Sit comfortably. Close your eyes. Breathe slowly, and pray:",
+    prayer: "“Holy Spirit, I quiet my mind and open my heart. Speak to me about this decision. I trust You to guide me.”",
+    bullets: null as string[] | null,
+  },
+  {
+    name: "Listen",
+    secs: 360,
+    hint: "Stay open and unhurried. Simply notice:",
+    prayer: null as string | null,
+    bullets: ["Images or impressions", "Scripture that comes to mind", "Peace or unsettledness", "A quiet inner knowing"],
+  },
+  {
+    name: "Journal",
+    secs: 120,
+    hint: "Capture what you received in the prompts below — unedited, unfiltered.",
+    prayer: null,
+    bullets: null,
+  },
+];
+
 export const LISTENING_PROMPTS = [
   { id: "dm.s6.invited", prompt: "What am I being invited into?" },
   { id: "dm.s6.release", prompt: "What am I being asked to release?" },

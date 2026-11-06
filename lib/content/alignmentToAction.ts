@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Module 3 — Alignment-to-Action
  * Content transcribed from the Truth J Blue source workbook.
@@ -74,6 +76,21 @@ export const ATA_S4_REFLECTION = {
 
 /* Section 5 — Daily Aligned Action Ritual */
 export const RITUAL_FIELD = "ata.s5.ritual"; // { morning, middayTime, recalibrate, evening }
+export const RITUAL_CHROME = {
+  morningName: "Morning ritual · 5–10 minutes",
+  morningAnchor: "How can I live in alignment with my higher purpose today?",
+  morningLabel: "My morning practice will include",
+  morningPlaceholder: "e.g., 5 minutes of Scripture or prayer; review my purpose statement; set one aligned intention; speak affirmations",
+  middayName: "Midday check-in · 2 minutes",
+  middayLabel: "My midday check-in will happen at",
+  middayPlaceholder: "e.g., 12:30 PM — set a phone reminder",
+  recalLabel: "My recalibration practice (if drifted)",
+  recalPlaceholder: "e.g., 3 breaths + one-line prayer + one aligned step",
+  eveningName: "Evening reflection · 5 minutes",
+  eveningAnchor: "What did I do today that was in alignment?",
+  eveningLabel: "My evening practice will include",
+  eveningPlaceholder: "e.g., journal 3 aligned actions; name 3 gratitudes; review tomorrow's intention; pray a prayer of surrender",
+};
 export const MIDDAY_PROTOCOL = [
   "Pause whatever you're doing",
   "Take 3 deep breaths",

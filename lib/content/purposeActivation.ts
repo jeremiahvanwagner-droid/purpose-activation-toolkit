@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Module 1 — Purpose Activation Framework
  * Content transcribed from the Truth J Blue source workbook.
@@ -247,6 +249,13 @@ export const S7_REFLECTION = {
 /* ------------------------------------------------------------------ */
 /* Section 8 — 30-Day Purpose Activation Plan + Commitment             */
 /* ------------------------------------------------------------------ */
+
+export const PLAN_WEEK_ROWS = [
+  { key: "w1", label: "Week 1 purpose target", ph: "What will you accomplish or establish by the end of Week 1?" },
+  { key: "w2", label: "Week 2 purpose target", ph: "Build on Week 1 — what's next?" },
+  { key: "w3", label: "Week 3 purpose target", ph: "Where should momentum carry you by Week 3?" },
+  { key: "w4", label: "Week 4 purpose target", ph: "What does 'established' look like at Day 30?" },
+];
 
 export const PLAN_FOCUS = "pa.s8.focus";
 export const PLAN_WEEKS = "pa.s8.weeks"; // { w1..w4 }

@@ -2,10 +2,7 @@
 
 import { useResponses } from "./store";
 import { isStarted } from "./progress";
-import { PA_FIELD_IDS } from "./content/purposeActivation";
-import { DM_FIELD_IDS } from "./content/decisionMaking";
-import { ATA_FIELD_IDS } from "./content/alignmentToAction";
-import { EP_FIELD_IDS } from "./content/executionPrompts";
+import { ATA_FIELD_IDS, DM_FIELD_IDS, EP_FIELD_IDS, PA_FIELD_IDS } from "./content/fieldIds";
 
 export { isStarted };
 
@@ -27,7 +24,7 @@ export const MODULES: ModuleMeta[] = [
     title: "Purpose Activation",
     blurb: "Discover your design",
     available: true,
-    fieldIds: PA_FIELD_IDS,
+    fieldIds: [...PA_FIELD_IDS],
   },
   {
     slug: "decision-making",
@@ -36,7 +33,7 @@ export const MODULES: ModuleMeta[] = [
     title: "Decision-Making",
     blurb: "Decide with peace",
     available: true,
-    fieldIds: DM_FIELD_IDS,
+    fieldIds: [...DM_FIELD_IDS],
   },
   {
     slug: "alignment-to-action",
@@ -45,7 +42,7 @@ export const MODULES: ModuleMeta[] = [
     title: "Alignment-to-Action",
     blurb: "Turn clarity into motion",
     available: true,
-    fieldIds: ATA_FIELD_IDS,
+    fieldIds: [...ATA_FIELD_IDS],
   },
   {
     slug: "execution-prompts",
@@ -54,7 +51,7 @@ export const MODULES: ModuleMeta[] = [
     title: "Execution Prompts",
     blurb: "Your daily companion",
     available: true,
-    fieldIds: EP_FIELD_IDS,
+    fieldIds: [...EP_FIELD_IDS],
   },
 ];
 

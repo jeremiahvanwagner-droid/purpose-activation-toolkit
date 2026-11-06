@@ -1,12 +1,16 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import { deckField } from "@/lib/paid/ids";
 import { useResponse } from "@/lib/store";
-import { Deck, deckField, TOOLKIT_FIELD } from "@/lib/content/executionPrompts";
+
+type Deck = { key: string; intro?: string; prompts: string[] };
 
 type Journal = Record<string, string>;
 type Toolkit = Record<string, string>;
 
 export default function PromptDeck({ deck }: { deck: Deck }) {
+  const { TOOLKIT_FIELD } = usePaidCurriculum().executionPrompts;
   const [journal, setJournal] = useResponse<Journal>(deckField(deck.key), {});
   const [toolkit, setToolkit] = useResponse<Toolkit>(TOOLKIT_FIELD, {});
 

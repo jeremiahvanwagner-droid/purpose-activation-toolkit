@@ -1,191 +1,134 @@
 "use client";
 
-import ModuleMeta from "@/components/ModuleMeta";
-import Reflection from "@/components/Reflection";
-import NumberedList from "@/components/NumberedList";
-import Covenant from "@/components/Covenant";
 import AlignedFormula from "@/components/AlignedFormula";
+import Covenant from "@/components/Covenant";
+import Ecosystem from "@/components/Ecosystem";
+import ModuleMeta from "@/components/ModuleMeta";
+import NumberedList from "@/components/NumberedList";
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import Plan90 from "@/components/Plan90";
+import Reflection from "@/components/Reflection";
 import ResistancePairs from "@/components/ResistancePairs";
 import RitualDesigner from "@/components/RitualDesigner";
-import Ecosystem from "@/components/Ecosystem";
 import Tracker21 from "@/components/Tracker21";
-import Plan90 from "@/components/Plan90";
-import {
-  ATA_COMMIT_FIELD,
-  ATA_COVENANT_BODY,
-  ATA_META,
-  ATA_S1_REFLECTIONS,
-  ATA_S2_REFLECTIONS,
-  ATA_S4_REFLECTION,
-  ATA_S6_REFLECTIONS,
-  IN_ASSIST,
-  IN_FIELD,
-  INTEGRATION,
-  OUT_ASSIST,
-  OUT_FIELD,
-  POST_CHALLENGE,
-  RESIST_FORMS,
-} from "@/lib/content/alignmentToAction";
 
 export default function AlignmentToActionModule() {
+  const { alignmentToAction: ata, page } = usePaidCurriculum();
+  const copy = page.alignmentToAction;
+
   return (
     <div className="canvas-inner">
       <header>
         <div className="eyebrow">Module Three · Alignment-to-Action</div>
-        <h1 className="page-title">{ATA_META.title}</h1>
-        <p className="lede">“{ATA_META.lede}”</p>
+        <h1 className="page-title">{ata.ATA_META.title}</h1>
+        <p className="lede">“{ata.ATA_META.lede}”</p>
       </header>
 
       <ModuleMeta slug="alignment-to-action" />
 
-      {/* Section 1 */}
       <section className="card">
         <span className="tag">Section 1 · The Teaching</span>
-        <h2>From intention to embodiment</h2>
+        <h2>{copy.s1Title}</h2>
         <div className="body-copy">
-          <p>
-            You know what you're called to — but somewhere between knowing and doing, the bridge collapses.
-            Alignment is congruence; action is proof. This module closes the gap with small, compounding,
-            Spirit-led actions.
-          </p>
+          <p>{copy.s1Body}</p>
         </div>
         <div className="scripture">
-          Do not merely listen to the word, and so deceive yourselves. Do what it says.
-          <cite>James 1:22</cite>
+          {copy.s1Scripture}
+          <cite>{copy.s1Cite}</cite>
         </div>
-        {ATA_S1_REFLECTIONS.map((r) => (
+        {ata.ATA_S1_REFLECTIONS.map((r: { id: string; prompt: string; assist?: string }) => (
           <Reflection key={r.id} id={r.id} prompt={r.prompt} assist={r.assist} />
         ))}
       </section>
 
-      {/* Section 2 */}
       <section className="card">
         <span className="tag">Section 2 · Exercise</span>
-        <h2>My alignment indicators</h2>
-        <p className="hint">
-          Alignment has dashboard lights — green lights that say you're in flow with the Spirit, and red
-          lights that say you've drifted. Name yours so you can catch drift early.
-        </p>
-        <NumberedList id={IN_FIELD} count={5} noun="Sign" label="5 ways I know I am IN alignment" assist={IN_ASSIST} />
-        <NumberedList id={OUT_FIELD} count={5} noun="Sign" label="5 signs I am OUT of alignment" assist={OUT_ASSIST} />
-        {ATA_S2_REFLECTIONS.map((r) => (
+        <h2>{copy.s2Title}</h2>
+        <p className="hint">{copy.s2Hint}</p>
+        <NumberedList id={ata.IN_FIELD} count={5} noun="Sign" label={copy.inLabel} assist={ata.IN_ASSIST} />
+        <NumberedList id={ata.OUT_FIELD} count={5} noun="Sign" label={copy.outLabel} assist={ata.OUT_ASSIST} />
+        {ata.ATA_S2_REFLECTIONS.map((r: { id: string; prompt: string; assist?: string }) => (
           <Reflection key={r.id} id={r.id} prompt={r.prompt} assist={r.assist} minRows={2} />
         ))}
       </section>
 
-      {/* Section 3 */}
       <section className="card">
         <span className="tag">Section 3 · The Framework</span>
-        <h2>The Aligned Action Formula</h2>
-        <p className="hint">
-          Most people jump from Purpose straight to Outcomes — and stall. The formula honors the middle steps.
-          Choose one domain and walk it through.
-        </p>
+        <h2>{copy.s3Title}</h2>
+        <p className="hint">{copy.s3Hint}</p>
         <AlignedFormula />
       </section>
 
-      {/* Section 4 */}
       <section className="card">
         <span className="tag">Section 4 · Removing Friction</span>
-        <h2>Name and bypass resistance</h2>
+        <h2>{copy.s4Title}</h2>
         <div className="body-copy">
-          <p>
-            Resistance wears five familiar faces — {RESIST_FORMS.join(", ").toLowerCase()} — and it often
-            lies. Test what it tells you against Scripture, reality, and trusted counsel: discomfort may accompany a
-            worthwhile step, or point to a constraint that needs attention. The antidote is truth, grace, and
-            micro-steps: name the lie, release perfectionism, and shrink the action until resistance can't argue
-            with it.
-          </p>
+          <p>{copy.s4Body.replace("{forms}", ata.RESIST_FORMS.join(", ").toLowerCase())}</p>
         </div>
         <div className="scripture">
-          God has not given us a spirit of fear, but of power and of love and of a sound mind.
-          <cite>2 Timothy 1:7</cite>
+          {copy.s4Scripture}
+          <cite>{copy.s4Cite}</cite>
         </div>
         <ResistancePairs />
         <div style={{ marginTop: 20 }}>
-          <Reflection id={ATA_S4_REFLECTION.id} prompt={ATA_S4_REFLECTION.prompt} assist={ATA_S4_REFLECTION.assist} />
+          <Reflection id={ata.ATA_S4_REFLECTION.id} prompt={ata.ATA_S4_REFLECTION.prompt} assist={ata.ATA_S4_REFLECTION.assist} />
         </div>
       </section>
 
-      {/* Section 5 */}
       <section className="card">
         <span className="tag">Section 5 · Ritual</span>
-        <h2>Design your daily aligned-action ritual</h2>
-        <p className="hint">
-          Alignment is a daily practice, not a one-time decision. Three touchpoints — morning, midday, evening
-          — keep you on the path all day long.
-        </p>
+        <h2>{copy.s5Title}</h2>
+        <p className="hint">{copy.s5Hint}</p>
         <RitualDesigner />
       </section>
 
-      {/* Section 6 */}
       <section className="card">
         <span className="tag">Section 6 · Community</span>
-        <h2>Build your accountability ecosystem</h2>
+        <h2>{copy.s6Title}</h2>
         <div className="body-copy">
-          <p>
-            Alignment stabilizes in community. Isolated intentions fade; witnessed commitments endure. Build
-            three layers of support around your purpose.
-          </p>
+          <p>{copy.s6Body}</p>
         </div>
         <div className="scripture">
-          And let us consider how we may spur one another on toward love and good deeds, not giving up meeting
-          together.
-          <cite>Hebrews 10:24–25</cite>
+          {copy.s6Scripture}
+          <cite>{copy.s6Cite}</cite>
         </div>
         <Ecosystem />
         <div style={{ marginTop: 20 }}>
-          {ATA_S6_REFLECTIONS.map((r) => (
+          {ata.ATA_S6_REFLECTIONS.map((r: { id: string; prompt: string }) => (
             <Reflection key={r.id} id={r.id} prompt={r.prompt} minRows={2} />
           ))}
         </div>
       </section>
 
-      {/* Section 7 */}
       <section className="card">
         <span className="tag">Section 7 · The Challenge</span>
-        <h2>The 21-Day Alignment Challenge</h2>
-        <p className="hint">
-          Use these 21 days to practice one small action consistently and notice what helps you repeat it. Habit
-          formation varies by person and behavior; this challenge is a starting period, not a deadline for
-          transformation. Each day: one clear, purpose-aligned action, written down, with a one-sentence
-          reflection. The rules keep it honest — and grace keeps it going.
-        </p>
+        <h2>{copy.s7Title}</h2>
+        <p className="hint">{copy.s7Hint}</p>
         <Tracker21 />
       </section>
 
-      {/* Section 8 — after the challenge */}
       <section className="card later">
         <span className="later-badge">Return after Day 21</span>
-        <h2>Integration: from challenge to lifestyle</h2>
-        <p className="hint">
-          Come back once your 21 days are complete. These don't count toward today's progress.
-        </p>
-        <Reflection id={POST_CHALLENGE.id} prompt={POST_CHALLENGE.prompt} assist={POST_CHALLENGE.assist} />
-        {INTEGRATION.map((r) => (
+        <h2>{copy.s8Title}</h2>
+        <p className="hint">{copy.s8Hint}</p>
+        <Reflection id={ata.POST_CHALLENGE.id} prompt={ata.POST_CHALLENGE.prompt} assist={ata.POST_CHALLENGE.assist} />
+        {ata.INTEGRATION.map((r: { id: string; prompt: string; assist?: string }) => (
           <Reflection key={r.id} id={r.id} prompt={r.prompt} assist={r.assist} minRows={2} />
         ))}
       </section>
 
-      {/* Section 9 */}
       <section className="card">
         <span className="tag">Section 9 · Commitment</span>
-        <h2>Your 90-day alignment focus plan</h2>
+        <h2>{copy.s9Title}</h2>
         <div className="body-copy">
-          <p>
-            The challenge starts the practice; the 90-day cycle keeps it going. Choose one focus, three
-            non-negotiables, and the structures that will hold you — then seal it.
-          </p>
+          <p>{copy.s9Body}</p>
         </div>
         <Plan90 />
-        <Covenant id={ATA_COMMIT_FIELD} buttonLabel="Sign my 90-day commitment" body={ATA_COVENANT_BODY} />
+        <Covenant id={ata.ATA_COMMIT_FIELD} buttonLabel="Sign my 90-day commitment" body={ata.ATA_COVENANT_BODY} />
       </section>
 
       <footer style={{ marginTop: 10, paddingTop: 18, borderTop: "1px solid var(--line)" }}>
-        <p style={{ fontSize: "0.82rem", color: "var(--slate)", lineHeight: 1.6, maxWidth: "64ch" }}>
-          You are no longer a person who just knows — you are a person who does. Next on the path: Execution
-          Prompts, your daily companion.
-        </p>
+        <p style={{ fontSize: "0.82rem", color: "var(--slate)", lineHeight: 1.6, maxWidth: "64ch" }}>{copy.footer}</p>
       </footer>
     </div>
   );

@@ -1,13 +1,16 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { TRACKER_FIELD, TRACKER_RULES } from "@/lib/content/alignmentToAction";
 
 type Day = { date?: string; action?: string; note?: string };
 
 const DAYS = 21;
 
 export default function Tracker21() {
+  const ata = usePaidCurriculum().alignmentToAction;
+  const TRACKER_FIELD = ata.TRACKER_FIELD as string;
+  const TRACKER_RULES = ata.TRACKER_RULES as string[];
   const [rows, setRows] = useResponse<Day[]>(TRACKER_FIELD, []);
   const list = Array.from({ length: DAYS }, (_, i) => rows[i] ?? {});
 

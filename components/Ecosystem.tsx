@@ -1,11 +1,12 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { ECO_FIELD } from "@/lib/content/alignmentToAction";
 
 type Eco = Record<string, string>;
 
 export default function Ecosystem() {
+  const { ECO_FIELD } = usePaidCurriculum().alignmentToAction;
   const [e, setE] = useResponse<Eco>(ECO_FIELD, {});
   const set = (key: string, val: string) => setE({ ...e, [key]: val });
 

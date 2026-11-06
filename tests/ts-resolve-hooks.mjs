@@ -11,6 +11,9 @@ export async function resolve(specifier, context, nextResolve) {
   // Next's bundler resolves "next/server" to a file; Node on its own wants the
   // extension. Without this, middleware.ts cannot be loaded by a test at all.
   if (spec === "next/server") spec = "next/server.js";
+  if (spec === "server-only") {
+    return nextResolve(pathToFileURL(path.join(ROOT, "tests/stubs/server-only.mjs")).href, context);
+  }
 
   const local = spec.startsWith("./") || spec.startsWith("../") || spec.startsWith("file:");
   if (local && !HAS_EXT.test(spec) && context.parentURL) {

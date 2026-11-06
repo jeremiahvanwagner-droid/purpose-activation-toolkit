@@ -45,6 +45,9 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Confirm paid curriculum is not in the browser bundle
+        run: node scripts/check-paid-bundle.mjs
+
       # `next build` type-checks the build graph; this also covers files that
       # nothing imports yet.
       - name: Type-check

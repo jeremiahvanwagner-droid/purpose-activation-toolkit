@@ -1,0 +1,33 @@
+-- NOT APPLIED. Offline proposal only. Do not run this against the live project.
+-- The app does not call this function. Refund deletion is disabled until `raw`
+-- is confirmed to exist and is not client-writable. A delete that filters only
+-- email, product, and source is intentionally not shipped: it can erase a newer
+-- payment row that reused the same source.
+--
+-- It is the stricter single-statement form of the PostgREST filters in
+-- lib/access/entitlementSync.ts, for a later release that has confirmed:
+--   * public.entitlements exists with unique (email, product_id)
+--   * source and raw are present
+--   * source and raw are not writable by anon or authenticated
+--
+-- Until those are true, revocation stays on the filtered delete that counts
+-- only a represented payment row, and rows without raw.transaction_id are kept.
+
+-- create or replace function public.revoke_payment_entitlement(
+--   p_email text,
+--   p_product text,
+--   p_source text,
+--   p_transaction_id text
+-- ) returns setof public.entitlements
+-- language sql
+-- security definer
+-- set search_path = public
+-- as $$
+--   delete from public.entitlements
+--   where lower(email) = lower(p_email)
+--     and product_id = p_product
+--     and source = p_source
+--     and (source = 'ghl-payments-sync' or source like 'ghl:%')
+--     and raw->>'transaction_id' = p_transaction_id
+--   returning *;
+-- $$;
