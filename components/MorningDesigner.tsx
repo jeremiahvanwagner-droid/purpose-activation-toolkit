@@ -1,11 +1,14 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { MORNING_FIELD, MORNING_PRACTICES } from "@/lib/content/purposeActivation";
 
 type Morning = Record<string, string>;
 
 export default function MorningDesigner() {
+  const pa = usePaidCurriculum().purposeActivation;
+  const MORNING_FIELD = pa.MORNING_FIELD as string;
+  const MORNING_PRACTICES = pa.MORNING_PRACTICES as { key: string; label: string; example?: string }[];
   const [m, setM] = useResponse<Morning>(MORNING_FIELD, {});
   const set = (key: string, v: string) => setM({ ...m, [key]: v });
 

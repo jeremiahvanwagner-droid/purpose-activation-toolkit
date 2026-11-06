@@ -1,7 +1,7 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { PENDING_FIELD } from "@/lib/content/decisionMaking";
 
 type Pending = {
   facing?: string;
@@ -12,6 +12,7 @@ type Pending = {
 };
 
 export default function PendingDecision() {
+  const { PENDING_FIELD } = usePaidCurriculum().decisionMaking;
   const [p, setP] = useResponse<Pending>(PENDING_FIELD, {});
   const set = (key: keyof Pending, val: string) => setP({ ...p, [key]: val });
 

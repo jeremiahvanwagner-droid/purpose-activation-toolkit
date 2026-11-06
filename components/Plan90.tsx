@@ -1,18 +1,18 @@
 "use client";
 
-import { useResponse } from "@/lib/store";
 import NumberedList from "@/components/NumberedList";
-import {
-  P90_ACCT,
-  P90_ACTIONS,
-  P90_FOCUS,
-  P90_FOCUS_OPTIONS,
-  P90_REVIEWS,
-  P90_RITUALS,
-  P90_SUCCESS,
-} from "@/lib/content/alignmentToAction";
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import { useResponse } from "@/lib/store";
 
 export default function Plan90() {
+  const ata = usePaidCurriculum().alignmentToAction;
+  const P90_ACCT = ata.P90_ACCT as string;
+  const P90_ACTIONS = ata.P90_ACTIONS as string;
+  const P90_FOCUS = ata.P90_FOCUS as string;
+  const P90_FOCUS_OPTIONS = ata.P90_FOCUS_OPTIONS as string[];
+  const P90_REVIEWS = ata.P90_REVIEWS as string;
+  const P90_RITUALS = ata.P90_RITUALS as string;
+  const P90_SUCCESS = ata.P90_SUCCESS as string;
   const [focus, setFocus] = useResponse<string>(P90_FOCUS, "");
   const [rituals, setRituals] = useResponse<Record<string, string>>(P90_RITUALS, {});
   const [acct, setAcct] = useResponse<Record<string, string>>(P90_ACCT, {});

@@ -1,7 +1,8 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import { domainAppField } from "@/lib/paid/ids";
 import { useResponse } from "@/lib/store";
-import { DM_DOMAINS, domainAppField } from "@/lib/content/decisionMaking";
 
 type App = { q?: string; v?: string; c?: string };
 
@@ -54,6 +55,7 @@ function DomainApp({ dKey, name, considerations }: { dKey: string; name: string;
 }
 
 export default function DomainApps() {
+  const DM_DOMAINS = usePaidCurriculum().decisionMaking.DM_DOMAINS as { key: string; name: string; considerations: string[] }[];
   return (
     <div className="dm">
       {DM_DOMAINS.map((d) => (

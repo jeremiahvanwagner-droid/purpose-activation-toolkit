@@ -1,7 +1,7 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { GRID_CRITERIA, GRID_FIELD } from "@/lib/content/decisionMaking";
 
 type Grid = {
   decision?: string;
@@ -12,6 +12,9 @@ type Grid = {
 const SCORES = [1, 2, 3, 4, 5];
 
 export default function DecisionGrid() {
+  const dm = usePaidCurriculum().decisionMaking;
+  const GRID_CRITERIA = dm.GRID_CRITERIA as { key: string; label: string; anchor?: string }[];
+  const GRID_FIELD = dm.GRID_FIELD as string;
   const [g, setG] = useResponse<Grid>(GRID_FIELD, {});
   const options = [0, 1, 2].map((i) => g.options?.[i] ?? "");
 

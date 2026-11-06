@@ -7,12 +7,11 @@
  * a purchase is recorded against the same address in public.entitlements. One
  * clean identity, no linking table.
  *
- * When there's no row, that is not necessarily a no. The row is written by
- * /api/entitlement-sync, which asks GHL whether this address has actually paid
- * for THIS product — so a first miss triggers one sync and a re-read before we
- * show the reader a paywall. That is what makes a fresh buyer's first visit
- * work: they come back from checkout, sign in, and the entitlement is created
- * on the spot rather than waiting on a webhook that may never come.
+ * A row already on file is not the last word. /api/entitlement-sync rechecks
+ * payment-backed rows and revokes one when HighLevel no longer has a
+ * qualifying charge. Complimentary and unclassified sources stay. The server
+ * answer is what opens the paywall; the curriculum itself is loaded only
+ * after that, from /api/paid-content.
  *
  * All local-first: when Supabase isn't configured (dev, or before env vars
  * land in prod), everyone is treated as UNENTITLED so the paywall still
@@ -132,26 +131,20 @@ export function useEntitlement(productId: string): EntitlementHandle {
 
       if (current.state === "unentitled" && current.email === email) publish({ ...current, checking: true });
 
-      let row = await readRow(email);
-      if (stale()) return;
-      if (row.ok && row.purchasedAt) {
-        publish({ state: "entitled", email, purchasedAt: row.purchasedAt });
-        return;
-      }
-
-      // No row yet — they may have just bought. Reconcile, then re-read.
+      // The server rechecks payment-backed rows, so a stored row is not enough.
       const answer = await syncFromPayments();
       if (stale()) return;
       if (answer === "entitled") {
-        row = await readRow(email);
+        const row = await readRow(email);
         if (stale()) return;
-        if (row.ok && row.purchasedAt) {
-          publish({ state: "entitled", email, purchasedAt: row.purchasedAt });
-          return;
-        }
+        publish({
+          state: "entitled",
+          email,
+          purchasedAt: row.ok && row.purchasedAt ? row.purchasedAt : new Date(0).toISOString(),
+        });
+        return;
       }
-      const lookup: "not-found" | "unavailable" =
-        answer === "not-found" && row.ok ? "not-found" : "unavailable";
+      const lookup: "not-found" | "unavailable" = answer === "not-found" ? "not-found" : "unavailable";
       publish({ state: "unentitled", email, lookup, checking: false, checkedAt: Date.now() });
     }
 
@@ -170,7 +163,7 @@ export function useEntitlement(productId: string): EntitlementHandle {
     const onVisible = () => {
       if (document.visibilityState !== "visible") return;
       if (Date.now() - lastFocusCheck < FOCUS_RECHECK_MS) return;
-      if (current.state !== "unentitled") return;
+      if (current.state !== "unentitled" && current.state !== "entitled") return;
       lastFocusCheck = Date.now();
       void check();
     };

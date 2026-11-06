@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * The Divine Alignment Blueprint — the $27 product, generated from a reader's
  * own Inner Alignment Audit answers.

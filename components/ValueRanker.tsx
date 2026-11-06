@@ -1,9 +1,13 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { VALUES_BANK, VALUES_CAP, VALUES_FIELD } from "@/lib/content/purposeActivation";
 
 export default function ValueRanker() {
+  const pa = usePaidCurriculum().purposeActivation;
+  const VALUES_BANK = pa.VALUES_BANK as string[];
+  const VALUES_CAP = pa.VALUES_CAP as number;
+  const VALUES_FIELD = pa.VALUES_FIELD as string;
   const [picked, setPicked] = useResponse<string[]>(VALUES_FIELD, []);
   const atCap = picked.length >= VALUES_CAP;
 

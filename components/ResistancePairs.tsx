@@ -1,7 +1,7 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { RESISTANCE_FIELD } from "@/lib/content/alignmentToAction";
 
 type Pair = { r?: string; bypass?: string };
 type Resistance = { pairs?: Pair[] };
@@ -9,6 +9,7 @@ type Resistance = { pairs?: Pair[] };
 const ROWS = 3;
 
 export default function ResistancePairs() {
+  const { RESISTANCE_FIELD } = usePaidCurriculum().alignmentToAction;
   const [v, setV] = useResponse<Resistance>(RESISTANCE_FIELD, {});
   const pairs = Array.from({ length: ROWS }, (_, i) => v.pairs?.[i] ?? {});
 

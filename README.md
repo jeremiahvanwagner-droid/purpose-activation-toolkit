@@ -25,7 +25,7 @@ The keepsake (`/workbook`) gathers every answer into a printable document (brows
 
 ## Access
 
-Modules and the keepsake are gated by `components/Paywall.tsx`. A signed-in reader is entitled when `public.entitlements` has a row for their email and `purpose-activation-toolkit`. With no row, `/api/entitlement-sync` pages through HighLevel's live transactions for a succeeded charge on the Toolkit payment link (`696ec80453f21b434dfae38d`) to that email and records it. The paywall distinguishes "no purchase found" from "couldn't check", offers **Check my purchase again**, and re-checks when the reader returns from the checkout tab.
+Modules and the keepsake stay behind a server check. `/api/entitlement-sync` confirms the signed-in email against HighLevel for payment-backed rows and keeps `manual:` comps and unclassified legacy rows. Paid lesson text is loaded from `/api/paid-content` only after that check, so it is not part of the public JavaScript bundle. A full refund that leaves the charge no longer `succeeded` removes a payment-backed row on the next check. Partial refunds, cancellations, and disputes are not defined here — see `docs/access-blockers.md`.
 
 ## Run it
 

@@ -1,17 +1,16 @@
 "use client";
 
-import { useResponse } from "@/lib/store";
 import NumberedList from "@/components/NumberedList";
-import { PLAN_FOCUS, PLAN_MICRO, PLAN_SUPPORT, PLAN_WEEKS } from "@/lib/content/purposeActivation";
-
-const WEEKS = [
-  { key: "w1", label: "Week 1 purpose target", ph: "What will you accomplish or establish by the end of Week 1?" },
-  { key: "w2", label: "Week 2 purpose target", ph: "Build on Week 1 — what's next?" },
-  { key: "w3", label: "Week 3 purpose target", ph: "Where should momentum carry you by Week 3?" },
-  { key: "w4", label: "Week 4 purpose target", ph: "What does 'established' look like at Day 30?" },
-];
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import { useResponse } from "@/lib/store";
 
 export default function Plan30() {
+  const pa = usePaidCurriculum().purposeActivation;
+  const PLAN_FOCUS = pa.PLAN_FOCUS as string;
+  const PLAN_MICRO = pa.PLAN_MICRO as string;
+  const PLAN_SUPPORT = pa.PLAN_SUPPORT as string;
+  const PLAN_WEEKS = pa.PLAN_WEEKS as string;
+  const WEEKS = pa.PLAN_WEEK_ROWS as { key: string; label: string; ph: string }[];
   const [focus, setFocus] = useResponse<string>(PLAN_FOCUS, "");
   const [weeks, setWeeks] = useResponse<Record<string, string>>(PLAN_WEEKS, {});
   const [support, setSupport] = useResponse<Record<string, string>>(PLAN_SUPPORT, {});

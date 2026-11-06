@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Module 4 — Practical Application: Execution Prompts
  * All 69 prompts transcribed verbatim from the Truth J Blue source workbook.

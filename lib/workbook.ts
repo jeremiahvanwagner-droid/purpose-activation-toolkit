@@ -1,3 +1,5 @@
+import "server-only";
+
 /**
  * Keepsake builder — turns the flat response store into an ordered, labeled
  * document structure for the printable "completed workbook" view (and, later,

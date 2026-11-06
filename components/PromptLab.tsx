@@ -1,7 +1,7 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { LAB_EXAMPLE, LAB_FIELDS } from "@/lib/content/executionPrompts";
 
 type Lab = { struggle?: string; awareness?: string; decision?: string; action?: string };
 
@@ -56,6 +56,9 @@ function LabBlock({ id, index }: { id: string; index: number }) {
 }
 
 export default function PromptLab() {
+  const ep = usePaidCurriculum().executionPrompts;
+  const LAB_EXAMPLE = ep.LAB_EXAMPLE as { struggle: string; awareness: string; decision: string; action: string };
+  const LAB_FIELDS = ep.LAB_FIELDS as string[];
   return (
     <div>
       <div className="callout" style={{ marginTop: 0, marginBottom: 16 }}>

@@ -1,7 +1,7 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { FORMULA_CHAIN, FORMULA_DOMAINS, FORMULA_EXAMPLE, FORMULA_FIELD } from "@/lib/content/alignmentToAction";
 
 type Formula = {
   domain?: string;
@@ -13,6 +13,11 @@ type Formula = {
 };
 
 export default function AlignedFormula() {
+  const ata = usePaidCurriculum().alignmentToAction;
+  const FORMULA_CHAIN = ata.FORMULA_CHAIN as string[];
+  const FORMULA_DOMAINS = ata.FORMULA_DOMAINS as string[];
+  const FORMULA_EXAMPLE = ata.FORMULA_EXAMPLE as { k?: string; v?: string; label?: string; value?: string }[];
+  const FORMULA_FIELD = ata.FORMULA_FIELD as string;
   const [f, setF] = useResponse<Formula>(FORMULA_FIELD, {});
   const set = (key: keyof Formula, val: string) => setF({ ...f, [key]: val });
 

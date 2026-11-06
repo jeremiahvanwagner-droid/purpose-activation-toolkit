@@ -1,12 +1,13 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { FILTER_FIELD, FILTER_ROWS } from "@/lib/content/decisionMaking";
 
 type Pair = { fear?: string; higher?: string };
 type Filter = { decision?: string; pairs?: Pair[] };
 
 export default function LowerHigherFilter() {
+  const { FILTER_FIELD, FILTER_ROWS } = usePaidCurriculum().decisionMaking;
   const [v, setV] = useResponse<Filter>(FILTER_FIELD, {});
   const pairs = Array.from({ length: FILTER_ROWS }, (_, i) => v.pairs?.[i] ?? {});
 

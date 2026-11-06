@@ -1,21 +1,26 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { DECKS, TOOLKIT_FIELD, TOOLKIT_SLOTS } from "@/lib/content/executionPrompts";
 
 type Toolkit = Record<string, string>;
+type Deck = { key: string; prompts: string[] };
 
-function promptFor(key: string): string | null {
+function promptFor(key: string, decks: Deck[]): string | null {
   const [deckKey, idxRaw] = key.split(":");
-  const deck = DECKS.find((d) => d.key === deckKey);
+  const deck = decks.find((d) => d.key === deckKey);
   const idx = Number(idxRaw);
   if (!deck || Number.isNaN(idx)) return null;
   return deck.prompts[idx] ?? null;
 }
 
 export default function PromptToolkit() {
+  const ep = usePaidCurriculum().executionPrompts;
+  const DECKS = ep.DECKS as Deck[];
+  const TOOLKIT_FIELD = ep.TOOLKIT_FIELD as string;
+  const TOOLKIT_SLOTS = ep.TOOLKIT_SLOTS as { key: string; label: string }[];
   const [toolkit, setToolkit] = useResponse<Toolkit>(TOOLKIT_FIELD, {});
-  const entries = Object.entries(toolkit).filter(([k]) => promptFor(k));
+  const entries = Object.entries(toolkit).filter(([k]) => promptFor(k, DECKS));
 
   if (entries.length === 0) {
     return (
@@ -48,7 +53,7 @@ export default function PromptToolkit() {
             <div className="tk-slot">{slot.label}</div>
             {inSlot.map(([key]) => (
               <div className="tk-row" key={key}>
-                <span className="p-text">{promptFor(key)}</span>
+                <span className="p-text">{promptFor(key, DECKS)}</span>
                 <select
                   aria-label="Assign to rotation"
                   value={toolkit[key]}

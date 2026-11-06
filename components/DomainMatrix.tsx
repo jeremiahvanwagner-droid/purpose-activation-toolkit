@@ -1,9 +1,11 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
+import { domainField } from "@/lib/paid/ids";
 import { useResponse } from "@/lib/store";
-import { DOMAIN_COLS, LIFE_DOMAINS, domainField } from "@/lib/content/purposeActivation";
 
 function DomainRow({ dKey, name }: { dKey: string; name: string }) {
+  const DOMAIN_COLS = usePaidCurriculum().purposeActivation.DOMAIN_COLS as { key: string; label: string; ph: string }[];
   const [row, setRow] = useResponse<Record<string, string>>(domainField(dKey), {});
   return (
     <div className="dm-row">
@@ -27,6 +29,7 @@ function DomainRow({ dKey, name }: { dKey: string; name: string }) {
 }
 
 export default function DomainMatrix() {
+  const LIFE_DOMAINS = usePaidCurriculum().purposeActivation.LIFE_DOMAINS as { key: string; name: string }[];
   return (
     <div className="dm">
       {LIFE_DOMAINS.map((d) => (

@@ -1,11 +1,12 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useResponse } from "@/lib/store";
-import { DISTORTIONS } from "@/lib/content/decisionMaking";
 
 type Rewrite = { thought?: string; type?: string; truth?: string; scripture?: string };
 
 export default function DistortionRewrite({ id, index }: { id: string; index: number }) {
+  const DISTORTIONS = usePaidCurriculum().decisionMaking.DISTORTIONS as { name: string; ex?: string }[];
   const [v, setV] = useResponse<Rewrite>(id, {});
   const set = (key: keyof Rewrite, val: string) => setV({ ...v, [key]: val });
 

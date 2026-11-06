@@ -4,9 +4,18 @@
  */
 
 import { isFilled } from "./sync/workbookSync";
-import { COMMIT_FIELD } from "./content/purposeActivation";
-import { DM_COMMIT_FIELD, FILTER_FIELD, GRID_FIELD, PENDING_FIELD, SEVEN_FIELD, SEVEN_STEPS } from "./content/decisionMaking";
-import { ATA_COMMIT_FIELD, FORMULA_FIELD, TRACKER_FIELD } from "./content/alignmentToAction";
+import {
+  ATA_COMMIT_FIELD,
+  COMMIT_FIELD,
+  DM_COMMIT_FIELD,
+  FILTER_FIELD,
+  FORMULA_FIELD,
+  GRID_FIELD,
+  PENDING_FIELD,
+  SEVEN_FIELD,
+  SEVEN_STEP_KEYS,
+  TRACKER_FIELD,
+} from "./content/fieldIds";
 
 const asObj = (v: unknown): Record<string, unknown> =>
   v && typeof v === "object" && !Array.isArray(v) ? (v as Record<string, unknown>) : {};
@@ -19,7 +28,7 @@ const sealed = (v: unknown) => asObj(v).sealed === true;
  * and a covenant with a name typed in is not a signed covenant.
  */
 const STARTED_RULES: Record<string, (v: unknown) => boolean> = {
-  [SEVEN_FIELD]: (v) => SEVEN_STEPS.some((s) => isFilled(asObj(v)[s.key])),
+  [SEVEN_FIELD]: (v) => SEVEN_STEP_KEYS.some((key) => isFilled(asObj(v)[key])),
   [FILTER_FIELD]: (v) => Array.isArray(asObj(v).pairs) && (asObj(v).pairs as unknown[]).some(isFilled),
   [GRID_FIELD]: (v) =>
     Object.values(asObj(asObj(v).scores)).some((row) => Array.isArray(row) && row.some((n) => Number(n) > 0)),

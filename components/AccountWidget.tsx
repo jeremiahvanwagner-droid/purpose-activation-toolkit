@@ -43,6 +43,7 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
   const [confirmSignOut, setConfirmSignOut] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [labels, setLabels] = useState<Record<string, string>>({});
 
   useEffect(() => {
     if (!supa) return;
@@ -50,6 +51,26 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
     const { data: sub } = supa.auth.onAuthStateChange((_e, s) => setUserEmail(s?.user?.email ?? null));
     return () => sub.subscription.unsubscribe();
   }, [supa]);
+
+  useEffect(() => {
+    if (!supa || !userEmail) return;
+    let cancel = false;
+    void (async () => {
+      const { data } = await supa.auth.getSession();
+      const token = data.session?.access_token;
+      if (!token) return;
+      const res = await fetch("/api/paid-content?productId=purpose-activation-toolkit&part=labels", {
+        headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
+      });
+      if (!res.ok || cancel) return;
+      const body = (await res.json()) as { labels?: Record<string, string> };
+      if (!cancel && body.labels) setLabels(body.labels);
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [supa, userEmail]);
 
   if (!isSupabaseConfigured || !supa) return null;
   const sync = getWorkbookSync();
@@ -153,7 +174,7 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
             {reviewOpen
               ? status.conflicts.map((c) => (
                   <div className="acct-conflict" key={c.id}>
-                    <div className="acct-conflict-q">{labelForField(c.field, c.path)}</div>
+                    <div className="acct-conflict-q">{labelForField(c.field, c.path, labels)}</div>
                     <div className="acct-conflict-v">
                       <span>In your workbook:</span> {previewValue(c.kept)}
                     </div>

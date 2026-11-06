@@ -1,11 +1,14 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { isFilled, useResponse } from "@/lib/store";
-import { SEVEN_FIELD, SEVEN_STEPS } from "@/lib/content/decisionMaking";
 
 type Seven = Record<string, string>;
 
 export default function SevenStepFramework() {
+  const dm = usePaidCurriculum().decisionMaking;
+  const SEVEN_FIELD = dm.SEVEN_FIELD as string;
+  const SEVEN_STEPS = dm.SEVEN_STEPS as { key: string; title: string; label?: string; guide?: string; example?: string }[];
   const [v, setV] = useResponse<Seven>(SEVEN_FIELD, {});
   const set = (key: string, val: string) => setV({ ...v, [key]: val });
   const written = SEVEN_STEPS.filter((s) => isFilled(v[s.key])).length;

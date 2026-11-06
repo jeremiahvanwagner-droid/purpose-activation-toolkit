@@ -1,36 +1,9 @@
 "use client";
 
+import { usePaidCurriculum } from "@/components/paid/CurriculumProvider";
 import { useEffect, useState } from "react";
 
-const PHASES = [
-  {
-    name: "Center",
-    secs: 120,
-    hint: "Sit comfortably. Close your eyes. Breathe slowly, and pray:",
-    prayer:
-      "“Holy Spirit, I quiet my mind and open my heart. Speak to me about this decision. I trust You to guide me.”",
-    bullets: null as string[] | null,
-  },
-  {
-    name: "Listen",
-    secs: 360,
-    hint: "Stay open and unhurried. Simply notice:",
-    prayer: null as string | null,
-    bullets: [
-      "Images or impressions",
-      "Scripture that comes to mind",
-      "Peace or unsettledness",
-      "A quiet inner knowing",
-    ],
-  },
-  {
-    name: "Journal",
-    secs: 120,
-    hint: "Capture what you received in the prompts below — unedited, unfiltered.",
-    prayer: null,
-    bullets: null,
-  },
-];
+type Phase = { name: string; secs: number; hint: string; prayer: string | null; bullets: string[] | null };
 
 function fmt(s: number) {
   const m = Math.floor(s / 60);
@@ -39,8 +12,9 @@ function fmt(s: number) {
 }
 
 export default function ListeningTimer() {
+  const PHASES = usePaidCurriculum().decisionMaking.LISTENING_PHASES as Phase[];
   const [idx, setIdx] = useState(0);
-  const [left, setLeft] = useState(PHASES[0].secs);
+  const [left, setLeft] = useState(PHASES[0]?.secs ?? 0);
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -61,7 +35,7 @@ export default function ListeningTimer() {
       });
     }, 1000);
     return () => clearInterval(t);
-  }, [running, idx]);
+  }, [running, idx, PHASES]);
 
   function reset() {
     setIdx(0);
@@ -92,14 +66,12 @@ export default function ListeningTimer() {
           </span>
         ))}
       </div>
-
       <div className="t-clock" aria-hidden="true">
         {done ? "Amen." : fmt(left)}
       </div>
       <div className="sr-only" role="status" aria-live="polite">
         {done ? "Amen. Ten minutes complete." : `${phase.name} phase — ${fmt(left)} remaining.`}
       </div>
-
       {!done ? (
         <>
           <p className="t-hint">{phase.hint}</p>
@@ -115,7 +87,6 @@ export default function ListeningTimer() {
       ) : (
         <p className="t-hint">Ten minutes of listening, complete. Write what you received below.</p>
       )}
-
       <div className="t-actions">
         <button type="button" className="btn gold" onClick={() => (done ? reset() : setRunning(!running))}>
           {done ? "Begin again" : running ? "Pause" : fresh ? "Begin the 10 minutes" : "Resume"}

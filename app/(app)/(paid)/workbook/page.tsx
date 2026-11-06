@@ -5,7 +5,33 @@ import { useEffect, useState } from "react";
 import { useResponses } from "@/lib/store";
 import { MODULES } from "@/lib/modules";
 import { IAA_FIELD_IDS } from "@/lib/content/innerAlignmentAudit";
-import { buildWorkbook, countAnswers, type Entry } from "@/lib/workbook";
+import { getSupabase } from "@/lib/supabase";
+import { isFilled } from "@/lib/sync/workbookSync";
+
+type Entry =
+  | { k: "text"; label: string; text: string }
+  | { k: "list"; label: string; items: string[]; ranked?: boolean }
+  | { k: "kv"; label: string; rows: { k: string; v: string }[] }
+  | { k: "statement"; text: string }
+  | {
+      k: "grid";
+      decision: string;
+      options: { name: string; total: number }[];
+      criteria: { label: string; scores: (number | null)[] }[];
+    }
+  | { k: "tracker"; done: number; total: number; days: { n: number; date: string; action: string; note: string }[] }
+  | { k: "covenant"; body: string; name: string; date: string; signature: string; sealed: boolean }
+  | { k: "prompts"; label: string; items: { prompt: string; answer: string }[] }
+  | {
+      k: "profile";
+      results: { name: string; total: number; max: number; band: string; bandLabel: string; isLever: boolean }[];
+      primaryLever: string | null;
+    };
+type Workbook = { name: string; date: string; modules: { slug: string; title: string; sections: { heading: string; entries: Entry[] }[] }[]; anyContent: boolean };
+
+function countAnswers(all: Record<string, unknown>, fieldIds: string[]): number {
+  return fieldIds.reduce((n, id) => (isFilled(all[id]) ? n + 1 : n), 0);
+}
 
 function EntryView({ e }: { e: Entry }) {
   switch (e.k) {
@@ -161,11 +187,48 @@ function EntryView({ e }: { e: Entry }) {
 export default function WorkbookPage() {
   const all = useResponses();
   const [date, setDate] = useState("");
+  const [wb, setWb] = useState<Workbook | null>(null);
+  const [epigraph, setEpigraph] = useState("");
+  const [failed, setFailed] = useState(false);
   useEffect(() => {
     setDate(new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }));
   }, []);
 
-  const wb = buildWorkbook(all as Record<string, unknown>, date);
+  useEffect(() => {
+    const supa = getSupabase();
+    if (!supa) return;
+    let cancel = false;
+    const timer = setTimeout(() => {
+      void (async () => {
+        const { data } = await supa.auth.getSession();
+        const token = data.session?.access_token;
+        if (!token) return;
+        const res = await fetch("/api/paid-content", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          cache: "no-store",
+          body: JSON.stringify({
+            productId: "purpose-activation-toolkit",
+            view: "workbook",
+            answers: all,
+          }),
+        });
+        if (cancel) return;
+        if (!res.ok) {
+          setFailed(true);
+          return;
+        }
+        const body = (await res.json()) as { workbook?: Workbook; epigraph?: string };
+        setFailed(false);
+        if (body.workbook) setWb(body.workbook);
+        if (body.epigraph) setEpigraph(body.epigraph);
+      })();
+    }, 250);
+    return () => {
+      cancel = true;
+      clearTimeout(timer);
+    };
+  }, [all]);
   const answers = countAnswers(
     all as Record<string, unknown>,
     [...IAA_FIELD_IDS, ...MODULES.flatMap((m) => m.fieldIds)]
@@ -177,12 +240,17 @@ export default function WorkbookPage() {
         <Link className="btn ghost" href="/toolkit">
           ← Back to toolkit
         </Link>
-        <button type="button" className="btn gold" onClick={() => window.print()} disabled={!wb.anyContent}>
+        <button type="button" className="btn gold" onClick={() => window.print()} disabled={!wb?.anyContent}>
           Save as PDF
         </button>
       </div>
 
-      {!wb.anyContent ? (
+      {failed ? (
+        <div className="wb-empty no-print">
+          <h2>Your keepsake didn’t load.</h2>
+          <p>Your answers are still saved. Try this page again in a moment.</p>
+        </div>
+      ) : !wb || !wb.anyContent ? (
         <div className="wb-empty no-print">
           <h2>Your keepsake is waiting to be written.</h2>
           <p>
@@ -241,10 +309,7 @@ export default function WorkbookPage() {
             ) : null
           )}
 
-          <footer className="wb-foot">
-            “You are a Child of God, called according to His purpose, equipped with everything you need to
-            fulfill your assignment. Now walk in it.”
-          </footer>
+          <footer className="wb-foot">{epigraph ? `“${epigraph}”` : null}</footer>
         </article>
       )}
     </div>
