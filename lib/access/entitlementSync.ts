@@ -3,8 +3,10 @@
  * fetch; nothing here opens a socket of its own.
  *
  * Identity is the Supabase user behind the bearer token. The body may name a
- * product and nothing else. Payment-backed rows are rechecked. Complimentary
- * and unclassified sources are kept. A failed lookup never deletes a row.
+ * product and nothing else. Payment-backed rows are rechecked for a new grant.
+ * Complimentary and unclassified sources are kept. Refund deletion is disabled:
+ * `raw` is not a verified column, and a delete that cannot name that transaction
+ * can erase a newer payment row with the same source.
  */
 
 import { decideAccess, paymentBackedSource, type EntitlementRow } from "./decide";
@@ -16,6 +18,9 @@ export const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
   "inner-alignment-audit": { sourceIds: new Set([AUDIT_PAYMENT_LINK_ID]) },
   "divine-alignment-blueprint": { sourceIds: new Set([BLUEPRINT_PAYMENT_LINK_ID]) },
 };
+
+/** Columns this read is allowed to ask for. `raw` stays off until that column is confirmed live. */
+export const ENTITLEMENT_SELECT = "source,purchased_at";
 
 const DEFAULT_PRODUCT_ID = "purpose-activation-toolkit";
 const REQUIRE_LIVE_MODE = true;
@@ -75,20 +80,19 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
   const qs = new URLSearchParams({
     email: `eq.${email}`,
     product_id: `eq.${productId}`,
-    select: "source,purchased_at",
+    select: ENTITLEMENT_SELECT,
   });
   try {
     const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${qs}`, { headers: svc.headers, cache: "no-store" });
     if (!res.ok) return "error";
     const rows = (await res.json()) as unknown;
     if (!Array.isArray(rows)) return "error";
-    const row = rows[0] as { source?: unknown; purchased_at?: unknown; raw?: unknown } | undefined;
+    const row = rows[0] as { source?: unknown; purchased_at?: unknown } | undefined;
     if (!row) return null;
-    const raw = row.raw && typeof row.raw === "object" ? (row.raw as { transaction_id?: unknown }) : undefined;
     return {
       source: typeof row.source === "string" ? row.source : null,
       purchased_at: typeof row.purchased_at === "string" ? row.purchased_at : null,
-      transaction_id: typeof raw?.transaction_id === "string" ? raw.transaction_id : null,
+      transaction_id: null,
     };
   } catch {
     return "error";
@@ -170,31 +174,6 @@ async function grant(email: string, productId: string, tx: GhlTransaction, fetch
   }
 }
 
-type RevokeResult = "deleted" | "missed" | "unconfirmed";
-
-/** One filtered delete. A concurrent source change matches zero rows and is not treated as success. */
-async function revoke(email: string, productId: string, source: string, fetchImpl: FetchLike): Promise<RevokeResult> {
-  const svc = serviceHeaders();
-  if (!svc || !paymentBackedSource(source)) return "unconfirmed";
-  svc.headers.set("Prefer", "return=representation");
-  const qs = new URLSearchParams({
-    email: `eq.${email}`,
-    product_id: `eq.${productId}`,
-    source: `eq.${source}`,
-  });
-  try {
-    const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${qs}`, { method: "DELETE", headers: svc.headers });
-    if (!res.ok) return "unconfirmed";
-    const body = (await res.json()) as unknown;
-    if (!Array.isArray(body)) return "unconfirmed";
-    if (body.length === 0) return "missed";
-    const deleted = body[0] as { source?: unknown };
-    return body.length === 1 && deleted.source === source ? "deleted" : "unconfirmed";
-  } catch {
-    return "unconfirmed";
-  }
-}
-
 async function requestedProductId(req: Request): Promise<string | null> {
   let productId: unknown = undefined;
   try {
@@ -262,24 +241,6 @@ export async function reconcileEntitlement(email: string, productId: string, fet
       reason: decision.reason,
       productId,
     };
-  }
-
-  if (decision.action === "revoke") {
-    if (!row?.source || !paymentBackedSource(row.source)) {
-      return { entitled: true, checked: false, reason: "lookup-unavailable", productId, access: "unavailable" };
-    }
-    const removed = await revoke(email, productId, row.source, fetchImpl);
-    if (removed === "deleted") {
-      return { entitled: false, checked: true, reason: "not-found", revoked: true, productId };
-    }
-    if (removed === "missed") {
-      const current = await readRow(email, productId, fetchImpl);
-      if (current && current !== "error" && !paymentBackedSource(current.source)) {
-        return { entitled: true, checked: true, productId, access: "preserved" };
-      }
-    }
-    // The row was not confirmed gone. Do not lock the buyer out.
-    return { entitled: true, checked: false, reason: "revoke-unconfirmed", productId, access: "unavailable" };
   }
 
   if (row && paymentBackedSource(row.source)) {

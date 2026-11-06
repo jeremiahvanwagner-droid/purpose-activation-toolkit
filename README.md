@@ -25,7 +25,7 @@ The keepsake (`/workbook`) gathers every answer into a printable document (brows
 
 ## Access
 
-Modules and the keepsake stay behind a server check. `/api/entitlement-sync` confirms the signed-in email against HighLevel for payment-backed rows and keeps `manual:` comps and unclassified legacy rows. Paid lesson text is loaded from `/api/paid-content` only after that check, so it is not part of the public JavaScript bundle. A full refund that leaves the charge no longer `succeeded` removes a payment-backed row on the next check. Partial refunds, cancellations, and disputes are not defined here — see `docs/access-blockers.md`.
+Modules and the keepsake stay behind a server check. `/api/entitlement-sync` confirms the signed-in email against HighLevel before a new grant and keeps `manual:` comps and unclassified legacy rows. Paid lesson text is loaded from `/api/paid-content` only after that check, so it is not part of the public JavaScript bundle. Refund deletion is disabled until `source`, `raw`, the unique email/product key, and row-level security are verified. Partial refunds, cancellations, and disputes are not defined here — see `docs/access-blockers.md`.
 
 ## Run it
 

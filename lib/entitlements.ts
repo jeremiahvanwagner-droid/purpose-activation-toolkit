@@ -7,9 +7,9 @@
  * a purchase is recorded against the same address in public.entitlements. One
  * clean identity, no linking table.
  *
- * A row already on file is not the last word. /api/entitlement-sync rechecks
- * payment-backed rows and revokes one when HighLevel no longer has a
- * qualifying charge. Complimentary and unclassified sources stay. The server
+ * A row already on file is not the last word for a new grant. /api/entitlement-sync
+ * rechecks payment-backed rows against HighLevel. It does not delete a row for
+ * a refund. Complimentary and unclassified sources stay. The server
  * answer is what opens the paywall; the curriculum itself is loaded only
  * after that, from /api/paid-content.
  *

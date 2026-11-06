@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { decideAccess } from "../lib/access/decide.ts";
-import { handleEntitlementSync } from "../lib/access/entitlementSync.ts";
+import { ENTITLEMENT_SELECT, handleEntitlementSync } from "../lib/access/entitlementSync.ts";
 import type { GhlTransaction, PurchaseLookup } from "../lib/entitlementMatch.ts";
 
 const EMAIL = "buyer@example.test";
@@ -32,7 +32,7 @@ test("a qualifying purchase grants, and absence does not revoke a stored payment
   assert.equal(decideAccess({ ...payment, source: "ghl:696ec80453f21b434dfae38d" }, missing).action, "keep");
   assert.equal(
     decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "tx-1", status: "refunded" }), pagesRead: 1 }).action,
-    "revoke"
+    "keep"
   );
   assert.equal(
     decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "other", status: "refunded" }), pagesRead: 1 }).action,
@@ -98,6 +98,21 @@ function authed(productId?: string) {
 
 function userOk() {
   return new Response(JSON.stringify({ email: "Buyer@Example.TEST" }), { status: 200 });
+}
+
+type StoredEntitlement = { source: string; purchased_at: string | null; raw?: { transaction_id?: string } };
+
+/** PostgREST returns only the columns named by `select`, never a richer row. */
+function projectEntitlement(row: StoredEntitlement, select: string | null): Record<string, unknown> {
+  const columns = (select ?? "").split(",").map((column) => column.trim()).filter(Boolean);
+  const projected: Record<string, unknown> = {};
+  for (const column of columns) {
+    if (column === "source") projected.source = row.source;
+    else if (column === "purchased_at") projected.purchased_at = row.purchased_at;
+    else if (column === "raw") projected.raw = row.raw ?? null;
+    else throw new Error(`select asked for an unexpected column: ${column}`);
+  }
+  return projected;
 }
 
 test("route: no session, unknown product, and a session we cannot verify", async () => {
@@ -174,7 +189,12 @@ test("route: malformed transaction payloads do not grant or delete", async () =>
       if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
       if (url.includes("/rest/v1/entitlements") && (init?.method ?? "GET") === "GET") {
         return new Response(
-          JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
+          JSON.stringify([
+            projectEntitlement(
+              { source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } },
+              new URL(url).searchParams.get("select")
+            ),
+          ]),
           { status: 200 }
         );
       }
@@ -194,7 +214,12 @@ test("route: a finished scan that never sees the stored charge does not delete i
     if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
     if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
       return new Response(
-        JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-01-01T00:00:00.000Z", raw: { transaction_id: "old-tx" } }]),
+        JSON.stringify([
+          projectEntitlement(
+            { source: "ghl-payments-sync", purchased_at: "2026-01-01T00:00:00.000Z", raw: { transaction_id: "old-tx" } },
+            new URL(url).searchParams.get("select")
+          ),
+        ]),
         { status: 200 }
       );
     }
@@ -209,54 +234,44 @@ test("route: a finished scan that never sees the stored charge does not delete i
   assert.equal(scan.calls.some((c) => c.method === "DELETE"), false);
 });
 
-test("route: explicit refund of the stored charge deletes only that payment source", async () => {
+test("route: a live refund does not delete, and the read cannot see columns it did not select", async () => {
   installEnv();
-  const refunded = mockFetch((url, init) => {
-    if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
-    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
-      return new Response(
-        JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
-        { status: 200 }
-      );
-    }
-    if (url.includes("payments/transactions")) {
-      return new Response(JSON.stringify({ data: [tx({ _id: "tx-1", status: "refunded" })] }), { status: 200 });
-    }
-    if (init?.method === "DELETE") {
-      assert.match(url, /source=eq\.ghl-payments-sync/);
-      assert.match(init.headers instanceof Headers ? init.headers.get("Prefer") ?? "" : "", /return=representation/);
-      return new Response(JSON.stringify([{ source: "ghl-payments-sync" }]), { status: 200 });
-    }
-    throw new Error(`unexpected network: ${url}`);
-  });
-  const body = await (await handleEntitlementSync(authed(), refunded.fetchImpl)).json();
-  assert.equal(body.revoked, true);
-  assert.equal(body.entitled, false);
-});
-
-test("route: a source-filtered delete that misses keeps a concurrent manual comp", async () => {
-  installEnv();
-  let reads = 0;
+  const stored: StoredEntitlement = {
+    source: "ghl-payments-sync",
+    purchased_at: "2026-09-14T15:00:00.000Z",
+    raw: { transaction_id: "newer-charge" },
+  };
+  let deleted = false;
   const race = mockFetch((url, init) => {
     if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
-    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
-      reads += 1;
-      const source = reads === 1 ? "ghl-payments-sync" : "manual:comp";
+    if (url.includes("/rest/v1/entitlements") && (init?.method ?? "GET") === "GET") {
+      const select = new URL(url).searchParams.get("select");
+      assert.equal(select, ENTITLEMENT_SELECT);
+      assert.equal(select?.includes("raw"), false);
+      const projected = projectEntitlement(stored, select);
+      assert.equal("raw" in projected, false);
+      return new Response(JSON.stringify([projected]), { status: 200 });
+    }
+    if (url.includes("payments/transactions")) {
       return new Response(
-        JSON.stringify([{ source, purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
+        JSON.stringify({ data: [tx({ _id: "older-charge", status: "refunded", liveMode: true })] }),
         { status: 200 }
       );
     }
-    if (url.includes("payments/transactions")) {
-      return new Response(JSON.stringify({ data: [tx({ _id: "tx-1", status: "refunded" })] }), { status: 200 });
+    if (init?.method === "DELETE") {
+      deleted = true;
+      const params = new URL(url).searchParams;
+      if (!params.get("raw")) stored.source = "deleted";
+      return new Response(JSON.stringify([{ source: "ghl-payments-sync" }]), { status: 200 });
     }
-    if (init?.method === "DELETE") return new Response(JSON.stringify([]), { status: 200 });
-    throw new Error(`unexpected network: ${url}`);
+    throw new Error(`unexpected network: ${init?.method} ${url}`);
   });
   const body = await (await handleEntitlementSync(authed(), race.fetchImpl)).json();
+  assert.equal(deleted, false);
+  assert.equal(stored.source, "ghl-payments-sync");
   assert.equal(body.entitled, true);
-  assert.equal(body.access, "preserved");
   assert.equal(body.revoked, undefined);
+  assert.equal(body.access, "unavailable");
 });
 
 test("route: grant insert does not overwrite a non-payment source", async () => {

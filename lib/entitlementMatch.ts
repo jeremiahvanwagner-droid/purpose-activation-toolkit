@@ -59,9 +59,16 @@ export function isQualifyingPurchase(
   return (tx.contactEmail ?? "").trim().toLowerCase() === email.trim().toLowerCase();
 }
 
-function isStoredRefund(tx: GhlTransaction, email: string, sourceIds: ReadonlySet<string>, storedTransactionId: string): boolean {
+function isStoredRefund(
+  tx: GhlTransaction,
+  email: string,
+  sourceIds: ReadonlySet<string>,
+  storedTransactionId: string,
+  requireLive: boolean
+): boolean {
   if (tx._id !== storedTransactionId) return false;
   if (tx.status !== "refunded") return false;
+  if (requireLive && tx.liveMode !== true) return false;
   if (!tx.entitySourceId || !sourceIds.has(tx.entitySourceId)) return false;
   return (tx.contactEmail ?? "").trim().toLowerCase() === email.trim().toLowerCase();
 }
@@ -83,7 +90,9 @@ export async function lookupPurchase(
     const match = result.rows.find((tx) => isQualifyingPurchase(tx, email, sourceIds, requireLive));
     if (match) return { status: "found", transaction: match, pagesRead: page + 1 };
     if (opts.storedTransactionId) {
-      const seen = result.rows.find((tx) => isStoredRefund(tx, email, sourceIds, opts.storedTransactionId!));
+      const seen = result.rows.find((tx) =>
+        isStoredRefund(tx, email, sourceIds, opts.storedTransactionId!, requireLive)
+      );
       if (seen) refunded = seen;
     }
     // A short page is the last page. (GHL reports totalCount 0 for an offset

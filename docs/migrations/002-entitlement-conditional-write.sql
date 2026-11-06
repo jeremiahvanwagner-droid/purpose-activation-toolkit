@@ -1,5 +1,8 @@
--- NOT APPLIED. Offline proposal only. Do not run this against the live project from the
--- paid-access repair. The app does not call this function.
+-- NOT APPLIED. Offline proposal only. Do not run this against the live project.
+-- The app does not call this function. Refund deletion is disabled until `raw`
+-- is confirmed to exist and is not client-writable. A delete that filters only
+-- email, product, and source is intentionally not shipped: it can erase a newer
+-- payment row that reused the same source.
 --
 -- It is the stricter single-statement form of the PostgREST filters in
 -- lib/access/entitlementSync.ts, for a later release that has confirmed:

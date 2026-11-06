@@ -83,6 +83,15 @@ test("a 200 body whose data is not an array is not an empty history", () => {
   assert.equal(empty.ok, true);
 });
 
+test("a test-mode refund of the stored charge is not a live refund observation", async () => {
+  const testMode = tx({ _id: "stored", status: "refunded", liveMode: false });
+  const result = await lookupPurchase(pages([testMode]).fetchPage, EMAIL, toolkit, {
+    pageSize: 100,
+    storedTransactionId: "stored",
+  });
+  assert.equal(result.status, "not-found");
+});
+
 test("a stored refund counts only when the scan finishes, not when the window stops early", async () => {
   const refunded = tx({ _id: "stored", status: "refunded" });
   const finished = pages([refunded]);
