@@ -4,7 +4,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isQualifyingPurchase, lookupPurchase, type GhlTransaction, type PageResult } from "../lib/entitlementMatch.ts";
+import { isQualifyingPurchase, lookupPurchase, rowsFromTransactionsBody, type GhlTransaction, type PageResult } from "../lib/entitlementMatch.ts";
 
 const TOOLKIT_LINK = "696ec80453f21b434dfae38d"; // lib/links.ts TOOLKIT_PAYMENT_LINK_ID
 const AUDIT_LINK = "696e9d90b112a056c6a3f6c5";
@@ -71,6 +71,27 @@ test("looking everywhere without a match is 'not-found'; failing to look is 'una
   const broken = pages([...filler(130), tx()], { failAtOffset: 100 });
   const result = await lookupPurchase(broken.fetchPage, EMAIL, toolkit, { pageSize: 100 });
   assert.equal(result.status, "unavailable");
+});
+
+test("a 200 body whose data is not an array is not an empty history", () => {
+  for (const body of [null, { data: null }, { data: { id: "x" } }, { data: "nope" }, []]) {
+    const parsed = rowsFromTransactionsBody(body);
+    assert.equal(parsed.ok, false);
+    if (!parsed.ok) assert.equal(parsed.reason, "lookup-malformed");
+  }
+  const empty = rowsFromTransactionsBody({ data: [] });
+  assert.equal(empty.ok, true);
+});
+
+test("a stored refund counts only when the scan finishes, not when the window stops early", async () => {
+  const refunded = tx({ _id: "stored", status: "refunded" });
+  const finished = pages([refunded]);
+  const seen = await lookupPurchase(finished.fetchPage, EMAIL, toolkit, { pageSize: 100, storedTransactionId: "stored" });
+  assert.equal(seen.status, "refund-observed");
+
+  const capped = pages([refunded, ...filler(1000)]);
+  const hidden = await lookupPurchase(capped.fetchPage, EMAIL, toolkit, { pageSize: 100, maxPages: 3, storedTransactionId: "stored" });
+  assert.equal(hidden.status, "unavailable");
 });
 
 test("the page cap reports 'unavailable', never 'not-found'", async () => {

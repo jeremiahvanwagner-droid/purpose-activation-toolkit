@@ -8,7 +8,7 @@
  */
 
 import { decideAccess, paymentBackedSource, type EntitlementRow } from "./decide";
-import { lookupPurchase, type GhlTransaction, type PageResult } from "../entitlementMatch";
+import { lookupPurchase, rowsFromTransactionsBody, type GhlTransaction, type PageResult } from "../entitlementMatch";
 import { AUDIT_PAYMENT_LINK_ID, BLUEPRINT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "../links";
 
 export const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
@@ -80,19 +80,22 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
   try {
     const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${qs}`, { headers: svc.headers, cache: "no-store" });
     if (!res.ok) return "error";
-    const rows = (await res.json()) as { source?: unknown; purchased_at?: unknown }[];
-    const row = Array.isArray(rows) ? rows[0] : undefined;
+    const rows = (await res.json()) as unknown;
+    if (!Array.isArray(rows)) return "error";
+    const row = rows[0] as { source?: unknown; purchased_at?: unknown; raw?: unknown } | undefined;
     if (!row) return null;
+    const raw = row.raw && typeof row.raw === "object" ? (row.raw as { transaction_id?: unknown }) : undefined;
     return {
       source: typeof row.source === "string" ? row.source : null,
       purchased_at: typeof row.purchased_at === "string" ? row.purchased_at : null,
+      transaction_id: typeof raw?.transaction_id === "string" ? raw.transaction_id : null,
     };
   } catch {
     return "error";
   }
 }
 
-async function findPurchase(email: string, sourceIds: Set<string>, fetchImpl: FetchLike) {
+async function findPurchase(email: string, sourceIds: Set<string>, storedTransactionId: string | null, fetchImpl: FetchLike) {
   const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
   const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
   const apiVersion = process.env.GHL_API_VERSION_TJB?.trim() || "2021-07-28";
@@ -113,23 +116,30 @@ async function findPurchase(email: string, sourceIds: Set<string>, fetchImpl: Fe
           cache: "no-store",
         });
         if (!res.ok) return { ok: false, reason: `lookup-http-${res.status}` };
-        const body = (await res.json()) as { data?: GhlTransaction[] };
-        return { ok: true, rows: Array.isArray(body.data) ? body.data : [] };
+        return rowsFromTransactionsBody(await res.json());
       } catch {
         return { ok: false, reason: "lookup-error" };
       }
     },
     email,
     sourceIds,
-    { requireLive: REQUIRE_LIVE_MODE, pageSize: PAGE_SIZE, maxPages: MAX_PAGES }
+    {
+      requireLive: REQUIRE_LIVE_MODE,
+      pageSize: PAGE_SIZE,
+      maxPages: MAX_PAGES,
+      storedTransactionId: storedTransactionId ?? undefined,
+    }
   );
 }
 
-async function grant(email: string, productId: string, tx: GhlTransaction, fetchImpl: FetchLike): Promise<boolean> {
+type GrantResult = "granted" | "preserved" | "failed";
+
+/** Insert only. ignore-duplicates does not update an existing manual, legacy, or payment row. */
+async function grant(email: string, productId: string, tx: GhlTransaction, fetchImpl: FetchLike): Promise<GrantResult> {
   const svc = serviceHeaders();
-  if (!svc) return false;
+  if (!svc) return "failed";
   svc.headers.set("Content-Type", "application/json");
-  svc.headers.set("Prefer", "resolution=merge-duplicates,return=minimal");
+  svc.headers.set("Prefer", "resolution=ignore-duplicates,return=minimal");
   try {
     const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?on_conflict=email,product_id`, {
       method: "POST",
@@ -149,21 +159,39 @@ async function grant(email: string, productId: string, tx: GhlTransaction, fetch
         },
       }),
     });
-    return res.ok;
+    if (!res.ok) return "failed";
+    const after = await readRow(email, productId, fetchImpl);
+    if (after === "error") return "failed";
+    if (after && !paymentBackedSource(after.source)) return "preserved";
+    if (after && paymentBackedSource(after.source)) return "granted";
+    return "failed";
   } catch {
-    return false;
+    return "failed";
   }
 }
 
-async function revoke(email: string, productId: string, fetchImpl: FetchLike): Promise<boolean> {
+type RevokeResult = "deleted" | "missed" | "unconfirmed";
+
+/** One filtered delete. A concurrent source change matches zero rows and is not treated as success. */
+async function revoke(email: string, productId: string, source: string, fetchImpl: FetchLike): Promise<RevokeResult> {
   const svc = serviceHeaders();
-  if (!svc) return false;
-  const qs = new URLSearchParams({ email: `eq.${email}`, product_id: `eq.${productId}` });
+  if (!svc || !paymentBackedSource(source)) return "unconfirmed";
+  svc.headers.set("Prefer", "return=representation");
+  const qs = new URLSearchParams({
+    email: `eq.${email}`,
+    product_id: `eq.${productId}`,
+    source: `eq.${source}`,
+  });
   try {
     const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${qs}`, { method: "DELETE", headers: svc.headers });
-    return res.ok;
+    if (!res.ok) return "unconfirmed";
+    const body = (await res.json()) as unknown;
+    if (!Array.isArray(body)) return "unconfirmed";
+    if (body.length === 0) return "missed";
+    const deleted = body[0] as { source?: unknown };
+    return body.length === 1 && deleted.source === source ? "deleted" : "unconfirmed";
   } catch {
-    return false;
+    return "unconfirmed";
   }
 }
 
@@ -212,7 +240,9 @@ export async function reconcileEntitlement(email: string, productId: string, fet
   }
 
   const lookup =
-    row && !paymentBackedSource(row.source) ? null : await findPurchase(email, PRODUCTS[productId].sourceIds, fetchImpl);
+    row && !paymentBackedSource(row.source)
+      ? null
+      : await findPurchase(email, PRODUCTS[productId].sourceIds, row?.transaction_id ?? null, fetchImpl);
   const decision = decideAccess(row, lookup);
 
   if (decision.action === "keep") {
@@ -235,14 +265,30 @@ export async function reconcileEntitlement(email: string, productId: string, fet
   }
 
   if (decision.action === "revoke") {
-    const removed = await revoke(email, productId, fetchImpl);
-    return removed
-      ? { entitled: false, checked: true, reason: "not-found", revoked: true, productId }
-      : { entitled: false, checked: true, reason: "revoke-failed", productId };
+    if (!row?.source || !paymentBackedSource(row.source)) {
+      return { entitled: true, checked: false, reason: "lookup-unavailable", productId, access: "unavailable" };
+    }
+    const removed = await revoke(email, productId, row.source, fetchImpl);
+    if (removed === "deleted") {
+      return { entitled: false, checked: true, reason: "not-found", revoked: true, productId };
+    }
+    if (removed === "missed") {
+      const current = await readRow(email, productId, fetchImpl);
+      if (current && current !== "error" && !paymentBackedSource(current.source)) {
+        return { entitled: true, checked: true, productId, access: "preserved" };
+      }
+    }
+    // The row was not confirmed gone. Do not lock the buyer out.
+    return { entitled: true, checked: false, reason: "revoke-unconfirmed", productId, access: "unavailable" };
+  }
+
+  if (row && paymentBackedSource(row.source)) {
+    return { entitled: true, checked: true, productId, access: "purchase" };
   }
 
   const granted = await grant(email, productId, decision.transaction, fetchImpl);
-  return granted
+  if (granted === "preserved") return { entitled: true, checked: true, productId, access: "preserved" };
+  return granted === "granted"
     ? { entitled: true, checked: true, productId, access: "purchase" }
     : { entitled: false, checked: true, found: true, reason: "grant-failed", productId };
 }

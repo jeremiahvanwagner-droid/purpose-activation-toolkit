@@ -25,27 +25,38 @@ const found = (transaction = tx()): PurchaseLookup => ({ status: "found", transa
 const missing: PurchaseLookup = { status: "not-found", pagesRead: 1 };
 const down: PurchaseLookup = { status: "unavailable", reason: "lookup-http-503", pagesRead: 0 };
 
-test("a qualifying purchase grants, and a later refund revokes only a payment-backed row", () => {
+test("a qualifying purchase grants, and absence does not revoke a stored payment row", () => {
+  const payment = { source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", transaction_id: "tx-1" };
   assert.equal(decideAccess(null, found()).action, "grant");
-  assert.equal(decideAccess({ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z" }, missing).action, "revoke");
-  assert.equal(decideAccess({ source: "ghl:696ec80453f21b434dfae38d", purchased_at: null }, missing).action, "revoke");
-  assert.equal(decideAccess(null, found()).action, "grant");
+  assert.equal(decideAccess(payment, missing).action, "keep");
+  assert.equal(decideAccess({ ...payment, source: "ghl:696ec80453f21b434dfae38d" }, missing).action, "keep");
+  assert.equal(
+    decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "tx-1", status: "refunded" }), pagesRead: 1 }).action,
+    "revoke"
+  );
+  assert.equal(
+    decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "other", status: "refunded" }), pagesRead: 1 }).action,
+    "keep"
+  );
 });
 
 test("complimentary and unclassified sources are kept without a lookup result", () => {
-  assert.deepEqual(decideAccess({ source: "manual:comp", purchased_at: null }, null), { action: "keep", access: "preserved" });
-  assert.deepEqual(decideAccess({ source: "legacy-import", purchased_at: "2024-01-01T00:00:00.000Z" }, missing), {
+  assert.deepEqual(decideAccess({ source: "manual:comp", purchased_at: null, transaction_id: null }, null), {
     action: "keep",
     access: "preserved",
   });
-  assert.equal(decideAccess({ source: null, purchased_at: null }, missing).action, "keep");
+  assert.deepEqual(
+    decideAccess({ source: "legacy-import", purchased_at: "2024-01-01T00:00:00.000Z", transaction_id: null }, missing),
+    { action: "keep", access: "preserved" }
+  );
+  assert.equal(decideAccess({ source: null, purchased_at: null, transaction_id: null }, missing).action, "keep");
 });
 
 test("a failed or capped lookup keeps a payment row and does not invent a denial", () => {
-  assert.deepEqual(decideAccess({ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z" }, down), {
-    action: "keep",
-    access: "unavailable",
-  });
+  assert.deepEqual(
+    decideAccess({ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", transaction_id: "tx-1" }, down),
+    { action: "keep", access: "unavailable" }
+  );
   assert.deepEqual(decideAccess(null, down), { action: "deny", reason: "lookup-unavailable" });
   assert.deepEqual(decideAccess(null, missing), { action: "deny", reason: "not-found" });
 });
@@ -135,7 +146,8 @@ test("route: live succeeded charge grants once; refunded and wrong product do no
   calls.length = 0;
   const again = await handleEntitlementSync(authed(), fetchImpl);
   assert.equal((await again.json()).access, "purchase");
-  assert.equal(calls.filter((c) => c.method === "POST").length, 1);
+  assert.equal(calls.filter((c) => c.method === "POST").length, 0);
+  assert.equal(grants[0].url.includes("on_conflict=email,product_id"), true);
 
   const refunded = mockFetch((url, init) => {
     if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
@@ -148,12 +160,128 @@ test("route: live succeeded charge grants once; refunded and wrong product do no
     if (init?.method === "DELETE") return new Response(null, { status: 204 });
     throw new Error(`unexpected network: ${init?.method} ${url}`);
   });
-  const revoked = await handleEntitlementSync(authed("purpose-activation-toolkit"), refunded.fetchImpl);
-  const revokedBody = await revoked.json();
-  assert.equal(revokedBody.entitled, false);
-  assert.equal(revokedBody.revoked, true);
-  assert.equal(refunded.calls.some((c) => c.method === "DELETE"), true);
-  assert.equal(refunded.calls.some((c) => c.method === "POST" && c.url.includes("entitlements")), false);
+  const held = await handleEntitlementSync(authed("purpose-activation-toolkit"), refunded.fetchImpl);
+  const heldBody = await held.json();
+  assert.equal(heldBody.entitled, true);
+  assert.equal(heldBody.revoked, undefined);
+  assert.equal(refunded.calls.some((c) => c.method === "DELETE"), false);
+});
+
+test("route: malformed transaction payloads do not grant or delete", async () => {
+  installEnv();
+  for (const payload of [null, { data: null }, { data: { id: "x" } }, { data: "nope" }]) {
+    const hit = mockFetch((url, init) => {
+      if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
+      if (url.includes("/rest/v1/entitlements") && (init?.method ?? "GET") === "GET") {
+        return new Response(
+          JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
+          { status: 200 }
+        );
+      }
+      if (url.includes("payments/transactions")) return new Response(JSON.stringify(payload), { status: 200 });
+      throw new Error(`unexpected network: ${init?.method} ${url}`);
+    });
+    const body = await (await handleEntitlementSync(authed(), hit.fetchImpl)).json();
+    assert.equal(body.entitled, true, JSON.stringify(payload));
+    assert.equal(body.reason, "lookup-unavailable", JSON.stringify(payload));
+    assert.equal(hit.calls.some((c) => c.method === "DELETE" || c.method === "POST"), false, JSON.stringify(payload));
+  }
+});
+
+test("route: a finished scan that never sees the stored charge does not delete it", async () => {
+  installEnv();
+  const scan = mockFetch((url, init) => {
+    if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
+    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
+      return new Response(
+        JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-01-01T00:00:00.000Z", raw: { transaction_id: "old-tx" } }]),
+        { status: 200 }
+      );
+    }
+    if (url.includes("payments/transactions")) {
+      return new Response(JSON.stringify({ data: [tx({ _id: "someone-else", contactEmail: "other@example.test" })] }), { status: 200 });
+    }
+    throw new Error(`unexpected network: ${url}`);
+  });
+  const body = await (await handleEntitlementSync(authed(), scan.fetchImpl)).json();
+  assert.equal(body.entitled, true);
+  assert.equal(body.access, "unavailable");
+  assert.equal(scan.calls.some((c) => c.method === "DELETE"), false);
+});
+
+test("route: explicit refund of the stored charge deletes only that payment source", async () => {
+  installEnv();
+  const refunded = mockFetch((url, init) => {
+    if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
+    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
+      return new Response(
+        JSON.stringify([{ source: "ghl-payments-sync", purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
+        { status: 200 }
+      );
+    }
+    if (url.includes("payments/transactions")) {
+      return new Response(JSON.stringify({ data: [tx({ _id: "tx-1", status: "refunded" })] }), { status: 200 });
+    }
+    if (init?.method === "DELETE") {
+      assert.match(url, /source=eq\.ghl-payments-sync/);
+      assert.match(init.headers instanceof Headers ? init.headers.get("Prefer") ?? "" : "", /return=representation/);
+      return new Response(JSON.stringify([{ source: "ghl-payments-sync" }]), { status: 200 });
+    }
+    throw new Error(`unexpected network: ${url}`);
+  });
+  const body = await (await handleEntitlementSync(authed(), refunded.fetchImpl)).json();
+  assert.equal(body.revoked, true);
+  assert.equal(body.entitled, false);
+});
+
+test("route: a source-filtered delete that misses keeps a concurrent manual comp", async () => {
+  installEnv();
+  let reads = 0;
+  const race = mockFetch((url, init) => {
+    if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
+    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
+      reads += 1;
+      const source = reads === 1 ? "ghl-payments-sync" : "manual:comp";
+      return new Response(
+        JSON.stringify([{ source, purchased_at: "2026-09-14T15:00:00.000Z", raw: { transaction_id: "tx-1" } }]),
+        { status: 200 }
+      );
+    }
+    if (url.includes("payments/transactions")) {
+      return new Response(JSON.stringify({ data: [tx({ _id: "tx-1", status: "refunded" })] }), { status: 200 });
+    }
+    if (init?.method === "DELETE") return new Response(JSON.stringify([]), { status: 200 });
+    throw new Error(`unexpected network: ${url}`);
+  });
+  const body = await (await handleEntitlementSync(authed(), race.fetchImpl)).json();
+  assert.equal(body.entitled, true);
+  assert.equal(body.access, "preserved");
+  assert.equal(body.revoked, undefined);
+});
+
+test("route: grant insert does not overwrite a non-payment source", async () => {
+  installEnv();
+  let gets = 0;
+  const compWins = mockFetch((url, init) => {
+    if (url.startsWith(`${SUPA}/auth/v1/user`)) return userOk();
+    if (url.includes("entitlements") && (init?.method ?? "GET") === "GET") {
+      gets += 1;
+      if (gets === 1) return new Response("[]", { status: 200 });
+      return new Response(JSON.stringify([{ source: "manual:comp", purchased_at: null }]), { status: 200 });
+    }
+    if (url.includes("payments/transactions")) return new Response(JSON.stringify({ data: [tx()] }), { status: 200 });
+    if (init?.method === "POST") {
+      const prefer = init.headers instanceof Headers ? init.headers.get("Prefer") ?? "" : "";
+      assert.match(prefer, /ignore-duplicates/);
+      assert.equal(prefer.includes("merge-duplicates"), false);
+      return new Response(null, { status: 201 });
+    }
+    throw new Error(`unexpected network: ${url}`);
+  });
+  const body = await (await handleEntitlementSync(authed(), compWins.fetchImpl)).json();
+  assert.equal(body.entitled, true);
+  assert.equal(body.access, "preserved");
+  assert.equal(compWins.calls.filter((c) => c.method === "POST").length, 1);
 });
 
 test("route: wrong owner email in the body cannot claim another purchase", async () => {
