@@ -1,8 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { RAW_PRINT_BOOKS, publishedPrintBooks, printBookUrl, minorToDecimal } from "../lib/store/lulu-books.ts";
-import { legacyBookFeed, LEGACY_BOOK_RETAILER_IDS } from "../lib/store/legacy-meta-books.ts";
-import { PRINT_FEED_COLUMNS } from "../lib/store/lulu-feed.ts";
+import { legacyBookFeed, LEGACY_BOOK_RETAILER_IDS, LEGACY_UPDATE_COLUMNS } from "../lib/store/legacy-meta-books.ts";
 
 test("every old Meta retailer ID is unique, known and mapped to an actual current print book", () => {
   const ids = LEGACY_BOOK_RETAILER_IDS.map(([id]) => id);
@@ -22,7 +21,7 @@ test("compatibility feed updates historical IDs without sending buyers to retire
   assert.equal(result.count, 11);
   const lines = result.csv.trimEnd().split("\r\n");
   assert.equal(lines.length, 12);
-  assert.equal(lines[0], PRINT_FEED_COLUMNS.join(","));
+  assert.equal(lines[0], LEGACY_UPDATE_COLUMNS.join(","));
   const ids = LEGACY_BOOK_RETAILER_IDS.map(([id]) => id);
   for (let i = 0; i < LEGACY_BOOK_RETAILER_IDS.length; i++) {
     const [id, slug] = LEGACY_BOOK_RETAILER_IDS[i];
