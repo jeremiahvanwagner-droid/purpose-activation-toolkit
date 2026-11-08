@@ -6,8 +6,8 @@
  * exact IDs with current book destinations preserves historical Facebook
  * tags. NEVER use this feed for the "Truth J Blue" ads-only catalog.
  *
- * Add as an UPDATE-only scheduled feed to the original physical-goods catalog;
- * replacement imports can remove other (non-book) items in that catalog.
+ * Add only as a SUPPLEMENTARY feed bound to the original physical-goods catalog;
+ * a second primary feed with overlapping IDs may conflict, and replacement imports\n * can remove other (non-book) items in that catalog.
  */
 import { parsePrintBooks, publishedOf, type PublishedPrintBook } from "./lulu-books";
 import { PRINT_FEED_COLUMNS, printBookFeedRow, csvCell } from "./lulu-feed";
