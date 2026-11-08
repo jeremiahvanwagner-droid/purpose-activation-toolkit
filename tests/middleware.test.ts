@@ -87,11 +87,44 @@ test("the paid Audit and Blueprint are always opened on www", () => {
 test("old WooCommerce addresses still go where they went, and live products are not caught by them", () => {
   assert.deepEqual(
     [visit(STORE, "/product/mastering-mental-clarity").status, visit(STORE, "/product/mastering-mental-clarity").location],
-    [301, "https://store.truthjblue.com/"]
+    [301, "https://store.truthjblue.com/books/mastering-mental-clarity"]
   );
   assert.equal(visit(WWW, "/product-tag/personal-growth/feed/").status, 301);
   assert.equal(visit(WWW, "/inner-alignment-audit").location, "https://www.truthjblue.com/store/audit");
   // A current product, and a product opened by its HighLevel id, are served, not redirected.
   assert.equal(visit(STORE, "/product/inner-alignment-audit").location, null);
   assert.ok(visit(STORE, "/product/696d7f574f705f240b0875fd").rewrite?.endsWith("/store/product/696d7f574f705f240b0875fd"));
+});
+
+test("legacy WooCommerce book tags reach matching Vercel book pages with query parameters", () => {
+  const cases: Array<[string, string]> = [
+    ["living_abundantly_unleashing_the_power_within", "living-abundantly"],
+    ["the-alchemy-of-intention-mastering-thought-word-and-action", "the-alchemy-of-intention"],
+    ["emotional-alchemy-transforming-inner-barriers-into-bridges-of-growth", "emotional-alchemy"],
+    ["empower-yourself-mastering-the-art-of-personal-growth", "empower-yourself"],
+    ["empower-and-prosper-a-guide-to-entrepreneurship", "empower-and-prosper"],
+    ["unlocking-success-mastering-effective-communication-and-social-skills", "unlocking-success"],
+    ["mastering-mental-clarity", "mastering-mental-clarity"],
+    ["a-voyage-into-ancient-wisdom", "a-voyage-into-ancient-wisdom-and-inner-empowerment"],
+    ["a-voyage-into-ancient-wisdom-and-inner-empowerment", "a-voyage-into-ancient-wisdom-and-inner-empowerment"],
+    ["we-are-without-excuse-succeeding-as-children-of-god", "we-are-without-excuse"],
+    ["from-seeds-to-success-the-divine-guide-to-cultivating-your-best-life", "from-seeds-to-success"],
+  ];
+  for (const [legacy, slug] of cases) {
+    for (const host of [STORE, WWW]) {
+      for (const suffix of ["", "/"]) {
+        const response = visit(host, `/product/${legacy}${suffix}?utm_source=facebook&fbclid=test-click`);
+        assert.equal(response.status, 301, `${host} ${legacy}`);
+        assert.equal(
+          response.location,
+          `https://store.truthjblue.com/books/${slug}?utm_source=facebook&fbclid=test-click`,
+          `${host} ${legacy}`,
+        );
+      }
+    }
+  }
+  // New product pages are not caught by a broad prefix redirect.
+  const current = visit(STORE, "/product/purpose-activation-toolkit");
+  assert.equal(current.location, null);
+  assert.ok(current.rewrite?.endsWith("/store/product/purpose-activation-toolkit"));
 });
