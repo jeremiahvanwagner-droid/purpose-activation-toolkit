@@ -29,22 +29,39 @@ It excludes retired records and is verified to contain 10 items.
 - `middleware.ts` — targeted 301 redirects from 11 old WooCommerce book URLs to their matching Vercel pages. Preserves `utm_source`, `fbclid` and other query parameters.
 - `scripts/check-meta-book-links.mjs` and `.github/workflows/book-links.yml` — read-only link monitor of 10 live Vercel pages and 11 historical redirects. Runs nightly, on PRs affecting links, and by manual GitHub Actions dispatch. It does not place orders.
 
-## What cannot be completed via the current Meta catalog connector
+## Checkout bridge — deployed on Vercel
 
-The catalog's USA-level `checkout_urls` still contains:
-`https://store.truthjblue.com/checkout-link/`.
-The destination returns **404 Not Found**. The connector permits product URLs
-but does not expose settings for the Shop checkout model or global checkout URL.
+The historical Shop-level USA checkout URL in Commerce Manager was:
+`https://store.truthjblue.com/checkout-link/` (previously 404).
 
-**Owner handoff for Commerce Manager:**
+PR #32 provides a safe Vercel route on that same address. When Meta adds
+`products=901:2,1020:1`, it maps the existing numeric book IDs to the
+verified Lulu Buy Button identifiers and sends the buyer to Lulu's cart with
+the exact editions and quantities. Unknown or retired IDs and unsupported
+coupons are rejected instead of placing incorrect orders.
 
-1. Open catalog `2587898941296952` in Commerce Manager and locate the **Shop checkout / website checkout** setting. The location and labels may vary by interface.
-2. Remove the obsolete `/checkout-link/` checkout destination. Configure website checkout to use **each book's canonical Vercel product page**, not a generic page or invented global Lulu cart. Lulu checkout then starts from the product page.
-3. Inspect the old WooCommerce partner integration and two legacy feeds. Neither feed has a current schedule; they are dormant. Do not reactivate them. Disconnect only if doing so will **not** delete the 10 current retailer IDs, Shop associations or old tags.
-4. Open a real Facebook and Instagram post tag for *From Seeds to Success* and *The Alchemy of Intention*. Verify the tap opens the exact Vercel product page, the price agrees with Lulu's cart, and the `Open Lulu checkout` control opens the matching Lulu cart. Stop before payment.
-5. Check Shop eligibility and diagnostics. The hundreds of hidden/out-of-stock warnings largely represent intentionally discontinued products; do not mark them in stock to clear warnings.
+A bare checkout URL now presents a safe choice of the ten current books.
+Full usage and safety details: `docs/meta-lulu-checkout-bridge.md`.
 
-Tracked manual Commerce Manager work: GitHub issue #30. Completed retirement of Printful products: issue #29.
+**Owner handoff (native Meta Commerce Manager still required):**
+
+1. In Commerce Manager, find catalog `2587898941296952` and its Shop checkout
+   settings. Verify the URL is `https://store.truthjblue.com/checkout-link`
+   (the historical trailing-slash path also redirects to it).
+2. Use Meta's own **test checkout** for one book and a multi-book selection.
+   Make sure Meta includes the `products=RETAILER_ID:QUANTITY` parameter;
+   the bridge will not infer a selection.
+3. Confirm Lulu cart shows correct books, quantities and prices and that Meta
+   permits this off-site checkout arrangement. Do **not** enable Meta coupon
+   checkout because Lulu's direct links do not support that redemption.
+4. From an actual Facebook and Instagram post tag, test the product destination
+   and the handoff to Lulu; stop before payment. Verify Shop eligibility.
+5. The two old WooCommerce feeds have no current schedules; don't reactivate.
+   Disconnect old WooCommerce partner integration only if Meta confirms this
+   will preserve the ten current item IDs and existing product tags.
+
+Issue #30 tracks native Shop configuration/validation. This connector cannot
+write global Shop checkout URLs or partner integration settings.
 
 ## Privacy and measurement
 
