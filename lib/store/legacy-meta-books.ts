@@ -12,6 +12,9 @@
 import { parsePrintBooks, publishedOf, type PublishedPrintBook } from "./lulu-books";
 import { PRINT_FEED_COLUMNS, printBookFeedRow, csvCell } from "./lulu-feed";
 
+/** A supplementary feed should override only the fields we are repairing. */
+export const LEGACY_UPDATE_COLUMNS = ["id", "link", "price", "availability"] as const;
+
 /** Verified against existing Commerce Manager retailer IDs on 2026-11-08. */
 export const LEGACY_BOOK_RETAILER_IDS = [
   ["881", "living-abundantly"],
@@ -49,9 +52,12 @@ export function legacyBookFeed(raw: unknown): LegacyBookFeedResult {
     }
     // Original Meta item ID remains the same; every other field comes from
     // the store's authoritative, validated Lulu manifest.
-    rows.push([retailerId, ...printBookFeedRow(book).slice(1)]);
+    const fields = printBookFeedRow(book);
+    const column = (name: (typeof PRINT_FEED_COLUMNS)[number]) =>
+      fields[PRINT_FEED_COLUMNS.indexOf(name)];
+    rows.push([retailerId, column("link"), column("price"), column("availability")]);
   }
-  const csv = [[...PRINT_FEED_COLUMNS], ...rows]
+  const csv = [[...LEGACY_UPDATE_COLUMNS], ...rows]
     .map((row) => row.map(csvCell).join(","))
     .join("\r\n") + "\r\n";
   return { ok: true, csv, count: rows.length };
