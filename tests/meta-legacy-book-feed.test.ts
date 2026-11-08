@@ -9,7 +9,7 @@ test("every old Meta retailer ID is unique, known and mapped to an actual curren
   assert.equal(new Set(ids).size, ids.length);
   const slugs = new Set(publishedPrintBooks().map((book) => book.slug));
   for (const [id, slug] of LEGACY_BOOK_RETAILER_IDS) {
-    assert.match(id, /^\\d+$/);
+    assert.match(id, /^[0-9]+$/);
     assert.ok(slugs.has(slug), slug);
   }
   assert.equal(new Set(LEGACY_BOOK_RETAILER_IDS.map(([, slug]) => slug)).size, 10);
