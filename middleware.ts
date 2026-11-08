@@ -38,21 +38,31 @@ const STORE_ORIGIN = "https://store.truthjblue.com";
  * unlike the scorecard redirect in next.config.mjs, nothing here is ever
  * coming back, and search engines only transfer standing on a permanent code.
  *
- * Product paths are matched exactly, never by prefix: on the store host,
- * /product/<slug> is the live route for every current product, so a
- * "/product/" prefix rule redirects the storefront itself. (It did, for the
- * minutes 28c2795 was live.) /product-tag/ has no live equivalent on any
- * host, so the prefix is safe there.
+ * Match book product paths exactly and redirect each to its /books/<slug>
+ * page. Preserve social tracking query parameters. Never redirect all
+ * /product/* paths: current store products live there too.
+ * /product-tag/ has no live equivalent, so its prefix rule stays safe.
  */
 const LEGACY_AUDIT_PATH = "/inner-alignment-audit";
 const LEGACY_TAG_PREFIX = "/product-tag/";
+/** Exact WooCommerce book URL aliases, without touching live /product routes. */
+const LEGACY_BOOK_PATHS: Record<string, string> = {
+  "/product/living_abundantly_unleashing_the_power_within": "living-abundantly",
+  "/product/the-alchemy-of-intention-mastering-thought-word-and-action": "the-alchemy-of-intention",
+  "/product/emotional-alchemy-transforming-inner-barriers-into-bridges-of-growth": "emotional-alchemy",
+  "/product/empower-yourself-mastering-the-art-of-personal-growth": "empower-yourself",
+  "/product/empower-and-prosper-a-guide-to-entrepreneurship": "empower-and-prosper",
+  "/product/unlocking-success-mastering-effective-communication-and-social-skills": "unlocking-success",
+  "/product/mastering-mental-clarity": "mastering-mental-clarity",
+  "/product/a-voyage-into-ancient-wisdom": "a-voyage-into-ancient-wisdom-and-inner-empowerment",
+  "/product/a-voyage-into-ancient-wisdom-and-inner-empowerment": "a-voyage-into-ancient-wisdom-and-inner-empowerment",
+  "/product/we-are-without-excuse-succeeding-as-children-of-god": "we-are-without-excuse",
+  "/product/from-seeds-to-success-the-divine-guide-to-cultivating-your-best-life": "from-seeds-to-success",
+};
+
+/** The former bundle has no direct equivalent in the new store. */
 const LEGACY_PRODUCT_PATHS = new Set([
-  "/product/mastering-mental-clarity",
-  "/product/a-voyage-into-ancient-wisdom",
-  "/product/emotional-alchemy-transforming-inner-barriers-into-bridges-of-growth",
   "/product/empowerment-collection-growth-and-success-bundle",
-  "/product/living_abundantly_unleashing_the_power_within",
-  "/product/unlocking-success-mastering-effective-communication-and-social-skills",
 ]);
 
 /**
@@ -89,7 +99,15 @@ export function middleware(req: NextRequest) {
   if (pathname === LEGACY_AUDIT_PATH) {
     return NextResponse.redirect(new URL("/store/audit", "https://www.truthjblue.com"), 301);
   }
-  if (LEGACY_PRODUCT_PATHS.has(pathname) || pathname.startsWith(LEGACY_TAG_PREFIX)) {
+  // Match an old WooCommerce book with or without its historical trailing slash.
+  const legacyProductPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+  const legacyBookSlug = LEGACY_BOOK_PATHS[legacyProductPath];
+  if (legacyBookSlug) {
+    const destination = new URL(`/books/${legacyBookSlug}`, STORE_ORIGIN);
+    destination.search = req.nextUrl.search;
+    return NextResponse.redirect(destination, 301);
+  }
+  if (LEGACY_PRODUCT_PATHS.has(legacyProductPath) || pathname.startsWith(LEGACY_TAG_PREFIX)) {
     return NextResponse.redirect(new URL("https://store.truthjblue.com/"), 301);
   }
 
