@@ -125,11 +125,76 @@ async function checkLegacy([legacy, slug]) {
   }
 }
 
+async function checkShopCheckoutBridge() {
+  const label = "Meta Shop checkout";
+  const bySlug = new Map(books.map((book) => [book.slug, book]));
+  const seeds = bySlug.get("from-seeds-to-success");
+  const alchemy = bySlug.get("the-alchemy-of-intention");
+  if (!seeds || !alchemy) {
+    reportError(label, "Expected paperback editions missing from manifest");
+    return;
+  }
+  const expectedUrl = new URL("https://svc.lulu.com/");
+  expectedUrl.searchParams.append("items", seeds.buyButtonId + ":2");
+  expectedUrl.searchParams.append("items", alchemy.buyButtonId);
+  try {
+    const url = new URL("/checkout-link/", STORE_ORIGIN);
+    url.searchParams.set("products", "901:2,1020:1");
+    let response = await request(url, "manual");
+    if (response.status === 308) {
+      const location = response.headers.get("location");
+      if (!location) {
+        reportError(label, "Trailing slash 308 redirect missing location");
+        return;
+      }
+      const next = new URL(location, STORE_ORIGIN);
+      if (next.origin !== STORE_ORIGIN ||
+          next.pathname !== "/checkout-link" ||
+          next.searchParams.get("products") !== "901:2,1020:1") {
+        reportError(label, "Wrong checkout canonicalization: " + location);
+        return;
+      }
+      response = await request(next, "manual");
+    }
+    const location = response.headers.get("location");
+    if (response.status !== 307 || !location) {
+      reportError(label, "Expected Lulu 307 checkout redirect; status " + response.status);
+      return;
+    }
+    const destination = new URL(location);
+    if (destination.origin !== "https://svc.lulu.com" ||
+        destination.pathname !== "/" ||
+        destination.searchParams.getAll("items").join(",") !==
+          expectedUrl.searchParams.getAll("items").join(",")) {
+      reportError(label, "Wrong book editions or quantities in Lulu cart");
+      return;
+    }
+
+    const empty = await request(STORE_ORIGIN + "/checkout-link");
+    if (empty.status !== 200 || !(await empty.text()).includes("Choose a book")) {
+      reportError(label, "Missing-product checkout does not show safe book selection");
+      return;
+    }
+
+    const retired = new URL("/checkout-link", STORE_ORIGIN);
+    retired.searchParams.set("products", "902:1");
+    const retiredResponse = await request(retired, "manual");
+    if (retiredResponse.status !== 422) {
+      reportError(label, "Retired book bundle was not rejected");
+      return;
+    }
+    console.log("PASS " + label + ": exact multi-book Lulu cart, empty fallback and retired item rejection");
+  } catch (error) {
+    reportError(label, String(error));
+  }
+}
+
 if (books.length !== 10) {
   reportError("manifest", "Expected ten released print books; found " + books.length);
 }
 for (const book of books) await checkBook(book);
 for (const alias of legacyBookAliases) await checkLegacy(alias);
+await checkShopCheckoutBridge();
 if (errors.length) {
   console.error("\n" + errors.length + " live link check(s) failed.");
   process.exitCode = 1;
