@@ -87,7 +87,25 @@ async function checkLegacy([legacy, slug]) {
   oldUrl.searchParams.set("utm_source", "facebook");
   oldUrl.searchParams.set("fbclid", "link-monitor");
   try {
-    const response = await request(oldUrl, "manual");
+    // Next.js may canonicalize a trailing slash (308) before middleware issues
+    // its deliberate permanent book redirect (301). Verify both hops.
+    let response = await request(oldUrl, "manual");
+    if (response.status === 308) {
+      const canonicalLocation = response.headers.get("location");
+      if (!canonicalLocation) {
+        reportError(label, "308 without canonical location");
+        return;
+      }
+      const canonical = new URL(canonicalLocation, STORE_ORIGIN);
+      if (canonical.origin !== STORE_ORIGIN ||
+          canonical.pathname !== "/product/" + legacy ||
+          canonical.searchParams.get("fbclid") !== "link-monitor" ||
+          canonical.searchParams.get("utm_source") !== "facebook") {
+        reportError(label, "Unexpected trailing-slash redirect: " + canonical);
+        return;
+      }
+      response = await request(canonical, "manual");
+    }
     const location = response.headers.get("location");
     if (response.status !== 301 || !location) {
       reportError(label, "Expected 301 redirect, found " + response.status);
