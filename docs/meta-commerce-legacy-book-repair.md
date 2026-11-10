@@ -66,12 +66,24 @@ write global Shop checkout URLs or partner integration settings.
 ## Privacy and measurement
 
 Meta Pixel `815130848255492` is configured in the live Vercel code and is attached
-to the historical book catalog. The app intentionally emits only sitewide
-`PageView` on printed-book pages. It does **not** fabricate
-`ViewContent`, `AddToCart`, or `Purchase` for off-site Lulu transactions.
-Catalog product-event match rates therefore show no matching events.
-This is not evidence that ordinary Facebook or Instagram product tagging fails.
-Dynamic product ads require a separate, truthful tracking plan if ever pursued.
+to the historical book catalog. Since November 10, 2026 (owner decision), each
+`/books/<slug>` page sends catalog events keyed by the retailer IDs above
+(`components/store/BookPixelEvents.tsx`, rules in `lib/store/meta-book-events.ts`):
+
+| Event | Sent when | Value |
+|---|---|---|
+| `ViewContent` | the book page loads | list price |
+| `AddToCart` | Lulu's Buy Button adds a copy (Lulu's `lulu-cart-changed` event shows an increase), or the reader opens the direct Lulu checkout link | list price × copies added |
+| `Purchase` | Lulu's checkout **modal on this page** posts `CHECKOUT_COMPLETED` from `https://svc.lulu.com` | list price × quantity for our books in that Lulu cart (merchandise subtotal; Lulu's shipping and tax are not visible to the app) |
+
+Limits, stated plainly:
+- A purchase completed in a **separate Lulu tab** (the direct "Open Lulu checkout"
+  link, or Meta Shop's `/checkout-link` bridge) sends nothing back to this site,
+  so it is not reported. No Purchase is ever guessed.
+- Commerce Manager's "not received in the last 7 days" warnings clear only after
+  real visitors (and, for Purchase, real modal checkouts) generate those events.
+- Meta's diagnostics already flag this dataset for religious/spiritual content in
+  the EU; book-level events add to that data. This was weighed and accepted.
 
 ## Operational rule
 

@@ -5,9 +5,9 @@
  * product pages, visible Lulu checkout links, and legacy WooCommerce
  * redirects used by historical Facebook product tags. No orders are placed.
  *
- * It deliberately does not count Meta Purchase events: Lulu takes payment
- * off-site, and the print-book pages intentionally don't fabricate purchase
- * attribution.
+ * It does not check Meta pixel events (ViewContent, AddToCart, Purchase);
+ * those are browser events covered by tests/meta-book-events.test.ts and
+ * verified in Meta Events Manager.
  */
 import { readFileSync } from "node:fs";
 

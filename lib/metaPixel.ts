@@ -33,10 +33,15 @@ declare global {
  * blocker got there first. Analytics must never be able to break a page — a
  * reader losing the eBook because a tracker threw would be a bad trade.
  */
-export function track(event: string, params?: Record<string, unknown>): void {
+export function track(
+  event: string,
+  params?: Record<string, unknown>,
+  options?: { eventID?: string }
+): void {
   if (typeof window === "undefined") return;
   try {
-    window.fbq?.("track", event, params);
+    if (options?.eventID) window.fbq?.("track", event, params, { eventID: options.eventID });
+    else window.fbq?.("track", event, params);
   } catch {
     /* blocked or not yet loaded — nothing to recover, and nothing to report */
   }
