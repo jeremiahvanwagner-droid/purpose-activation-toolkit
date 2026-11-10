@@ -5,6 +5,8 @@ import { notFound } from "next/navigation";
 import JsonLd from "@/components/JsonLd";
 import LuluPurchase from "@/components/store/LuluPurchase";
 import PrintBookCard from "@/components/store/PrintBookCard";
+import BookPixelEvents from "@/components/store/BookPixelEvents";
+import { bookEventCatalog, bookEventItem } from "@/lib/store/meta-book-events";
 import { SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
 import {
   PRINT_COLLECTION_TITLE,
@@ -29,10 +31,11 @@ import {
  * a crawler, a share preview and a reader whose browser blocks Lulu's script
  * all get the title, the cover, the price and a working checkout link.
  *
- * Unlike a HighLevel product page, this one sends no ViewContent and no
- * InitiateCheckout to the Meta Pixel. The purchase happens on Lulu, where this
- * app sees nothing, and a book's subject is not ours to report on a reader's
- * behalf. The sitewide PageView is the only thing these pages inherit.
+ * Meta Pixel: besides the sitewide PageView, BookPixelEvents sends this
+ * book's ViewContent, AddToCart when a copy goes into Lulu's cart, and
+ * Purchase when Lulu's checkout modal on this page reports a completed order —
+ * all keyed by the catalog's retailer IDs (owner decision, 2026-11-10; the
+ * rules and limits are in lib/store/meta-book-events.ts).
  */
 
 // Next 15 hands route params to the page as a promise.
@@ -69,11 +72,13 @@ export default async function PrintBookPage({ params }: Params) {
     .slice(0, 4);
   const available = book.availability === "in_stock";
   const isbn = book.isbn13 ? isbn13Digits(book.isbn13) : null;
+  const pixelItem = available ? bookEventItem(book) : null;
 
   return (
     <>
       <JsonLd data={printBookSchema(book)} />
       <JsonLd data={printBookBreadcrumbs(book)} />
+      {pixelItem ? <BookPixelEvents book={pixelItem} catalog={bookEventCatalog()} /> : null}
       <div className="st-container">
         <nav className="st-crumbs" aria-label="Breadcrumb">
           <Link href={storeHref(base, "/")}>The Store</Link>
@@ -110,7 +115,13 @@ export default async function PrintBookPage({ params }: Params) {
               {available ? (
                 <>
                   <LuluPurchase buyButtonId={book.buyButtonId} title={book.title} />
-                  <a className="st-lulu-direct" href={book.checkoutUrl} target="_blank" rel="noreferrer">
+                  <a
+                    className="st-lulu-direct"
+                    href={book.checkoutUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    data-lulu-direct={book.buyButtonId}
+                  >
                     Open Lulu checkout <span aria-hidden="true">↗</span>
                     <span className="st-sr"> for {book.title} (opens in a new tab)</span>
                   </a>

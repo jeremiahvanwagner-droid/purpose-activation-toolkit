@@ -22,8 +22,10 @@
  * checkout link under this component is plain HTML written by the server and
  * needs none of this.
  *
- * No Meta Pixel event is sent from here, on purpose. A click on Lulu's button
- * is not something this app can observe, and nothing here pretends otherwise.
+ * No Meta Pixel event is sent from here. Lulu's script announces cart changes
+ * on the document and its checkout modal posts CHECKOUT_COMPLETED; the page's
+ * BookPixelEvents listens for those and reports them, so this component stays
+ * Lulu's button and nothing else.
  */
 
 import Script from "next/script";

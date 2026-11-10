@@ -43,7 +43,10 @@ Meta's external Shop checkout URL uses the form:
 - A bare `/checkout-link` without Meta's `products` parameter displays
   a book-selection page instead of a 404; it does **not** falsely start an order.
 - No payment is processed on Vercel; Lulu collects payment and handles tax,
-  shipping and fulfillment. No artificial Meta Purchase events are emitted.
+  shipping and fulfillment. The bridge emits no Meta events: a buyer sent to
+  Lulu from Meta Shop completes payment in Lulu's tab, which reports nothing back.
+  (Book pages report Purchase only from Lulu's on-page checkout modal — see
+  docs/meta-commerce-legacy-book-repair.md, "Privacy and measurement".)
 - No external URL supplied by the visitor is used as a redirect destination.
 - Redirects are temporary (307), no-store and no-referrer.
 
