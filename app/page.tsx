@@ -92,7 +92,10 @@ export default function Landing() {
         </Link>
         <div className="mk-nav-right">
           {/* On a phone the leading words hide (.mk-nav-long) and the links
-              become "Audit" / "Toolkit" pills, so the bar stays one row. */}
+              become "eBook" / "Audit" / "Toolkit" pills on their own row. */}
+          <a href="/created-to-serve" className="mk-nav-link">
+            <span className="mk-nav-long">Free </span>eBook
+          </a>
           <Link href="/audit" className="mk-nav-link">
             <span className="mk-nav-long">Take the </span>Audit
           </Link>
@@ -101,6 +104,27 @@ export default function Landing() {
           </Link>
         </div>
       </nav>
+
+      {/* Free eBook — added path to the request form. The Audit and Toolkit
+          calls below stay the primary product CTAs. */}
+      <section className="mk-ebook" aria-label="Free eBook">
+        <div className="mk-ebook-inner">
+          <div className="mk-ebook-copy">
+            <p className="mk-ebook-kicker">Free eBook</p>
+            <p className="mk-ebook-title">
+              <a href="/created-to-serve">You Were Created to Serve</a>
+            </p>
+            <p className="mk-ebook-note">
+              A Christ-centered guide to identity, gifts, and everyday service. 100 pages · PDF and EPUB ·
+              No purchase required.
+            </p>
+          </div>
+          <a className="mk-btn mk-btn-primary" href="/created-to-serve">
+            Get the free eBook
+            <span className="mk-btn-note">Request your copy</span>
+          </a>
+        </div>
+      </section>
 
       {/* Hero */}
       <header className="mk-hero">
@@ -302,6 +326,7 @@ export default function Landing() {
             </span>
           </Link>
           <div className="mk-foot-links">
+            <a href="/created-to-serve">Free eBook</a>
             <Link href="/audit">Inner Alignment Audit</Link>
             <Link href="/toolkit">Enter the Toolkit</Link>
             <a href={BEYOND_THE_VEIL_URL} target="_blank" rel="noreferrer">Beyond the Veil</a>
