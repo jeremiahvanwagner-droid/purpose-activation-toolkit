@@ -9,6 +9,12 @@ import { STORE_URL, storeBase } from "@/lib/store/base";
  * signed-in rail, and outside the marketing landing so it has its own nav.
  * On store.truthjblue.com the middleware maps "/" onto this tree.
  */
+const SHARE_IMAGE = {
+  url: "https://www.truthjblue.com/created-to-serve/cover.jpg",
+  width: 588,
+  height: 833,
+};
+
 export const metadata: Metadata = {
   title: {
     default: "The Store — Truth J Blue",
@@ -20,6 +26,10 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Truth J Blue Store",
     type: "website",
+    images: [SHARE_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

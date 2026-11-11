@@ -4,6 +4,11 @@ const AUDIT_URL = "https://www.truthjblue.com/audit";
 const TITLE = "Inner Alignment Audit | Truth J Blue";
 const DESCRIPTION =
   "Take the free Inner Alignment Audit from Truth J Blue. In a few minutes, see where you're aligned, where there's drift, and the best place to begin across Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure.";
+const SHARE_IMAGE = {
+  url: "https://www.truthjblue.com/created-to-serve/cover.jpg",
+  width: 588,
+  height: 833,
+};
 
 export const metadata: Metadata = {
   title: TITLE,
@@ -17,11 +22,13 @@ export const metadata: Metadata = {
     url: AUDIT_URL,
     title: TITLE,
     description: DESCRIPTION,
+    images: [SHARE_IMAGE],
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
     title: TITLE,
     description: DESCRIPTION,
+    images: [SHARE_IMAGE],
   },
 };
 

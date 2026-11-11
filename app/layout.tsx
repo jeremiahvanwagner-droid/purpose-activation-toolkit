@@ -36,6 +36,11 @@ const GA_STORE_HOSTS = new Set(["store.truthjblue.com", "shop.truthjblue.com"]);
 const TITLE = "Truth J Blue LLC — Faith-First Purpose Activation Toolkit";
 const DESCRIPTION =
   "From Truth J Blue LLC: an interactive, faith-first digital workbook to help you recognize your Divine design, align with your Higher Self in Christ, and walk in your purpose.";
+const SHARE_IMAGE = {
+  url: "https://www.truthjblue.com/created-to-serve/cover.jpg",
+  width: 588,
+  height: 833,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -47,6 +52,13 @@ export const metadata: Metadata = {
     url: SITE_URL,
     title: TITLE,
     description: DESCRIPTION,
+    images: [SHARE_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [SHARE_IMAGE],
   },
 };
 
