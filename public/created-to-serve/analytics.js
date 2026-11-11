@@ -37,8 +37,12 @@
   function ga(name, details) {
     try { window.gtag('event', name, Object.assign({ funnel_name: 'ywcts', page_location: clean(location.href) }, details)); } catch (_) {}
   }
-  function meta(name, details, custom) {
-    try { window.fbq(custom ? 'trackCustom' : 'track', name, details); } catch (_) {}
+  function meta(name, details, custom, options) {
+    try {
+      var method = custom ? 'trackCustom' : 'track';
+      if (options) window.fbq(method, name, details, options);
+      else window.fbq(method, name, details);
+    } catch (_) {}
   }
   var products = {
     toolkit: { id: '696d7f574f705f240b0875fd', name: 'Purpose Activation Toolkit', value: 247, payment: '696ec80453f21b434dfae38d' },
@@ -70,7 +74,11 @@
     }
   });
   // The vendor embed marks leadCollected from this specific message contract.
+  // The form posts the embedded_iframe_ shape only after a successful submit.
+  // Its load-time sticky sync posts a "_ud" payload, which this guard rejects.
   // Accept only the known form window, origin, form key and bound location.
+  // The native form's Lead does not reach dataset 815130848255492, so fire it here.
+  // No contact fields are read or sent.
   var leadSent = false;
   window.addEventListener('message', function (event) {
     var frame = document.getElementById('inline-ABcYghQi26TIMoynS0YC');
@@ -79,7 +87,7 @@
     if (data[0] !== 'set-sticky-contacts' || data[1] !== 'embedded_iframe_' + frame.id || data[2] !== frame.id || data[3] !== 'TW8JsPW5NMnA3tfK2XLn') return;
     leadSent = true;
     ga('generate_lead', { form_id: 'ABcYghQi26TIMoynS0YC', lead_source: 'free_ebook' });
+    meta('Lead', { content_name: 'You Were Created to Serve', content_category: 'free_ebook' }, false, { eventID: 'ywcts-lead-' + Date.now() + '-' + Math.random().toString(36).slice(2) });
   });
-  // Meta Lead is configured on successful submission in the native form.
   // Visits to /resource and /purchase-support are not Lead or Purchase events.
 })();

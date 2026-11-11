@@ -54,15 +54,30 @@ test('product views, real checkout links and downloads carry accurate values wit
 
 test('only a successful message from the exact form can report a lead, once', () => {
   const s = setup('https://www.truthjblue.com/created-to-serve');
+  const leads = () => s.meta().filter((x: any) => x[1] === 'Lead');
+  assert.equal(leads().length, 0);
   const valid = { origin: 'https://site.truthjblue.com', source: s.sender,
-    data: ['set-sticky-contacts', 'embedded_iframe_' + s.frame.id, s.frame.id, 'TW8JsPW5NMnA3tfK2XLn'] };
+    data: ['set-sticky-contacts', 'embedded_iframe_' + s.frame.id, s.frame.id, 'TW8JsPW5NMnA3tfK2XLn', 'fingerprint-not-for-analytics'] };
   for (const bad of [{ ...valid, origin: 'https://attacker.example' }, { ...valid, source: {} },
     { ...valid, data: ['set-sticky-contacts', '_ud', s.frame.id, 'TW8JsPW5NMnA3tfK2XLn'] },
     { ...valid, data: ['iframeLoaded'] }]) s.callbacks.message(bad);
   assert.equal(s.ga().some((x: any) => x[1] === 'generate_lead'), false);
+  assert.equal(leads().length, 0);
   s.callbacks.message(valid); s.callbacks.message(valid);
   assert.equal(s.ga().filter((x: any) => x[1] === 'generate_lead').length, 1);
-  assert.equal(setup('https://www.truthjblue.com/created-to-serve/resource').ga().some((x: any) => /purchase|generate_lead/.test(String(x[1]))), false);
+  assert.equal(leads().length, 1);
+  const lead = leads()[0];
+  assert.equal(lead[0], 'track');
+  assert.equal(JSON.stringify(lead[2]), JSON.stringify({ content_name: 'You Were Created to Serve', content_category: 'free_ebook' }));
+  assert.match(lead[3].eventID, /^ywcts-lead-\d+-[a-z0-9]+$/);
+  assert.equal(Object.keys(lead[3]).join(','), 'eventID');
+  assert.equal(JSON.stringify(lead).includes('fingerprint-not-for-analytics'), false);
+  assert.equal(JSON.stringify(s.ga()).includes('fingerprint-not-for-analytics'), false);
+  for (const path of ['/created-to-serve/resource', '/created-to-serve/purchase-support']) {
+    const page = setup('https://www.truthjblue.com' + path);
+    assert.equal(page.ga().some((x: any) => /purchase|generate_lead/.test(String(x[1]))), false);
+    assert.equal(page.meta().some((x: any) => x[1] === 'Lead'), false);
+  }
 });
 
 test('the free eBook is the main entry on /start, listed in the sitemap, and no longer gated behind the Audit', async () => {
