@@ -27,6 +27,7 @@ import {
 } from "../lib/store/lulu-books.ts";
 import {
   PRINT_FEED_COLUMNS,
+  GOOGLE_BOOK_FEED_COLUMNS,
   buildGoogleBooksTsv,
   buildPrintBooksCsv,
   csvCell,
@@ -440,19 +441,22 @@ test("the Google feed lists every published edition, tab-separated, with the pag
   assert.equal(feed.count, published.length);
 
   const lines = feed.tsv.trimEnd().split("\n");
-  assert.deepEqual(lines[0].split("\t"), [...PRINT_FEED_COLUMNS]);
+  assert.deepEqual(lines[0].split("\t"), [...GOOGLE_BOOK_FEED_COLUMNS]);
   assert.equal(lines.length, published.length + 1);
-  const col = (name: (typeof PRINT_FEED_COLUMNS)[number]) => PRINT_FEED_COLUMNS.indexOf(name);
+  const col = (name: (typeof GOOGLE_BOOK_FEED_COLUMNS)[number]) => GOOGLE_BOOK_FEED_COLUMNS.indexOf(name);
 
   published.forEach((b, i) => {
     const cells = lines[i + 1].split("\t");
-    assert.equal(cells.length, PRINT_FEED_COLUMNS.length, b.slug);
+    assert.equal(cells.length, GOOGLE_BOOK_FEED_COLUMNS.length, b.slug);
     assert.equal(cells[col("id")], b.sku, b.slug);
     assert.equal(cells[col("price")], `${minorToDecimal(b.priceMinor)} USD`, b.slug);
     assert.equal(cells[col("link")], printBookUrl(b), b.slug);
     assert.equal(cells[col("gtin")], b.isbn13, b.slug);
     assert.equal(cells[col("availability")], "in_stock", b.slug);
     assert.equal(cells[col("condition")], "new", b.slug);
+    assert.equal(cells[col("shipping_label")], "lulu_print", b.slug);
+    assert.equal(cells[col("return_policy_label")], "print_final_sale", b.slug);
+    assert.equal(cells[col("excluded_destination")], "Shopping_ads", b.slug);
     assert.equal(cells[col("google_product_category")], "Media > Books > Print Books", b.slug);
     assert.match(cells[col("image_link")], /^https:\/\/www\.truthjblue\.com\/store\/books\/[a-z0-9-]+\.jpg$/, b.slug);
     // The price Google is told is the price in the page's own structured data.
@@ -465,7 +469,7 @@ test("a tab or a line break inside a value cannot break a row of the Google feed
   const books = publishedOf(parsePrintBooks([book({ description: awkward }), second({ availability: "out_of_stock" })]));
   const lines = buildGoogleBooksTsv(books).trimEnd().split("\n");
   assert.equal(lines.length, 3);
-  for (const line of lines) assert.equal(line.split("\t").length, PRINT_FEED_COLUMNS.length);
+  for (const line of lines) assert.equal(line.split("\t").length, GOOGLE_BOOK_FEED_COLUMNS.length);
   assert.equal(lines[1].split("\t")[PRINT_FEED_COLUMNS.indexOf("description")], 'First line. Second line with a tab, a comma and "quotes".');
   assert.equal(lines[2].split("\t")[PRINT_FEED_COLUMNS.indexOf("availability")], "out_of_stock");
   assert.equal(tsvCell("  plain  "), "plain");

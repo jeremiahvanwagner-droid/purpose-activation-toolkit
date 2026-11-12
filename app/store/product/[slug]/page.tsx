@@ -74,6 +74,7 @@ export default async function ProductPage({ params }: Params) {
                 action={item.meta.checkout}
                 productId={item.id}
                 productName={item.name}
+                category={item.collection.title}
                 amount={item.amount}
                 note={item.meta.note}
               />

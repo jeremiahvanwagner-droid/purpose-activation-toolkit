@@ -26,6 +26,7 @@
 
 import { useEffect } from "react";
 import { track, trackWhenReady } from "@/lib/metaPixel";
+import { trackGoogleEcommerce } from "@/lib/ga4Ecommerce";
 import {
   addToCartParams,
   cartAdditions,
@@ -41,6 +42,10 @@ import {
 const LULU_CART_KEY = "lulu-cart";
 /** Remembers completions already reported in this tab. */
 const SENT_KEY = "tjb-lulu-purchases-sent";
+
+const googleProduct = (item: BookEventItem) => ({
+  id: item.googleItemId, name: item.name, category: "Books in Print", amount: item.price,
+});
 
 function readStoredCart(): LuluCartLine[] {
   try {
@@ -75,12 +80,15 @@ export default function BookPixelEvents({
   // immediately torn down (React's development double-mount) sends nothing.
   useEffect(() => {
     let cancel: (() => void) | undefined;
+    let cancelGoogle: (() => void) | undefined;
     const timer = window.setTimeout(() => {
       cancel = trackWhenReady("ViewContent", viewContentParams(book));
+      cancelGoogle = trackGoogleEcommerce("view_item", googleProduct(book));
     }, 0);
     return () => {
       window.clearTimeout(timer);
       cancel?.();
+      cancelGoogle?.();
     };
   }, [book]);
 
@@ -96,6 +104,7 @@ export default function BookPixelEvents({
       const next = parseLuluCart((event as CustomEvent<{ cart?: unknown }>).detail?.cart);
       for (const { item, quantity } of cartAdditions(cart, next, catalog)) {
         track("AddToCart", addToCartParams(item, quantity));
+        trackGoogleEcommerce("add_to_cart", googleProduct(item), quantity);
       }
       cart = next;
       if (next.length) lastFull = next;
@@ -116,7 +125,11 @@ export default function BookPixelEvents({
       const link = (event.target as Element | null)?.closest?.("a[data-lulu-direct]");
       if (!link) return;
       const item = catalog.find((b) => b.buyButtonId === link.getAttribute("data-lulu-direct"));
-      if (item) track("AddToCart", addToCartParams(item, 1));
+      if (item) {
+        track("AddToCart", addToCartParams(item, 1));
+        trackGoogleEcommerce("add_to_cart", googleProduct(item));
+        trackGoogleEcommerce("begin_checkout", googleProduct(item));
+      }
     };
 
     document.addEventListener("lulu-cart-changed", onCartChanged);
