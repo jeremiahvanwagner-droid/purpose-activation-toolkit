@@ -43,6 +43,14 @@ export const PRINT_FEED_COLUMNS = [
   "custom_label_0",
 ] as const;
 
+/** These labels must be configured in Merchant Center before attaching this feed. */
+export const GOOGLE_BOOK_FEED_COLUMNS = [
+  ...PRINT_FEED_COLUMNS,
+  "shipping_label",
+  "return_policy_label",
+  "excluded_destination",
+] as const;
+
 const BRAND = "Truth J Blue";
 /** Google product taxonomy 543543 — the category for printed books. */
 const GOOGLE_CATEGORY = "Media > Books > Print Books";
@@ -104,14 +112,15 @@ export function printBooksFeed(raw: unknown): PrintFeedResult {
  * The same books for Google Merchant Center.
  *
  * Google reads the same facts under the same attribute names, so a row is the
- * Meta row with two differences in form: availability is spelled in_stock /
- * out_of_stock, and the file is tab-separated — the one delimited format
+ * Meta row with availability spelled in_stock / out_of_stock, plus Google's
+ * shipping/return labels and Shopping ads exclusion. The file is tab-separated,
+ * the one delimited format
  * Google documents without qualification. A tab or line break inside a value
  * would break a tab-separated row, so those become spaces.
  *
  * Every published edition is listed, not only the Meta pilot: the two are
- * different catalogs with different owners' decisions behind them. Shipping is
- * deliberately not in the file. Lulu works out shipping at its checkout by
+ * different catalogs with different owners' decisions behind them. Shipping
+ * rates are deliberately not in the file. Lulu works out shipping at its checkout by
  * destination, so the rates belong in Merchant Center's own shipping settings,
  * where they can be kept at or above what Lulu charges.
  */
@@ -122,11 +131,11 @@ export function tsvCell(value: string): string {
 export function googleBookFeedRow(book: PublishedPrintBook): string[] {
   const row = printBookFeedRow(book);
   row[PRINT_FEED_COLUMNS.indexOf("availability")] = book.availability;
-  return row;
+  return [...row, "lulu_print", "print_final_sale", "Shopping_ads"];
 }
 
 export function buildGoogleBooksTsv(books: PublishedPrintBook[]): string {
-  return [[...PRINT_FEED_COLUMNS], ...books.map(googleBookFeedRow)].map((row) => row.map(tsvCell).join("\t")).join("\n") + "\n";
+  return [[...GOOGLE_BOOK_FEED_COLUMNS], ...books.map(googleBookFeedRow)].map((row) => row.map(tsvCell).join("\t")).join("\n") + "\n";
 }
 
 export type GoogleFeedResult =

@@ -104,16 +104,22 @@ published edition, tab-separated, from the print manifest alone. Merchant
 Center fetches it as a file data source on a schedule. It answers 500 for an
 invalid manifest and 503 when nothing is published, never an empty file.
 
-Shipping is not in the feed. Lulu works out shipping at its own checkout, by
-destination, so the rates live in Merchant Center's shipping settings and must
-be at or above what Lulu actually charges.
+Every Google row carries `shipping_label=lulu_print`,
+`return_policy_label=print_final_sale`, and
+`excluded_destination=Shopping_ads`. Configure the matching shipping service
+and return exception before attaching the feed. The shipping service must
+target `lulu_print`, not all products or `digital_free_shipping`.
+Shipping rates are not in the file: verify Lulu's destination-dependent rates
+and delivery times, then configure Merchant Center without understating them.
+The labels select policies; they do not create those policies.
 
-This is not HighLevel's Merchant Center app. That app creates its own data
-source in Merchant Center, named `leadconnector`, and pushes whatever products
-are assigned to HighLevel's storefront — digital products, programs and calls,
-at HighLevel's own store addresses. Those addresses are redirected to the live
-product pages (`middleware.ts`), but the listings themselves do not belong in
-Merchant Center; keep that app disconnected.
+This is separate from the `leadconnector` source. As verified on 2026-11-12,
+Merchant account 5681706436 has one approved Toolkit free listing and three
+archived digital offers. Preserve that approved listing. Google permits an
+eBook exception for free listings under its unsupported-content policy;
+eligibility depends on the actual offer. Coaching, services and memberships
+must not be added by a broad catalog sync. The old WooCommerce connection
+was removed; the print feed is not yet attached to Merchant Center.
 
 ## Returns
 
@@ -128,12 +134,18 @@ into `public/legal/` here; change the policy there, rebuild, and re-copy. The
 one-sentence version on the book pages is `PRINT_RETURNS_NOTE` in
 `lib/store/lulu-books.ts`, and a test fails if the two stop agreeing.
 
-## What is deliberately not measured
+## Measurement boundaries
 
-Book pages send no `ViewContent`, `InitiateCheckout` or `Purchase` to the Meta
-Pixel. The sale happens on Lulu, where this app can observe nothing, and a
-click on a link is not a purchase. The only thing these pages inherit is the
-sitewide `PageView`.
+`BookPixelEvents` already handles Meta ViewContent, observed cart additions,
+and Lulu's trusted on-page completion message. Its Meta IDs and behavior are
+preserved. Google receives `view_item`, observed `add_to_cart`, and
+`begin_checkout` when the direct checkout link is followed, using the Google
+feed SKU rather than Meta's numeric retailer ID.
+
+Google purchase reporting is not implemented by these browser events. A Lulu
+completion message has no verified receipt/transaction ID in the current
+mapping; purchases completed in a separate tab also do not report back.
+See `docs/google-commerce-measurement.md` for the payment-reporting dependencies.
 
 ## If Lulu's script does not load
 

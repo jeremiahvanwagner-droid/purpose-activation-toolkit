@@ -38,6 +38,8 @@ export const LULU_CHECKOUT_ORIGIN = "https://svc.lulu.com";
 export type BookEventItem = {
   /** The catalog's retailer ID — what content_ids must carry. */
   retailerId: string;
+  /** Google feed ID. Kept separate from Meta's historic numeric retailer ID. */
+  googleItemId: string;
   buyButtonId: string;
   name: string;
   /** List price in major units, e.g. 21.99. */
@@ -78,6 +80,7 @@ export function bookEventItem(book: PublishedPrintBook): BookEventItem | null {
   if (!retailerId || book.availability !== "in_stock") return null;
   return {
     retailerId,
+    googleItemId: book.sku,
     buyButtonId: book.buyButtonId,
     name: book.title,
     price: money(book.priceMinor),

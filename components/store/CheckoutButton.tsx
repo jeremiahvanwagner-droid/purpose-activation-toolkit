@@ -14,6 +14,7 @@
  */
 
 import { CURRENCY, track } from "@/lib/metaPixel";
+import { trackGoogleEcommerce } from "@/lib/ga4Ecommerce";
 
 export type CheckoutAction =
   | { kind: "buy"; href: string; label: string }
@@ -25,6 +26,7 @@ export default function CheckoutButton({
   action,
   productId,
   productName,
+  category,
   amount,
   note,
   className = "st-btn st-btn-primary",
@@ -32,6 +34,7 @@ export default function CheckoutButton({
   action: CheckoutAction;
   productId: string;
   productName: string;
+  category: string;
   amount: number | null;
   note?: string;
   className?: string;
@@ -54,6 +57,11 @@ export default function CheckoutButton({
       currency: CURRENCY,
     };
     track(action.kind === "buy" ? "InitiateCheckout" : "Schedule", params);
+    if (action.kind === "buy") {
+      trackGoogleEcommerce("begin_checkout", {
+        id: productId, name: productName, category, amount,
+      });
+    }
   };
 
   return (

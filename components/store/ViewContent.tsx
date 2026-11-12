@@ -12,6 +12,7 @@
 
 import { useEffect } from "react";
 import { CURRENCY, trackWhenReady } from "@/lib/metaPixel";
+import { trackGoogleEcommerce } from "@/lib/ga4Ecommerce";
 
 export default function ViewContent({
   id,
@@ -24,16 +25,16 @@ export default function ViewContent({
   category: string;
   amount?: number | null;
 }) {
-  useEffect(
-    () =>
-      trackWhenReady("ViewContent", {
-        content_ids: [id],
-        content_type: "product",
-        content_name: name,
-        content_category: category,
-        ...(typeof amount === "number" ? { value: amount, currency: CURRENCY } : {}),
-      }),
-    [id, name, category, amount]
-  );
+  useEffect(() => {
+    const cancelMeta = trackWhenReady("ViewContent", {
+      content_ids: [id],
+      content_type: "product",
+      content_name: name,
+      content_category: category,
+      ...(typeof amount === "number" ? { value: amount, currency: CURRENCY } : {}),
+    });
+    const cancelGoogle = trackGoogleEcommerce("view_item", { id, name, category, amount });
+    return () => { cancelMeta(); cancelGoogle(); };
+  }, [id, name, category, amount]);
   return null;
 }
