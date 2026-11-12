@@ -42,7 +42,7 @@ function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
     },
     {
       q: "What is the Inner Alignment Audit?",
-      a: `Twenty-eight honest statements across four domains of alignment — Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure — with clear scoring that shows where you're aligned, where there's drift, and the best place to begin. The Audit is $97, one-time, and includes a focused follow-up call to integrate what you find.`,
+      a: `Twenty-eight honest statements across four domains of alignment — Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure — with clear scoring that shows where you're aligned, where there's drift, and the best place to begin. The Audit is $97, one-time.`,
     },
     {
       q: "What is the Purpose Activation Toolkit?",

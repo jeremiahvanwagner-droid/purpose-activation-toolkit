@@ -102,7 +102,7 @@ export type ProductMeta = {
   /** Replaces the GHL description. Used only where the GHL copy is empty or
    *  still refers to the retired assessment by name. HTML. */
   description?: string;
-  steps: [string, string, string];
+  steps: [string, string, string] | [string, string];
 };
 
 const STEPS_BOOK: [string, string, string] = [
@@ -128,7 +128,7 @@ export const PRODUCTS: ProductMeta[] = [
     order: 1,
     kicker: "Self-diagnostic · four domains",
     tagline:
-      "Twenty-eight honest statements across four domains of alignment, clear scoring, and a focused follow-up call to integrate what you find.",
+      "Twenty-eight honest statements across four domains of alignment and clear scoring.",
     checkout: { kind: "buy", href: AUDIT_CHECKOUT_URL, label: "Get the Audit" },
     note: "Instant access · sign in with the email you use at checkout",
     access: { href: PAID_AUDIT_PATH, label: "Open your Audit" },
@@ -136,7 +136,6 @@ export const PRODUCTS: ProductMeta[] = [
     steps: [
       "Secure checkout on HighLevel, our payments platform.",
       "Open your Audit at truthjblue.com/store/audit and sign in with the same email — it's waiting there.",
-      "Once your profile is revealed, book your follow-up call from inside the Audit.",
     ],
   },
   {

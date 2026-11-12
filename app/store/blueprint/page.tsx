@@ -152,8 +152,8 @@ function Blueprint() {
             <Link className="btn gold" href={PAID_AUDIT_PATH}>
               Open your Audit
             </Link>
-            <Link className="btn ghost" href="/audit">
-              Or take the free Audit
+            <Link className="btn ghost" href="https://store.truthjblue.com/product/inner-alignment-audit">
+              Or get the Audit — $97
             </Link>
           </div>
         </section>

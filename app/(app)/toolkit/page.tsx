@@ -24,7 +24,7 @@ export default function Home() {
 
       <div style={{ display: "flex", gap: 12, flexWrap: "wrap", margin: "22px 0 30px" }}>
         <Link className="btn gold" href="/module/purpose-activation">
-          {started ? "Continue your journey" : "Begin Module 1"}
+          {started ? "Continue your adventure" : "Begin Module 1"}
         </Link>
         {anyStarted ? (
           <Link className="btn ghost" href="/workbook">

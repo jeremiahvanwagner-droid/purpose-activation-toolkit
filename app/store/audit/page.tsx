@@ -7,7 +7,7 @@ import AuditRunner from "@/components/AuditRunner";
 import Paywall, { type PaywallProduct } from "@/components/Paywall";
 import { IAA_META, scoreAudit } from "@/lib/content/innerAlignmentAudit";
 import { IAA_PRODUCT_ID } from "@/lib/entitlements";
-import { AUDIT_CHECKOUT_URL, AUDIT_PAYMENT_LINK_ID, AUDIT_REVIEW_CALENDAR_URL, EBOOK_PDF_PATH, PAID_AUDIT_PATH, ebookDownloadUrl } from "@/lib/links";
+import { AUDIT_CHECKOUT_URL, AUDIT_PAYMENT_LINK_ID, EBOOK_PDF_PATH, PAID_AUDIT_PATH, ebookDownloadUrl } from "@/lib/links";
 import { useResponses } from "@/lib/store";
 
 const EBOOK_URL = ebookDownloadUrl(process.env.NEXT_PUBLIC_EBOOK_URL ?? "");
@@ -33,8 +33,8 @@ const AUDIT_PAYWALL: PaywallProduct = {
   unentitledTitle: "Unlock your Audit.",
   signedOutLede: (
     <>
-      The Inner Alignment Audit — twenty-eight statements across four domains, your Alignment Profile, a
-      seven-day realignment plan, and a follow-up call to integrate it — is <b>$97</b>. Already purchased? Sign
+      The Inner Alignment Audit — twenty-eight statements across four domains, your Alignment Profile, and a
+      seven-day realignment plan — is <b>$97</b>. Already purchased? Sign
       in with the same email you used at checkout and it will be waiting for you.
     </>
   ),
@@ -56,7 +56,6 @@ const AUDIT_PAYWALL: PaywallProduct = {
     "Twenty-eight statements across four domains — Spiritual Perception, Emotional Regulation, Identity Integration, Life Structure",
     "Your Alignment Profile, scored and banded, with your primary lever named",
     "A seven-day realignment plan and your own alignment statement",
-    "A follow-up call to integrate your results — included",
     "The eBook You Were Created to Serve",
     "Cross-device sync — start on your phone, continue on your laptop",
   ],
@@ -112,22 +111,6 @@ function PaidAudit() {
 
       {complete ? (
         <>
-          <section className="card cta-card">
-            <span className="tag">Included with your Audit</span>
-            <h2>Integrate it in a follow-up call</h2>
-            <div className="body-copy">
-              <p>
-                Twenty minutes with Jeremiah to walk through your profile together and settle the one place to
-                begin. It&apos;s part of your Audit — choose a time that suits you.
-              </p>
-            </div>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 6 }}>
-              <a className="btn gold" href={AUDIT_REVIEW_CALENDAR_URL} target="_blank" rel="noreferrer">
-                Book your follow-up call
-              </a>
-            </div>
-          </section>
-
           <AuditFollowThrough />
         </>
       ) : (
@@ -135,7 +118,7 @@ function PaidAudit() {
           <span className="tag">Coming next</span>
           <h2>What you&apos;ll see when you finish</h2>
           <p className="hint">
-            Once all 28 statements are answered, your Alignment Profile appears — then your follow-up call, a
+            Once all 28 statements are answered, your Alignment Profile appears — then a
             seven-day plan, a personal alignment statement, and space for deeper reflection.
           </p>
         </section>
