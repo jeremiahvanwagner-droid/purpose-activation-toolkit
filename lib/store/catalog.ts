@@ -141,7 +141,8 @@ export function formatPrice(amount: number | null): string {
 export function actionWord(item: StoreItem): string {
   switch (item.meta.checkout.kind) {
     case "buy":
-      return "Instant access";
+      // Page item 7 (Nov 12): no "instant access" for the Toolkit until the paid-access test passes.
+      return item.id === "696d7f574f705f240b0875fd" ? item.meta.checkout.label : "Instant access";
     case "book":
     case "apply":
       return item.meta.checkout.label;

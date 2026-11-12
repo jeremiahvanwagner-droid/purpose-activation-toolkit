@@ -19,9 +19,9 @@ export const IAA_META = {
    *  free lead magnet. Stating the store price is the value anchor for the gift.
    *  Three parts so the page can link the store's name (STORE_AUDIT_PATH). */
   storeNote: {
-    lead: "Sold in the ",
+    lead: "$97 USD · one-time, in the ",
     linkText: "Truth J Blue store",
-    tail: " for $97 — yours here as our gift.",
+    tail: ".",
   },
 };
 

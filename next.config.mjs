@@ -53,7 +53,18 @@ const nextConfig = {
     return [
       {
         source: '/divine-alignment-scorecard',
-        destination: '/audit',
+        destination: 'https://store.truthjblue.com/product/inner-alignment-audit',
+        permanent: false,
+      },
+      // Nov 12, 2026 (Truth's approval, Page item 4): the Audit is $97 only.
+      // The free "our gift" /audit page is taken down; send readers to the
+      // paid Audit in the store. 307 so the path can be reused later. The
+      // paid Audit (/store/audit) and the store hostname's own /audit
+      // handling in middleware are unaffected.
+      {
+        source: '/audit',
+        missing: [{ type: 'host', value: 'store\\.truthjblue\\.com' }],
+        destination: 'https://store.truthjblue.com/product/inner-alignment-audit',
         permanent: false,
       },
     ];

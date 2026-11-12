@@ -32,9 +32,7 @@ export const metadata: Metadata = {
  * reader.
  */
 function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
-  const audit = store.bySlug("inner-alignment-audit");
   const toolkit = store.items.find((i) => i.meta.featured) ?? null;
-  const auditPrice = audit?.amount != null ? `, ${formatPrice(audit.amount)},` : "";
   const toolkitPrice = toolkit?.amount != null ? `${formatPrice(toolkit.amount)} once, ` : "";
 
   return [
@@ -44,7 +42,7 @@ function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
     },
     {
       q: "What is the Inner Alignment Audit?",
-      a: `Twenty-eight honest statements across four domains of alignment — Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure — with clear scoring that shows where you're aligned, where there's drift, and the best place to begin. A free version is at truthjblue.com/audit. The store edition${auditPrice} adds a focused follow-up call to integrate what you find.`,
+      a: `Twenty-eight honest statements across four domains of alignment — Spiritual Perception, Emotional Regulation, Identity Integration, and Life Structure — with clear scoring that shows where you're aligned, where there's drift, and the best place to begin. The Audit is $97, one-time, and includes a focused follow-up call to integrate what you find.`,
     },
     {
       q: "What is the Purpose Activation Toolkit?",
@@ -53,10 +51,6 @@ function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
     {
       q: "How do checkout and delivery work?",
       a: `Checkout is secure, on HighLevel, our payments platform, and no account is needed. Your access details arrive by email right after purchase. The Toolkit and the Audit open at truthjblue.com when you sign in with the email you used at checkout.`,
-    },
-    {
-      q: "How do the programs and one-to-one work begin?",
-      a: "With a conversation. The Beyond the Veil Mentorship runs twelve weeks and begins with an interview. The Ascension Intensive runs six weeks, by application, with a payment plan available. A Deep Dive Call with Jeremiah is thirty minutes, booked from the calendar and paid as you book.",
     },
     // Restates the print pages, Lulu's own account of the Buy Button, and the
     // printed-books returns policy published at /legal. It promises no

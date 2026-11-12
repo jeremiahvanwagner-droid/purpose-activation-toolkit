@@ -187,7 +187,7 @@ export const PRODUCTS: ProductMeta[] = [
     order: 1,
     kicker: "12-week mentorship",
     tagline:
-      "A guided twelve-week journey through Identity, Purpose, Power, and Transformation — for those fully committed to their spiritual growth.",
+      "A guided twelve-week adventure through Identity, Purpose, Power, and Transformation — for those fully committed to their spiritual growth.",
     priceNote: "12 weeks · begins with an interview",
     checkout: { kind: "book", href: booking("I04z14pF1pX97tGFqMWH"), label: "Request an interview" },
     note: "Every mentorship begins with a conversation",

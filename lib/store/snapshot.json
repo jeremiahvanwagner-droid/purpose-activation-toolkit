@@ -41,7 +41,7 @@
   "slug": "deep-dive-call",
   "description": "<p>A focused 30-minute session that goes through your Inner Alignment Audit results in depth. Together you’ll look at all four domains, name the primary lever, and leave with a clear first move for the next seven days.</p><p>Best taken alongside the Purpose Activation Toolkit, so the session lands on a plan you’re already working.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffc54da041368a9ece6.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
@@ -275,7 +275,7 @@
   "slug": "truth-j-blue-strategic-partnership",
   "description": "<p>By invitation only - maximum 3 partners annually. High-level strategic alliance for visionary leaders building 7-8 figure movements. This is co-creation at the highest level: joint ventures, revenue share agreements, retreat co-hosting, program co-development, book/content collaboration, and legacy building support. Includes unlimited strategic access, network capital, joint marketing, and collaborative revenue opportunities. Investment: $25,000-$100,000+ depending on scope. Requires mission alignment and strategic fit.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffc54da043f38a9ece7.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
@@ -293,7 +293,7 @@
   "slug": "high-level-spiritual-mentorship",
   "description": "<p>Exclusive 1-on-1 quarterly private coaching limited to 8 clients. Includes 13 weekly 90-minute sessions per quarter, unlimited 7-day Voxer access (4-hour response M-F), custom program design, quarterly VIP intensive day, all program access, VIP Mastermind observer status, team training session, and emergency 24-hour support. 6-month minimum.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffb6bac2472ea28e2f7.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
@@ -311,7 +311,7 @@
   "slug": "inner-circle-for-kingdom-visionaries",
   "description": "<p>Elite quarterly mastermind for purpose-driven leaders scaling to $250K+. Limited to 25 members. Includes 4 full-day quarterly intensives, 12 monthly deep-dive calls, 48 weekly power hours, private community access, 2 private 1-on-1 sessions per quarter, M-F Voxer access, all course access, and annual in-person gathering. 1-year commitment.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffc54da048e36a9ece5.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
@@ -329,7 +329,7 @@
   "slug": "ascension-intensive",
   "description": "<p>6-week transformation program for purpose-driven leaders ready to quantum leap. Includes 6 group coaching sessions, Divine Blueprint Mapping, shadow integration, embodiment practices, quantum timeline jumping, and 21-day Voxer access. Plus Ascension Playbook, energy transmissions, lifetime recordings, and 30-day VIP Mastermind trial. Payment plan available.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69951ffbd614c978d91cb327.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
@@ -347,15 +347,15 @@
   "slug": "beyond-the-veil-mentorship",
   "description": "<p><strong data-start=\"491\" data-end=\"521\">Beyond the Veil Mentorship</strong> is a transformational mentorship experience designed for seekers who are no longer looking for information—but embodiment.</p><p data-start=\"646\" data-end=\"744\">This program guides you beyond surface-level spirituality and into lived alignment by integrating:</p><ul data-start=\"745\" data-end=\"864\"><li><p data-start=\"747\" data-end=\"770\">Consciousness science</p></li><li><p data-start=\"773\" data-end=\"796\">Spiritual discernment</p></li><li><p data-start=\"799\" data-end=\"822\">Emotional integration</p></li><li><p data-start=\"825\" data-end=\"842\">Purpose clarity</p></li><li><p data-start=\"845\" data-end=\"864\">Structured action</p></li></ul><p data-start=\"866\" data-end=\"986\">This is not therapy. This is not motivation. This is <strong data-start=\"923\" data-end=\"985\">initiation through understanding, structure, and alignment</strong>.</p><p data-start=\"988\" data-end=\"1006\">You will learn to:</p><ul data-start=\"1007\" data-end=\"1336\"><li><p data-start=\"1009\" data-end=\"1073\">Identify and dissolve internal illusions that distort perception</p></li><li><p data-start=\"1076\" data-end=\"1125\">Stabilize your nervous system and inner authority</p></li><li><p data-start=\"1128\" data-end=\"1174\">Align thought, word, and action into coherence</p></li><li><p data-start=\"1177\" data-end=\"1230\">Discern intuition from emotion, fear, or conditioning</p></li><li><p data-start=\"1233\" data-end=\"1274\">Operate from purpose rather than reaction</p></li><li><p data-start=\"1277\" data-end=\"1336\">Build an internal framework that sustains clarity long-term</p></li></ul><p data-start=\"1338\" data-end=\"1484\">This mentorship combines <strong data-start=\"1363\" data-end=\"1428\">teaching, reflection, practical tools, and guided integration</strong> to help you live aligned—not just understand alignment.</p>",
   "image": "https://storage.googleapis.com/msgsndr/TW8JsPW5NMnA3tfK2XLn/media/69756669c1fa0c7ced76159d.png",
-  "availableInStore": true,
+  "availableInStore": false,
   "productType": "DIGITAL",
   "prices": [
    {
     "id": "6975840bb327c596a79e9040",
-    "name": "Beyond the Veil Mentorship @ 1500",
+    "name": "Beyond the Veil Mentorship",
     "amount": 2497,
     "type": "one_time",
-    "compareAt": 9997
+    "compareAt": null
    }
   ]
  },
@@ -388,10 +388,10 @@
   "prices": [
    {
     "id": "696d7f574f705f3755087612",
-    "name": "Purpose Activation Toolkit @ 97.99",
+    "name": "Purpose Activation Toolkit",
     "amount": 247,
     "type": "one_time",
-    "compareAt": 2799.97
+    "compareAt": null
    }
   ]
  },
@@ -406,10 +406,10 @@
   "prices": [
    {
     "id": "696d7e4ab83430e5274a774b",
-    "name": "Inner Alignment Audit @ 97",
+    "name": "Inner Alignment Audit",
     "amount": 97,
     "type": "one_time",
-    "compareAt": 2997
+    "compareAt": null
    }
   ]
  }

@@ -18,7 +18,7 @@ export default function Home() {
       <div className="eyebrow">Truth J Blue · Growth by Choice</div>
       <h1 className="page-title">Your purpose, activated.</h1>
       <p className="lede">
-        A guided, four-part journey from wondering about your purpose to walking in it —
+        A guided, four-part adventure from wondering about your purpose to walking in it —
         Spirit-led, saved as you go, and yours to keep.
       </p>
 
@@ -51,9 +51,8 @@ export default function Home() {
             prompts from Module 4 for your morning.
           </li>
           <li>
-            <b>Come back later.</b> The 30-day plan, the 21-Day Alignment Challenge, and the 90-day focus plan each
-            end with reflections for when their days are done. Your keepsake gathers every answer whenever you
-            want to print it.
+            <b>Come back later.</b> Each plan in the Toolkit ends with reflections for when its days are done.
+            Your keepsake gathers every answer whenever you want to print it.
           </li>
         </ol>
       </section>
@@ -70,17 +69,17 @@ export default function Home() {
           <span className="audit-banner-arrow">↗</span>
         </Link>
       ) : (
-        <Link href="/audit" className="audit-banner">
-          <span className="audit-banner-k">Free · 3 minutes</span>
+        <Link href="https://store.truthjblue.com/product/inner-alignment-audit" className="audit-banner">
+          <span className="audit-banner-k">Optional · $97</span>
           <span className="audit-banner-t">
-            New here? Start with the <b>Inner Alignment Audit</b> to find where to begin
+            Want a focused starting point? The <b>Inner Alignment Audit</b> is available separately for $97 USD
           </span>
           <span className="audit-banner-arrow">→</span>
         </Link>
       )}
 
       <div id="journey" className="eyebrow" style={{ marginBottom: 12 }}>
-        The Journey
+        The Road Ahead
       </div>
       <div className="journey-grid">
         {MODULES.map((m) => {

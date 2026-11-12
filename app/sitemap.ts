@@ -26,7 +26,6 @@ const WWW = "https://www.truthjblue.com";
  */
 const BRAND_PAGES = [
   "/",
-  "/audit",
   "/about",
   "/books",
   "/start",
@@ -50,12 +49,9 @@ const STORE_PRODUCTS = [
   "purpose-activation-toolkit",
   "inner-alignment-audit",
   "divine-alignment-blueprint",
-  "deep-dive-call",
-  "ascension-intensive",
-  "high-level-spiritual-mentorship",
-  "beyond-the-veil-mentorship",
-  "inner-circle-for-kingdom-visionaries",
-  "truth-j-blue-strategic-partnership",
+  // Nov 12, 2026: Deep Dive, Ascension, Private Coaching, BTV, VIP Mastermind
+  // and Strategic Partnership were taken off the store (Page item 20); their
+  // product pages now 404. /audit (the free Audit) now redirects to the store.
 ];
 
 /**

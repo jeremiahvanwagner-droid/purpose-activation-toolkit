@@ -85,7 +85,9 @@ test('the free eBook is the main entry on /start, listed in the sitemap, and no 
   const entry = start.match(/<a class="entry" href="([^"]+)"[^>]*data-slug="([^"]+)"/);
   assert.equal(entry?.[1], 'https://www.truthjblue.com/created-to-serve');
   assert.equal(entry?.[2], 'ebook');
-  assert.ok(start.includes('href="https://www.truthjblue.com/audit" data-utm data-slug="audit"'), 'Audit kept as a secondary link');
+  // Nov 12, 2026 (Page item 20): /start is eBook only, and (item 4) carries no free-Audit wording.
+  assert.ok(!start.includes('data-slug="audit" data-slot'), '/start lists no Audit row');
+  assert.doesNotMatch(start, /free Inner Alignment Audit|data-slug="(dpw|btv|toolkit|eos|palace|rtl|aama|blog)"/);
   assert.doesNotMatch(start, /Finish all 28 questions|Get the Book|free when you finish|unlocks your profile and your book/);
   const audit = readFileSync('app/(app)/audit/page.tsx', 'utf8');
   assert.doesNotMatch(audit, /Finish the audit to unlock your free eBook/);

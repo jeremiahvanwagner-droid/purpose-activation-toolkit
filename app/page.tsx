@@ -39,23 +39,23 @@ function Glyph() {
 const PILLARS = [
   {
     kicker: "Module 1",
-    title: "Purpose Activation",
+    title: "The Purpose Activation Framework",
     body: "Discover the God-given design already knit into you. Rank your core values, map your six life domains, and craft a purpose statement that becomes the compass of the whole toolkit.",
   },
   {
     kicker: "Module 2",
-    title: "Proper Decision-Making",
-    body: "Trade reactive choices for stewardship. Walk any decision through the 7-Step Divine Decision Framework and a scored Values-Based Grid — weighed with prayer, counsel, and peace.",
+    title: "The 7-Step Divine Decision Matrix",
+    body: "Trade reactive choices for stewardship. Walk any decision through seven clear steps and a scored Values-Based Grid — weighed with prayer, counsel, and peace.",
   },
   {
     kicker: "Module 3",
-    title: "Alignment-to-Action",
-    body: "Close the gap between what you know and what you live. Design your daily ritual, complete the 21-Day Alignment Challenge, and sign a 90-day covenant.",
+    title: "The Alignment-to-Action Roadmap",
+    body: "Close the gap between what you know and what you live. Design your daily ritual and build a practical plan for bringing your intentions into daily practice.",
   },
   {
     kicker: "Module 4",
     title: "Execution Prompts",
-    body: "Sixty-nine prompts across six themed decks — Purpose, Identity, Decisions, Action, Reflection, Legacy. Your daily companion for aligned living.",
+    body: "Guided prompts across six themed decks — Purpose, Identity, Decisions, Action, Reflection, Legacy. Your daily companion for aligned living.",
   },
 ];
 
@@ -96,7 +96,7 @@ export default function Landing() {
           <a href="/created-to-serve" className="mk-nav-link">
             <span className="mk-nav-long">Free </span>eBook
           </a>
-          <Link href="/audit" className="mk-nav-link">
+          <Link href="https://store.truthjblue.com/product/inner-alignment-audit" className="mk-nav-link">
             <span className="mk-nav-long">Take the </span>Audit
           </Link>
           <Link href="/toolkit" className="mk-nav-link">
@@ -139,9 +139,9 @@ export default function Landing() {
             action — for believers who love God but feel the gap between knowing and living.
           </p>
           <div className="mk-cta-row">
-            <Link className="mk-btn mk-btn-primary" href="/audit">
-              Take the free Inner Alignment Audit
-              <span className="mk-btn-note">3 minutes · instant results</span>
+            <Link className="mk-btn mk-btn-primary" href="https://store.truthjblue.com/product/inner-alignment-audit">
+              Explore the paid Audit — $97
+              <span className="mk-btn-note">Optional · a focused starting point</span>
             </Link>
             <a className="mk-btn mk-btn-ghost" href="#whats-inside">
               See what's inside
@@ -194,7 +194,7 @@ export default function Landing() {
       <section id="whats-inside" className="mk-section mk-inside">
         <div className="mk-container">
           <div className="mk-eyebrow mk-eyebrow-c">What's inside</div>
-          <h2 className="mk-h2 mk-center">Four interactive modules. One integrated journey.</h2>
+          <h2 className="mk-h2 mk-center">Four interactive modules. One integrated adventure.</h2>
           <div className="mk-pillars">
             {PILLARS.map((p) => (
               <article className="mk-pillar" key={p.title}>
@@ -242,11 +242,11 @@ export default function Landing() {
             <li className="mk-step">
               <span className="mk-step-n">01</span>
               <div>
-                <h3 className="mk-step-title">Take the free Inner Alignment Audit.</h3>
+                <h3 className="mk-step-title">Optional: begin with the Inner Alignment Audit ($97).</h3>
                 <p className="mk-step-body">
-                  Twenty-eight honest questions across four Alignment Domains — Spiritual Perception,
-                  Emotional Regulation, Identity Integration, Life Structure. In minutes you'll see where
-                  you're stable, where there's drift, and the one place to begin.
+                  Twenty-eight honest statements across four Alignment Domains — Spiritual Perception,
+                  Emotional Regulation, Identity Integration, Life Structure — with clear scoring that shows
+                  where you're stable, where there's drift, and the one place to begin.
                 </p>
               </div>
             </li>
@@ -263,10 +263,10 @@ export default function Landing() {
             <li className="mk-step">
               <span className="mk-step-n">03</span>
               <div>
-                <h3 className="mk-step-title">Sign your covenants.</h3>
+                <h3 className="mk-step-title">Sign your commitments.</h3>
                 <p className="mk-step-body">
-                  A 30-day purpose plan. A Decision Covenant. A 90-day alignment commitment. Real name, real
-                  signature, sealed in the app — kept in the keepsake.
+                  Put your name to your purpose plan, your decisions, and your next steps — signed in the
+                  app and kept in the keepsake.
                 </p>
               </div>
             </li>
@@ -292,13 +292,13 @@ export default function Landing() {
             Take the first step. The rest is a matter of walking.
           </h2>
           <p className="mk-body mk-final-body">
-            Start with the free Inner Alignment Audit. Three minutes, no sign-up — and you'll know exactly
-            where to begin. When you're ready to go deeper, the full four-module toolkit is <b>$247</b>.
+            The full four-module Toolkit is <b>$247 USD</b>, one-time. Want a focused starting point first?
+            The Inner Alignment Audit is available separately for $97 USD.
           </p>
           <div className="mk-cta-row mk-center">
-            <Link className="mk-btn mk-btn-primary" href="/audit">
-              Take the free Audit
-              <span className="mk-btn-note">Your first step ✦</span>
+            <Link className="mk-btn mk-btn-primary" href="https://store.truthjblue.com/product/inner-alignment-audit">
+              Explore the paid Audit →
+              <span className="mk-btn-note">Optional starting point</span>
             </Link>
             <CheckoutLink className="mk-btn mk-btn-ghost">
               Get the Toolkit
@@ -327,7 +327,7 @@ export default function Landing() {
           </Link>
           <div className="mk-foot-links">
             <a href="/created-to-serve">Free eBook</a>
-            <Link href="/audit">Inner Alignment Audit</Link>
+            <Link href="https://store.truthjblue.com/product/inner-alignment-audit">Inner Alignment Audit</Link>
             <Link href="/toolkit">Enter the Toolkit</Link>
             <a href={BEYOND_THE_VEIL_URL} target="_blank" rel="noreferrer">Beyond the Veil</a>
           </div>

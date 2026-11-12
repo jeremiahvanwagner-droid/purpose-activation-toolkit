@@ -73,7 +73,7 @@ export default function Rail() {
   }, [open]);
 
   return (
-    <aside className={`rail${open ? " rail-open" : ""}`} aria-label="Your journey">
+    <aside className={`rail${open ? " rail-open" : ""}`} aria-label="Your modules">
       <div className="rail-bar">
         <Link className="brand" href="/toolkit">
           <BrandGlyph />
