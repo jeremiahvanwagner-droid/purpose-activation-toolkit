@@ -81,3 +81,25 @@ test("the route answers the same for eligible and ineligible emails and rejects 
   assert.deepEqual(await r1.json(), await r2.json());
   assert.equal((await handlePrepareSignin(req("not-an-email"), no.f)).status, 400);
 });
+
+test("a rejected first HighLevel token falls back to the second TJB token", async () => {
+  env();
+  process.env.GHL_TJB_PIT = "pit-second";
+  const auths: string[] = [];
+  const f: typeof fetch = async (input, init) => {
+    const url = String(input);
+    if (url.startsWith(`${SUPA}/rest/v1/entitlements`)) return Response.json([]);
+    if (url.startsWith("https://services.leadconnectorhq.com/")) {
+      const a = new Headers(init?.headers).get("authorization") ?? "";
+      auths.push(a);
+      if (a === "Bearer pit-test") return new Response("", { status: 401 });
+      return Response.json({ data: [paid("buyer@example.test")] });
+    }
+    if (url.startsWith(`${SUPA}/auth/v1/admin/users?`)) return Response.json({ users: [] });
+    if (url.startsWith(`${SUPA}/auth/v1/admin/users`)) return Response.json({ id: "new" });
+    throw new Error(`unexpected ${url}`);
+  };
+  assert.equal(await prepareSignin("buyer@example.test", f), "created");
+  assert.deepEqual(auths, ["Bearer pit-test", "Bearer pit-second"]);
+  delete process.env.GHL_TJB_PIT;
+});

@@ -44,7 +44,10 @@ async function hasPurchase(email: string, fetchImpl: FetchLike): Promise<boolean
   for (const p of Object.values(PRODUCTS)) for (const id of p.sourceIds) sourceIds.add(id);
   const lookup = await findPurchase(email, sourceIds, null, fetchImpl);
   if (lookup.status === "found") return true;
-  if (lookup.status === "unavailable") return "error";
+  if (lookup.status === "unavailable") {
+    console.warn(JSON.stringify({ event: "prepare-signin-lookup-unavailable", reason: lookup.reason }));
+    return "error";
+  }
   return false;
 }
 
@@ -70,6 +73,7 @@ export async function prepareSignin(email: string, fetchImpl: FetchLike = fetch)
   if (!svc) return "unavailable";
 
   let eligible = await hasLiveRow(email, fetchImpl);
+  if (eligible === "error") console.warn(JSON.stringify({ event: "prepare-signin-row-read-failed" }));
   if (eligible !== true) {
     const bought = await hasPurchase(email, fetchImpl);
     if (bought === true) eligible = true;

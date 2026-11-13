@@ -109,29 +109,40 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
 }
 
 export async function findPurchase(email: string, sourceIds: Set<string>, storedTransactionId: string | null, fetchImpl: FetchLike) {
-  const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
-  const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
+  const locationId = process.env.GHL_LOCATION_ID_TJB?.trim() || process.env.GHL_TJB_LOCATION_ID?.trim();
   const apiVersion = process.env.GHL_API_VERSION_TJB?.trim() || "2021-07-28";
-  if (!token || !locationId) return { status: "unavailable" as const, reason: "lookup-not-configured", pagesRead: 0 };
+  // The second TJB token is a fallback for when the first is rejected (rotated or revoked).
+  const tokens = [process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim(), process.env.GHL_TJB_PIT?.trim()].filter(
+    (t, i, all): t is string => !!t && all.indexOf(t) === i
+  );
+  if (tokens.length === 0 || !locationId) return { status: "unavailable" as const, reason: "lookup-not-configured", pagesRead: 0 };
+  let tokenIndex = 0;
 
   return lookupPurchase(
     async (offset, limit): Promise<PageResult> => {
-      try {
-        const qs = new URLSearchParams({
-          altId: locationId,
-          altType: "location",
-          limit: String(limit),
-          offset: String(offset),
-        });
-        if (REQUIRE_LIVE_MODE) qs.set("paymentMode", "live");
-        const res = await fetchImpl(`https://services.leadconnectorhq.com/payments/transactions?${qs}`, {
-          headers: { Authorization: `Bearer ${token}`, Version: apiVersion, Accept: "application/json" },
-          cache: "no-store",
-        });
-        if (!res.ok) return { ok: false, reason: `lookup-http-${res.status}` };
-        return rowsFromTransactionsBody(await res.json());
-      } catch {
-        return { ok: false, reason: "lookup-error" };
+      const qs = new URLSearchParams({
+        altId: locationId,
+        altType: "location",
+        limit: String(limit),
+        offset: String(offset),
+      });
+      if (REQUIRE_LIVE_MODE) qs.set("paymentMode", "live");
+      for (;;) {
+        try {
+          const res = await fetchImpl(`https://services.leadconnectorhq.com/payments/transactions?${qs}`, {
+            headers: { Authorization: `Bearer ${tokens[tokenIndex]}`, Version: apiVersion, Accept: "application/json" },
+            cache: "no-store",
+          });
+          if ((res.status === 401 || res.status === 403) && tokenIndex + 1 < tokens.length) {
+            console.warn(JSON.stringify({ event: "ghl-lookup-token-rejected", status: res.status, tokenIndex }));
+            tokenIndex += 1;
+            continue;
+          }
+          if (!res.ok) return { ok: false, reason: `lookup-http-${res.status}` };
+          return rowsFromTransactionsBody(await res.json());
+        } catch (e) {
+          return { ok: false, reason: `lookup-error:${e instanceof Error ? e.name : "unknown"}` };
+        }
       }
     },
     email,
@@ -266,6 +277,9 @@ export async function reconcileEntitlement(email: string, productId: string, fet
       ? null
       : await findPurchase(email, PRODUCTS[productId].sourceIds, row?.transaction_id ?? null, fetchImpl);
   let decision = decideAccess(row, lookup);
+  if (lookup?.status === "unavailable") {
+    console.warn(JSON.stringify({ event: "entitlement-lookup-unavailable", reason: lookup.reason, productId }));
+  }
   // Automatic refund revocation is approved for the Toolkit only (Nov 13, 2026).
   // Other products keep the earlier behaviour: a refund observation keeps the row.
   if (decision.action === "revoke" && productId !== REFUND_REVOKES_PRODUCT_ID) {
