@@ -30,9 +30,10 @@ test("a qualifying purchase grants, and absence does not revoke a stored payment
   assert.equal(decideAccess(null, found()).action, "grant");
   assert.equal(decideAccess(payment, missing).action, "keep");
   assert.equal(decideAccess({ ...payment, source: "ghl:696ec80453f21b434dfae38d" }, missing).action, "keep");
+  // A full refund of the stored charge revokes (Nov 13, 2026); see tests/refund-revocation.test.ts.
   assert.equal(
     decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "tx-1", status: "refunded" }), pagesRead: 1 }).action,
-    "keep"
+    "revoke"
   );
   assert.equal(
     decideAccess(payment, { status: "refund-observed", transaction: tx({ _id: "other", status: "refunded" }), pagesRead: 1 }).action,
@@ -100,7 +101,13 @@ function userOk() {
   return new Response(JSON.stringify({ email: "Buyer@Example.TEST" }), { status: 200 });
 }
 
-type StoredEntitlement = { source: string; purchased_at: string | null; raw?: { transaction_id?: string } };
+type StoredEntitlement = {
+  source: string;
+  purchased_at: string | null;
+  raw?: { transaction_id?: string };
+  revoked_at?: string | null;
+  contact_id?: string | null;
+};
 
 /** PostgREST returns only the columns named by `select`, never a richer row. */
 function projectEntitlement(row: StoredEntitlement, select: string | null): Record<string, unknown> {
@@ -110,6 +117,8 @@ function projectEntitlement(row: StoredEntitlement, select: string | null): Reco
     if (column === "source") projected.source = row.source;
     else if (column === "purchased_at") projected.purchased_at = row.purchased_at;
     else if (column === "raw") projected.raw = row.raw ?? null;
+    else if (column === "revoked_at") projected.revoked_at = row.revoked_at ?? null;
+    else if (column === "contact_id") projected.contact_id = row.contact_id ?? null;
     else throw new Error(`select asked for an unexpected column: ${column}`);
   }
   return projected;
@@ -234,7 +243,7 @@ test("route: a finished scan that never sees the stored charge does not delete i
   assert.equal(scan.calls.some((c) => c.method === "DELETE"), false);
 });
 
-test("route: a live refund does not delete, and the read cannot see columns it did not select", async () => {
+test("route: a refund of a different charge than the stored one neither deletes nor revokes", async () => {
   installEnv();
   const stored: StoredEntitlement = {
     source: "ghl-payments-sync",
@@ -247,9 +256,7 @@ test("route: a live refund does not delete, and the read cannot see columns it d
     if (url.includes("/rest/v1/entitlements") && (init?.method ?? "GET") === "GET") {
       const select = new URL(url).searchParams.get("select");
       assert.equal(select, ENTITLEMENT_SELECT);
-      assert.equal(select?.includes("raw"), false);
       const projected = projectEntitlement(stored, select);
-      assert.equal("raw" in projected, false);
       return new Response(JSON.stringify([projected]), { status: 200 });
     }
     if (url.includes("payments/transactions")) {
@@ -267,6 +274,7 @@ test("route: a live refund does not delete, and the read cannot see columns it d
     throw new Error(`unexpected network: ${init?.method} ${url}`);
   });
   const body = await (await handleEntitlementSync(authed(), race.fetchImpl)).json();
+  assert.equal(race.calls.some((c) => c.method === "PATCH"), false);
   assert.equal(deleted, false);
   assert.equal(stored.source, "ghl-payments-sync");
   assert.equal(body.entitled, true);

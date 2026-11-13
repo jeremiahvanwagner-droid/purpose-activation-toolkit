@@ -4,13 +4,14 @@
  *
  * Identity is the Supabase user behind the bearer token. The body may name a
  * product and nothing else. Payment-backed rows are rechecked for a new grant.
- * Complimentary and unclassified sources are kept. Refund deletion is disabled:
- * `raw` is not a verified column, and a delete that cannot name that transaction
- * can erase a newer payment row with the same source.
+ * Complimentary and unclassified sources are kept. Rows are never deleted: a
+ * fully refunded payment marks its row revoked (lib/access/revoke.ts), and a
+ * revoked row denies access until a different qualifying purchase exists.
  */
 
 import { decideAccess, paymentBackedSource, type EntitlementRow } from "./decide";
 import { lookupPurchase, rowsFromTransactionsBody, type GhlTransaction, type PageResult } from "../entitlementMatch";
+import { lostAccess, removeBuyerTag, revokeForTransaction, TOOLKIT_PRODUCT_ID } from "./revoke";
 import { AUDIT_PAYMENT_LINK_ID, BLUEPRINT_PAYMENT_LINK_ID, TOOLKIT_PAYMENT_LINK_ID } from "../links";
 
 export const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
@@ -19,10 +20,11 @@ export const PRODUCTS: Record<string, { sourceIds: Set<string> }> = {
   "divine-alignment-blueprint": { sourceIds: new Set([BLUEPRINT_PAYMENT_LINK_ID]) },
 };
 
-/** Columns this read is allowed to ask for. `raw` stays off until that column is confirmed live. */
-export const ENTITLEMENT_SELECT = "source,purchased_at";
+/** Columns this read asks for. raw, revoked_at and contact_id are live (migration 003 added revoked_at). */
+export const ENTITLEMENT_SELECT = "source,purchased_at,raw,revoked_at,contact_id";
 
 const DEFAULT_PRODUCT_ID = "purpose-activation-toolkit";
+const REFUND_REVOKES_PRODUCT_ID = TOOLKIT_PRODUCT_ID;
 const REQUIRE_LIVE_MODE = true;
 const PAGE_SIZE = 100;
 const MAX_PAGES = 10;
@@ -74,7 +76,9 @@ function serviceHeaders(): { url: string; headers: Headers } | null {
   return { url, headers };
 }
 
-async function readRow(email: string, productId: string, fetchImpl: FetchLike): Promise<EntitlementRow | null | "error"> {
+type StoredRow = EntitlementRow & { contact_id?: string | null };
+
+async function readRow(email: string, productId: string, fetchImpl: FetchLike): Promise<StoredRow | null | "error"> {
   const svc = serviceHeaders();
   if (!svc) return "error";
   const qs = new URLSearchParams({
@@ -87,12 +91,17 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
     if (!res.ok) return "error";
     const rows = (await res.json()) as unknown;
     if (!Array.isArray(rows)) return "error";
-    const row = rows[0] as { source?: unknown; purchased_at?: unknown } | undefined;
+    const row = rows[0] as
+      | { source?: unknown; purchased_at?: unknown; raw?: unknown; revoked_at?: unknown; contact_id?: unknown }
+      | undefined;
     if (!row) return null;
+    const raw = row.raw && typeof row.raw === "object" ? (row.raw as { transaction_id?: unknown }) : {};
     return {
       source: typeof row.source === "string" ? row.source : null,
       purchased_at: typeof row.purchased_at === "string" ? row.purchased_at : null,
-      transaction_id: null,
+      transaction_id: typeof raw.transaction_id === "string" ? raw.transaction_id : null,
+      revoked_at: typeof row.revoked_at === "string" ? row.revoked_at : null,
+      contact_id: typeof row.contact_id === "string" ? row.contact_id : null,
     };
   } catch {
     return "error";
@@ -174,6 +183,40 @@ async function grant(email: string, productId: string, tx: GhlTransaction, fetch
   }
 }
 
+/** Reopen a revoked row on a different, qualifying purchase. Only matches a row that is still revoked. */
+async function regrant(email: string, productId: string, tx: GhlTransaction, fetchImpl: FetchLike): Promise<boolean> {
+  const svc = serviceHeaders();
+  if (!svc || !tx._id) return false;
+  svc.headers.set("Content-Type", "application/json");
+  svc.headers.set("Prefer", "return=representation");
+  const qs = new URLSearchParams({ email: `eq.${email}`, product_id: `eq.${productId}`, revoked_at: "not.is.null" });
+  try {
+    const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${qs}`, {
+      method: "PATCH",
+      headers: svc.headers,
+      body: JSON.stringify({
+        purchased_at: tx.createdAt ?? new Date().toISOString(),
+        source: "ghl-payments-sync",
+        gross_amount: tx.amount ?? null,
+        contact_id: tx.contactId ?? null,
+        raw: {
+          transaction_id: tx._id,
+          entity_source_id: tx.entitySourceId ?? null,
+          entity_source_name: tx.entitySourceName ?? null,
+          live_mode: tx.liveMode ?? null,
+        },
+        revoked_at: null,
+        revoked_reason: null,
+      }),
+    });
+    if (!res.ok) return false;
+    const rows = (await res.json()) as unknown;
+    return Array.isArray(rows) && rows.length > 0;
+  } catch {
+    return false;
+  }
+}
+
 async function requestedProductId(req: Request): Promise<string | null> {
   let productId: unknown = undefined;
   try {
@@ -219,10 +262,39 @@ export async function reconcileEntitlement(email: string, productId: string, fet
   }
 
   const lookup =
-    row && !paymentBackedSource(row.source)
+    row && !row.revoked_at && !paymentBackedSource(row.source)
       ? null
       : await findPurchase(email, PRODUCTS[productId].sourceIds, row?.transaction_id ?? null, fetchImpl);
-  const decision = decideAccess(row, lookup);
+  let decision = decideAccess(row, lookup);
+  // Automatic refund revocation is approved for the Toolkit only (Nov 13, 2026).
+  // Other products keep the earlier behaviour: a refund observation keeps the row.
+  if (decision.action === "revoke" && productId !== REFUND_REVOKES_PRODUCT_ID) {
+    decision = { action: "keep", access: "unavailable" };
+  }
+
+  if (decision.action === "revoke") {
+    // HighLevel shows the stored payment fully refunded and nothing else qualifies.
+    // Deny now whatever the write does; the write makes it stick.
+    const result = await revokeForTransaction({
+      email,
+      productId,
+      transaction: decision.transaction,
+      reason: `ghl:refunded:${decision.transaction._id ?? "unknown"}`,
+      fetchImpl,
+    });
+    if (result.outcome === "failed") console.error(`[entitlement-sync] revoke write failed for ${productId} transaction ${decision.transaction._id}`);
+    if (lostAccess(result.outcome)) {
+      await removeBuyerTag(result.contactId ?? row?.contact_id ?? null, fetchImpl);
+    }
+    return { entitled: false, checked: true, reason: "not-found", revoked: true, productId };
+  }
+
+  if (decision.action === "regrant") {
+    const ok = await regrant(email, productId, decision.transaction, fetchImpl);
+    return ok
+      ? { entitled: true, checked: true, productId, access: "purchase" }
+      : { entitled: false, checked: true, found: true, reason: "grant-failed", productId };
+  }
 
   if (decision.action === "keep") {
     return {
@@ -235,6 +307,10 @@ export async function reconcileEntitlement(email: string, productId: string, fet
   }
 
   if (decision.action === "deny") {
+    if (decision.reason === "revoked") {
+      // Shown to the reader exactly like "no purchase found" (no new copy); flagged for logs and tests.
+      return { entitled: false, checked: true, reason: "not-found", revoked: true, productId };
+    }
     return {
       entitled: false,
       checked: decision.reason === "not-found",
