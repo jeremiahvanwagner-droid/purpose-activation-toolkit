@@ -81,6 +81,17 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
     if (!addr || !supa) return;
     setBusy(true);
     setErr(null);
+    // Sign-ups are closed in Supabase; this lets a buyer's first link go out.
+    try {
+      await fetch("/api/auth/prepare-signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: addr }),
+        cache: "no-store",
+      });
+    } catch {
+      /* the link request below still runs and reports its own error */
+    }
     const { error } = await supa.auth.signInWithOtp({
       email: addr,
       // Land signed-in users where they were headed, not on the marketing page.
@@ -90,8 +101,13 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
       },
     });
     setBusy(false);
-    if (error) setErr(error.message);
-    else setSent(true);
+    if (error) {
+      setErr(
+        error.code === "signup_disabled" || /signups not allowed/i.test(error.message)
+          ? "We couldn't find a purchase for that email. Use the email you paid with, or write to support@truthjblue.com."
+          : error.message
+      );
+    } else setSent(true);
   }
 
   async function signOut(keepOnDevice: boolean) {

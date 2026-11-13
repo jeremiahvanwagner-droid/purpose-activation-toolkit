@@ -64,7 +64,7 @@ async function emailFromAccessToken(token: string, fetchImpl: FetchLike): Promis
   }
 }
 
-function serviceHeaders(): { url: string; headers: Headers } | null {
+export function serviceHeaders(): { url: string; headers: Headers } | null {
   const url = supabaseUrl();
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !serviceKey) return null;
@@ -108,7 +108,7 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
   }
 }
 
-async function findPurchase(email: string, sourceIds: Set<string>, storedTransactionId: string | null, fetchImpl: FetchLike) {
+export async function findPurchase(email: string, sourceIds: Set<string>, storedTransactionId: string | null, fetchImpl: FetchLike) {
   const token = process.env.GHL_PRIVATE_INTEGRATION_TOKEN_TJB?.trim();
   const locationId = process.env.GHL_LOCATION_ID_TJB?.trim();
   const apiVersion = process.env.GHL_API_VERSION_TJB?.trim() || "2021-07-28";
