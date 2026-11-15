@@ -45,7 +45,9 @@ test('product views, real checkout links and downloads carry accurate values wit
   assert.deepEqual(checkouts.map((x: any) => x[2].value), [247, 97]);
   s.click('https://www.truthjblue.com/downloads/You-Were-Created-to-Serve.pdf', { download: 'pdf' });
   s.click('https://aagqvfwuixpxtdcrdxmv.supabase.co/storage/v1/object/public/project-assets/truth-j-blue/you-were-created-to-serve.epub', { download: 'epub' });
-  assert.equal(s.ga().filter((x: any) => x[1] === 'ebook_download').length, 2);
+  s.click('https://www.truthjblue.com/api/ebook?f=pdf', { download: 'pdf' });
+  s.click('https://www.truthjblue.com/api/ebook?f=epub', { download: 'epub' });
+  assert.equal(s.ga().filter((x: any) => x[1] === 'ebook_download').length, 4);
   const count = s.ga().length;
   s.click('https://unrelated.example/', { checkout: 'toolkit', download: 'pdf' });
   assert.equal(s.ga().length, count);
@@ -66,7 +68,7 @@ test('only a successful message from the exact form can report a lead, once', ()
   s.callbacks.message(valid); s.callbacks.message(valid);
   assert.equal(s.ga().filter((x: any) => x[1] === 'generate_lead').length, 1);
   assert.equal(leads().length, 1);
-  const lead = leads()[0];
+  const lead = leads()[0] as any[];
   assert.equal(lead[0], 'track');
   assert.equal(JSON.stringify(lead[2]), JSON.stringify({ content_name: 'You Were Created to Serve', content_category: 'free_ebook' }));
   assert.match(lead[3].eventID, /^ywcts-lead-\d+-[a-z0-9]+$/);
