@@ -3,11 +3,13 @@ import "server-only";
 import {
   CONTACT_ID,
   EBOOK_BUCKET,
+  EBOOK_FORM_ID,
   EBOOK_LOCATION_ID,
   EBOOK_SIGNED_URL_SECONDS,
   SUPABASE_PROJECT_URL,
   ebookObjectName,
   grantsEbook,
+  submissionIncludesContact,
   type EbookFormat,
 } from "@/lib/ebook/grant";
 
@@ -78,13 +80,43 @@ async function ghlGet(path: string, fetchImpl: FetchLike): Promise<unknown | nul
   return null;
 }
 
-/** Reads one contact and accepts it only for the TJB location plus source:ebook. */
+/**
+ * A recorded submission of the eBook form. The default date window is only
+ * the last month, which would hide the earliest submitters, so the range is
+ * explicit. This does not write to HighLevel.
+ */
+async function recordedFormSubmission(contactId: string, fetchImpl: FetchLike): Promise<boolean> {
+  let page = 1;
+  while (page <= 5) {
+    const params = new URLSearchParams({
+      locationId: EBOOK_LOCATION_ID,
+      formId: EBOOK_FORM_ID,
+      limit: "20",
+      page: String(page),
+      q: contactId,
+      startAt: "2020-01-01",
+      endAt: "2027-12-31",
+    });
+    const body = await ghlGet(`/forms/submissions?${params}`, fetchImpl);
+    if (submissionIncludesContact(body, contactId)) return true;
+    const next = body && typeof body === "object" ? (body as { meta?: { nextPage?: unknown } }).meta?.nextPage : null;
+    if (typeof next !== "number" || next === page) return false;
+    page = next;
+  }
+  return false;
+}
+
+/**
+ * TJB location, then either access tag, then a recorded submission of the
+ * eBook form. A purchase tag alone does not qualify.
+ */
 export async function contactGrantsAccess(contactId: string, fetchImpl: FetchLike = fetch): Promise<boolean> {
   if (!CONTACT_ID.test(contactId)) return false;
   const body = await ghlGet(`/contacts/${encodeURIComponent(contactId)}`, fetchImpl);
   const contact = readContact(body);
-  if (!contact) return false;
-  return grantsEbook(contact, contactId);
+  if (!contact || contact.id !== contactId || contact.locationId !== EBOOK_LOCATION_ID) return false;
+  if (grantsEbook(contact, contactId)) return true;
+  return recordedFormSubmission(contactId, fetchImpl);
 }
 
 /**

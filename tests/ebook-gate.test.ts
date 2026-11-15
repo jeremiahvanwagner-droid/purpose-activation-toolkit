@@ -5,10 +5,12 @@ import { readFileSync } from "node:fs";
 import { accessPageHtml } from "../lib/ebook/accessPage.ts";
 import { signEbookCookie, verifyEbookCookie } from "../lib/ebook/cookie.ts";
 import {
+  EBOOK_FORM_ID,
   EBOOK_LOCATION_ID,
   ebookGateEnforced,
   grantsEbook,
   normalizeEbookEmail,
+  submissionIncludesContact,
 } from "../lib/ebook/grant.ts";
 import { gateResourceHtml } from "../lib/ebook/resourceHtml.ts";
 import { downloadEbook, lookupAccess, openFromEmail, serveAccessPage, serveResource } from "../lib/ebook/serve.ts";
@@ -35,11 +37,16 @@ test("the cookie is an HMAC of the contact id and expiry", async () => {
   assert.equal(await verifyEbookCookie(value, SECRET, exp + 5, YEAR), null);
 });
 
-test("only the TJB location plus source:ebook opens the book", () => {
+test("the TJB location plus either access tag or this form's submission opens the book", () => {
   const tags = ["source:ebook", "consent-source:form-checkbox"];
   assert.equal(grantsEbook({ id: CONTACT, locationId: EBOOK_LOCATION_ID, tags }, CONTACT), true);
   assert.equal(grantsEbook({ id: CONTACT, locationId: EBOOK_LOCATION_ID, tags: ["source:ebook"] }, CONTACT), true);
+  assert.equal(grantsEbook({ id: CONTACT, locationId: EBOOK_LOCATION_ID, tags: ["ywcts-resource-send-attempted"] }, CONTACT), true);
   assert.equal(grantsEbook({ id: CONTACT, locationId: EBOOK_LOCATION_ID, tags: ["consent-source:form-checkbox"] }, CONTACT), false);
+  assert.equal(grantsEbook({ id: CONTACT, locationId: EBOOK_LOCATION_ID, tags: ["toolkit-buyer", "audit-completed"] }, CONTACT), false);
+  assert.equal(submissionIncludesContact({ submissions: [{ contactId: CONTACT, formId: EBOOK_FORM_ID }] }, CONTACT), true);
+  assert.equal(submissionIncludesContact({ submissions: [{ contactId: "someoneelse000000000", formId: EBOOK_FORM_ID }] }, CONTACT), false);
+  assert.equal(submissionIncludesContact({ submissions: [{ contactId: CONTACT, formId: "other-form" }] }, CONTACT), false);
   assert.equal(grantsEbook({ id: CONTACT, locationId: "other-location-id-value", tags }, CONTACT), false);
   assert.equal(grantsEbook({ id: "someoneelse000000000", locationId: EBOOK_LOCATION_ID, tags }, CONTACT), false);
   assert.equal(ebookGateEnforced(undefined), false);

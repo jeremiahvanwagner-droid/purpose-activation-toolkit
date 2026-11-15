@@ -1,7 +1,16 @@
 /** Truth J Blue location. Access is refused for every other location. */
 export const EBOOK_LOCATION_ID = "TW8JsPW5NMnA3tfK2XLn";
 
-/** Applied by form ABcYghQi26TIMoynS0YC. Consent tags are not required. */
+/** The free eBook form. A recorded submission of this form is enough for access. */
+export const EBOOK_FORM_ID = "ABcYghQi26TIMoynS0YC";
+
+/**
+ * Either tag is enough. Consent tags are not required, and a purchase tag is
+ * not enough on its own. Buyers are not added unless they submitted the form.
+ */
+export const EBOOK_ACCESS_TAGS = ["source:ebook", "ywcts-resource-send-attempted"] as const;
+
+/** Kept for callers that still name the original tag. */
 export const EBOOK_TAG = "source:ebook";
 
 export const EBOOK_COOKIE_NAME = "tjb_ebook";
@@ -51,15 +60,31 @@ function tagName(tag: unknown): string {
   return "";
 }
 
-/** True only when this contact is in the TJB location and carries source:ebook. */
+export function hasEbookAccessTag(tags: unknown): boolean {
+  if (!Array.isArray(tags)) return false;
+  return tags.some((tag) => (EBOOK_ACCESS_TAGS as readonly string[]).includes(tagName(tag)));
+}
+
+/** True when this contact is in the TJB location and carries either access tag. */
 export function grantsEbook(
   contact: { id?: string; locationId?: string; tags?: unknown },
   expectedId?: string,
 ): boolean {
   if (expectedId && contact.id !== expectedId) return false;
   if (contact.locationId !== EBOOK_LOCATION_ID) return false;
-  if (!Array.isArray(contact.tags)) return false;
-  return contact.tags.some((tag) => tagName(tag) === EBOOK_TAG);
+  return hasEbookAccessTag(contact.tags);
+}
+
+/** A form-submission payload counts only when this contact submitted this form. */
+export function submissionIncludesContact(body: unknown, contactId: string): boolean {
+  if (!body || typeof body !== "object") return false;
+  const submissions = (body as { submissions?: unknown }).submissions;
+  if (!Array.isArray(submissions)) return false;
+  return submissions.some((item) => {
+    if (!item || typeof item !== "object") return false;
+    const row = item as { contactId?: unknown; formId?: unknown };
+    return row.contactId === contactId && row.formId === EBOOK_FORM_ID;
+  });
 }
 
 export function normalizeEbookEmail(value: unknown): string | null {
