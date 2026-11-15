@@ -46,18 +46,15 @@ export const PAID_AUDIT_URL = `https://www.truthjblue.com${PAID_AUDIT_PATH}`;
  *  (HighLevel calendar "Complimentary Audit Review"). */
 export const AUDIT_REVIEW_CALENDAR_URL = "https://site.truthjblue.com/widget/booking/JtOmJzP6DeLtF4XqRK2Q";
 
-/** The eBook lives in Supabase public storage, which turns a `download`
- *  parameter into a Content-Disposition: attachment with that filename. Without
- *  it the browser decides what to do with an EPUB — on 5 Sep that was a
- *  save-as dialog hidden behind the window, which read as a frozen site. */
-/** The same book as a PDF, served by this app. A PDF opens in any browser
- *  tab; an EPUB opens in whatever the reader's device has associated with
- *  it — on 5 Sep that turned out to be a desktop app that isn't a reader. */
-export const EBOOK_PDF_PATH = "/downloads/You-Were-Created-to-Serve.pdf";
+/** The free eBook is gated. These links open the access page, not a public file. */
+export const EBOOK_ACCESS_PATH = "/created-to-serve/access";
+
+/** @deprecated The public PDF path. Callers now send readers to the access page. */
+export const EBOOK_PDF_PATH = EBOOK_ACCESS_PATH;
 
 export function ebookDownloadUrl(url: string): string {
   if (!url) return "";
-  return `${url}${url.includes("?") ? "&" : "?"}download=You-Were-Created-to-Serve.epub`;
+  return EBOOK_ACCESS_PATH;
 }
 
 /** The storefront's own hostname (served by this app; see middleware.ts). */

@@ -112,8 +112,9 @@ test("the resource page stays open until the gate is enforced, including index.h
   assert.equal(open.status, 200);
   assert.equal(open.headers.get("x-ebook-gate"), "open");
   const body = await open.text();
-  assert.match(body, /href="\/downloads\/You-Were-Created-to-Serve\.pdf"/);
-  assert.equal(resourceHtml.includes('href="/downloads/You-Were-Created-to-Serve.pdf"'), true);
+  assert.match(body, /href="\/api\/ebook\?f=pdf"/);
+  assert.match(body, /href="\/api\/ebook\?f=epub"/);
+  assert.equal(resourceHtml.includes('href="/downloads/You-Were-Created-to-Serve.pdf"'), false);
 
   const blocked = await serveResource(new Request("https://www.truthjblue.com/created-to-serve/resource"), deps({
     enforce: true,

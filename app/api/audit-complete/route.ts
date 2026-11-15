@@ -342,7 +342,7 @@ export async function POST(req: Request) {
   // Honeypot: bots fill every field. Return a normal-looking success so they
   // don't learn they were caught, but write nothing.
   if (typeof body.website === "string" && body.website.trim() !== "") {
-    return Response.json({ ok: true, ebookUrl: process.env.NEXT_PUBLIC_EBOOK_URL ?? null });
+    return Response.json({ ok: true, ebookUrl: "/created-to-serve/access" });
   }
 
   const email = normalizeEmail(body.email);
@@ -368,7 +368,7 @@ export async function POST(req: Request) {
 
   return Response.json({
     ok: true,
-    ebookUrl: process.env.NEXT_PUBLIC_EBOOK_URL ?? null,
+    ebookUrl: "/created-to-serve/access",
     recorded,
     synced,
   });
