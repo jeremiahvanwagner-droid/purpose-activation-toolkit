@@ -70,6 +70,12 @@ test("www is left alone: the brand pages, the app and the /store tree answer as 
   }
 });
 
+test("the old public eBook PDF redirects to the access page", () => {
+  const r = visit(WWW, "/downloads/You-Were-Created-to-Serve.pdf");
+  assert.equal(r.status, 302);
+  assert.equal(r.location, "https://www.truthjblue.com/created-to-serve/access?f=pdf");
+});
+
 test("the address printed in the books goes to the store with its path intact", () => {
   const r = visit("shop.truthjblue.com", "/books/living-abundantly?ref=imprint");
   assert.equal(r.status, 308);

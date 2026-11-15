@@ -86,8 +86,16 @@ const LEGACY_PRODUCT_PATHS = new Set([
 const GHL_STORE_PRODUCT_PREFIX = "/product-details/product/";
 const GHL_ID = /^[0-9a-f]{24}$/;
 
+const PUBLIC_EBOOK_PDF = "/downloads/You-Were-Created-to-Serve.pdf";
+
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
+
+  if (pathname === PUBLIC_EBOOK_PDF) {
+    const destination = new URL("/created-to-serve/access", req.url);
+    destination.searchParams.set("f", "pdf");
+    return NextResponse.redirect(destination, 302);
+  }
 
   if (pathname.startsWith(GHL_STORE_PRODUCT_PREFIX)) {
     const id = pathname.slice(GHL_STORE_PRODUCT_PREFIX.length).replace(/\/+$/, "");
@@ -142,6 +150,10 @@ export function middleware(req: NextRequest) {
 
 export const config = {
   // Everything except Next internals, API routes, and static files with an
-  // extension (favicon.svg, the vendored _astro css, images).
-  matcher: ["/((?!_next/|api/|.*\\.[a-zA-Z0-9]+$).*)"],
+  // extension (favicon.svg, the vendored _astro css, images). The old public
+  // PDF is listed on its own so the extension exclusion does not skip it.
+  matcher: [
+    "/((?!_next/|api/|.*\\.[a-zA-Z0-9]+$).*)",
+    "/downloads/You-Were-Created-to-Serve.pdf",
+  ],
 };
