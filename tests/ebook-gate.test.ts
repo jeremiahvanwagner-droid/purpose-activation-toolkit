@@ -120,7 +120,7 @@ test("the resource page stays open until the gate is enforced, including index.h
     html: resourceHtml,
   }));
   assert.equal(blocked.status, 302);
-  assert.equal(blocked.headers.get("location"), "https://www.truthjblue.com/created-to-serve");
+  assert.equal(blocked.headers.get("location"), "https://www.truthjblue.com/created-to-serve/access");
 
   const exp = Math.floor(NOW / 1000) + YEAR;
   const value = await signEbookCookie(CONTACT, SECRET, exp);
@@ -169,9 +169,11 @@ test("the access page uses the approved words and does not reveal which emails e
     rateTake: async () => "allow",
     emailToContact: async () => CONTACT,
   }));
-  assert.equal(miss.status, 303);
+  assert.equal(miss.status, 200);
   assert.equal(hit.status, 303);
-  assert.equal(miss.headers.get("location"), "https://www.truthjblue.com/created-to-serve");
+  const refused = await miss.text();
+  assert.match(refused, /Your free eBook\./);
+  assert.match(refused, /Open my copy/);
   assert.equal(hit.headers.get("location"), "https://www.truthjblue.com/created-to-serve/resource");
   assert.equal(miss.headers.get("set-cookie"), null);
   assert.match(hit.headers.get("set-cookie") ?? "", /tjb_ebook=/);
@@ -186,7 +188,9 @@ test("the access page uses the approved words and does not reveal which emails e
     rateTake: async () => { rated += 1; return "allow"; },
     emailToContact: async () => CONTACT,
   }));
-  assert.equal(limited.headers.get("location"), "https://www.truthjblue.com/created-to-serve");
+  assert.equal(limited.status, 200);
+  assert.equal(limited.headers.get("set-cookie"), null);
+  assert.match(await limited.text(), /Open my copy/);
   assert.equal(rated, 0);
 });
 

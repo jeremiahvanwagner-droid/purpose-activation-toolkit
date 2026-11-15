@@ -53,11 +53,19 @@ function secretOf(deps: EbookDeps): string {
   return deps.secret ?? cookieSecret();
 }
 
-function landing(req: Request, status: 302 | 303): NextResponse {
-  const response = NextResponse.redirect(new URL("/created-to-serve", req.url), status);
+function redirectTo(req: Request, pathname: string, status: 302 | 303): NextResponse {
+  const response = NextResponse.redirect(new URL(pathname, req.url), status);
   response.headers.set("Cache-Control", "private, no-store");
   response.headers.set("Referrer-Policy", "no-referrer");
   return response;
+}
+
+function landing(req: Request, status: 302 | 303): NextResponse {
+  return redirectTo(req, "/created-to-serve", status);
+}
+
+function accessLanding(req: Request, status: 302 | 303): NextResponse {
+  return redirectTo(req, "/created-to-serve/access", status);
 }
 
 async function withCookie(response: NextResponse, contactId: string, deps: EbookDeps): Promise<NextResponse | null> {
@@ -152,12 +160,12 @@ export async function serveResource(req: Request, deps: EbookDeps = {}): Promise
     });
   }
   const contactId = await proofFromCookie(req, deps);
-  if (!contactId) return landing(req, 302);
+  if (!contactId) return accessLanding(req, 302);
   let gated: string;
   try {
     gated = gateResourceHtml(html);
   } catch {
-    return landing(req, 302);
+    return accessLanding(req, 302);
   }
   return new Response(gated, {
     status: 200,
@@ -193,7 +201,7 @@ export async function lookupAccess(req: Request, deps: EbookDeps = {}): Promise<
   const started = nowMs(deps);
   const fail = async () => {
     await pad(started, deps);
-    return landing(req, 303);
+    return serveAccessPage();
   };
   if (isCrossSitePost(req)) return fail();
   const ipHash = await rateLimitHash(clientIp(req));
