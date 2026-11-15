@@ -2,6 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
 
+  // The resource page is a function so the eBook gate can cover both the clean
+  // URL and the static index.html. The HTML file is read at request time.
+  outputFileTracingIncludes: {
+    "/api/ebook-resource": ["./public/created-to-serve/resource/index.html"],
+  },
+
   /**
    * Storefront product images live on HighLevel's media CDNs. The originals
    * are multi-megabyte PNGs; next/image resizes and re-encodes them on the
@@ -78,9 +84,14 @@ const nextConfig = {
         ),
         // The public eBook funnel uses the native HighLevel form and checkout.
         // Exact routes keep its assets and existing application routes intact.
-        ...['', '/resource', '/toolkit', '/audit', '/community', '/purchase-support'].map(
+        // /resource is a function (see app/api/ebook-resource) so a direct request
+        // for index.html cannot skip the gate. With EBOOK_GATE_ENFORCE unset the
+        // function returns this same HTML, including the public download links.
+        ...['', '/toolkit', '/audit', '/community', '/purchase-support'].map(
           (step) => ({ source: `/created-to-serve${step}`, destination: `/created-to-serve${step}/index.html` })
         ),
+        { source: '/created-to-serve/resource', destination: '/api/ebook-resource' },
+        { source: '/created-to-serve/resource/index.html', destination: '/api/ebook-resource' },
       ],
     };
   },

@@ -80,16 +80,20 @@
       meta('InitiateCheckout', { content_ids: [product.id], content_name: product.name, content_type: 'product', currency: 'USD', value: product.value, num_items: 1 });
     }
     var format = a.dataset.download;
-    var pdf = format === 'pdf' && url.origin === location.origin && url.pathname === '/downloads/You-Were-Created-to-Serve.pdf';
-    var epub = format === 'epub' && url.origin === 'https://aagqvfwuixpxtdcrdxmv.supabase.co' && url.pathname === '/storage/v1/object/public/project-assets/truth-j-blue/you-were-created-to-serve.epub';
+    var pdf = format === 'pdf' && url.origin === location.origin && (url.pathname === '/downloads/You-Were-Created-to-Serve.pdf' || (url.pathname === '/api/ebook' && url.searchParams.get('f') === 'pdf'));
+    var epub = format === 'epub' && ((url.origin === 'https://aagqvfwuixpxtdcrdxmv.supabase.co' && url.pathname === '/storage/v1/object/public/project-assets/truth-j-blue/you-were-created-to-serve.epub') || (url.origin === location.origin && url.pathname === '/api/ebook' && url.searchParams.get('f') === 'epub'));
     if (pdf || epub) {
       ga('ebook_download', { book_title: 'You Were Created to Serve', file_format: format });
       meta('EbookDownload', { content_name: 'You Were Created to Serve', file_format: format }, true);
     }
   });
   // The vendor embed marks leadCollected from this specific message contract.
-  // The form posts the embedded_iframe_ shape only after a successful submit.
-  // Its load-time sticky sync posts a "_ud" payload, which this guard rejects.
+  // The form posts the embedded_iframe_ shape only after a successful submit,
+  // which is also when it shows the thank-you state. Its load-time sticky sync
+  // posts a "_ud" payload, which this guard rejects. form_embed.js forwards no
+  // submit-start message and no Turnstile or error message, and the iframe is
+  // cross-origin, so a failed attempt cannot be counted. ebook_form_submit_attempt
+  // and ebook_form_submit_error are therefore not sent.
   // Accept only the known form window, origin, form key and bound location.
   // The native form's Lead does not reach dataset 815130848255492, so fire it here.
   // No contact fields are read or sent.
@@ -101,6 +105,7 @@
     if (data[0] !== 'set-sticky-contacts' || data[1] !== 'embedded_iframe_' + frame.id || data[2] !== frame.id || data[3] !== 'TW8JsPW5NMnA3tfK2XLn') return;
     leadSent = true;
     var leadId = 'ywcts-lead-' + Date.now() + '-' + Math.random().toString(36).slice(2);
+    ga('ebook_form_submit_success', { form_id: 'ABcYghQi26TIMoynS0YC' });
     ga('generate_lead', { form_id: 'ABcYghQi26TIMoynS0YC', lead_source: 'free_ebook' });
     meta('Lead', { content_name: 'You Were Created to Serve', content_category: 'free_ebook' }, false, { eventID: leadId });
     try {
