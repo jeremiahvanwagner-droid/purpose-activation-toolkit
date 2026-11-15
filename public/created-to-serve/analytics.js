@@ -74,8 +74,12 @@
     }
   });
   // The vendor embed marks leadCollected from this specific message contract.
-  // The form posts the embedded_iframe_ shape only after a successful submit.
-  // Its load-time sticky sync posts a "_ud" payload, which this guard rejects.
+  // The form posts the embedded_iframe_ shape only after a successful submit,
+  // which is also when it shows the thank-you state. Its load-time sticky sync
+  // posts a "_ud" payload, which this guard rejects. form_embed.js forwards no
+  // submit-start message and no Turnstile or error message, and the iframe is
+  // cross-origin, so a failed attempt cannot be counted. ebook_form_submit_attempt
+  // and ebook_form_submit_error are therefore not sent.
   // Accept only the known form window, origin, form key and bound location.
   // The native form's Lead does not reach dataset 815130848255492, so fire it here.
   // No contact fields are read or sent.
@@ -86,6 +90,7 @@
     if (leadSent || !frame || event.origin !== 'https://site.truthjblue.com' || event.source !== frame.contentWindow || !Array.isArray(data)) return;
     if (data[0] !== 'set-sticky-contacts' || data[1] !== 'embedded_iframe_' + frame.id || data[2] !== frame.id || data[3] !== 'TW8JsPW5NMnA3tfK2XLn') return;
     leadSent = true;
+    ga('ebook_form_submit_success', { form_id: 'ABcYghQi26TIMoynS0YC' });
     ga('generate_lead', { form_id: 'ABcYghQi26TIMoynS0YC', lead_source: 'free_ebook' });
     meta('Lead', { content_name: 'You Were Created to Serve', content_category: 'free_ebook' }, false, { eventID: 'ywcts-lead-' + Date.now() + '-' + Math.random().toString(36).slice(2) });
   });

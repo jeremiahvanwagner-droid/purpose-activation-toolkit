@@ -67,6 +67,8 @@ test('only a successful message from the exact form can report a lead, once', ()
   assert.equal(leads().length, 0);
   s.callbacks.message(valid); s.callbacks.message(valid);
   assert.equal(s.ga().filter((x: any) => x[1] === 'generate_lead').length, 1);
+  assert.equal(s.ga().filter((x: any) => x[1] === 'ebook_form_submit_success').length, 1);
+  assert.equal(s.ga().some((x: any) => x[1] === 'ebook_form_submit_attempt' || x[1] === 'ebook_form_submit_error'), false);
   assert.equal(leads().length, 1);
   const lead = leads()[0] as any[];
   assert.equal(lead[0], 'track');
