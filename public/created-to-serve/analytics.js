@@ -10,6 +10,20 @@
     try { var u = new URL(raw, location.href); return u.origin + u.pathname; }
     catch (_) { return ''; }
   };
+  // ChatGPT Ads shares the production-only and top-level guards above.
+  // Queue conversions while the SDK loads; never pass form/contact data.
+  try {
+    if (!window.oaiq) {
+      var q = function () { q.q.push(arguments); };
+      q.q = [];
+      window.oaiq = q;
+      var openaiScript = document.createElement('script');
+      openaiScript.async = true;
+      openaiScript.src = 'https://bzrcdn.openai.com/sdk/oaiq.min.js';
+      document.head.appendChild(openaiScript);
+    }
+    window.oaiq('init', { pixelId: 'R4kGdxSnwwn7ABbgdW1D4N', debug: false });
+  } catch (_) {}
   window.dataLayer = window.dataLayer || [];
   window.gtag = window.gtag || function () { window.dataLayer.push(arguments); };
   var gaConfig = { page_location: clean(location.href), page_referrer: clean(document.referrer), allow_google_signals: false, allow_ad_personalization_signals: false };
@@ -90,9 +104,13 @@
     if (leadSent || !frame || event.origin !== 'https://site.truthjblue.com' || event.source !== frame.contentWindow || !Array.isArray(data)) return;
     if (data[0] !== 'set-sticky-contacts' || data[1] !== 'embedded_iframe_' + frame.id || data[2] !== frame.id || data[3] !== 'TW8JsPW5NMnA3tfK2XLn') return;
     leadSent = true;
+    var leadId = 'ywcts-lead-' + Date.now() + '-' + Math.random().toString(36).slice(2);
     ga('ebook_form_submit_success', { form_id: 'ABcYghQi26TIMoynS0YC' });
     ga('generate_lead', { form_id: 'ABcYghQi26TIMoynS0YC', lead_source: 'free_ebook' });
-    meta('Lead', { content_name: 'You Were Created to Serve', content_category: 'free_ebook' }, false, { eventID: 'ywcts-lead-' + Date.now() + '-' + Math.random().toString(36).slice(2) });
+    meta('Lead', { content_name: 'You Were Created to Serve', content_category: 'free_ebook' }, false, { eventID: leadId });
+    try {
+      window.oaiq('measure', 'lead_created', { type: 'customer_action' }, { event_id: leadId });
+    } catch (_) {}
   });
   // Visits to /resource and /purchase-support are not Lead or Purchase events.
 })();
