@@ -64,6 +64,25 @@
   };
   function item(p) { return { item_id: p.id, item_name: p.name, price: p.value, quantity: 1 }; }
   var step = location.pathname.replace(/\/$/, '').split('/').pop();
+  // First-party count of funnel page views and checkout clicks (public.funnel_events
+  // via /api/funnel-event), readable without GA4 access. Sends the page name,
+  // the same UTM values GA receives, and the referrer host. No contact fields.
+  var countedPages = ['created-to-serve', 'toolkit', 'audit', 'resource', 'access', 'purchase-support', 'community'];
+  function count(name, product) {
+    try {
+      var nav = window.navigator;
+      if (!nav || typeof nav.sendBeacon !== 'function' || countedPages.indexOf(step) < 0) return;
+      var body = { event: name, page: step };
+      if (product) body.product = product;
+      ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'].forEach(function (k) {
+        var v = params.get(k);
+        if (v && /^[a-zA-Z0-9 _.-]{1,100}$/.test(v)) body[k] = v;
+      });
+      try { if (document.referrer) body.referrer_host = new URL(document.referrer).hostname; } catch (_) {}
+      nav.sendBeacon('/api/funnel-event', JSON.stringify(body));
+    } catch (_) {}
+  }
+  count('view');
   if (products[step]) {
     var p = products[step];
     ga('view_item', { currency: 'USD', value: p.value, items: [item(p)] });
@@ -78,6 +97,7 @@
     if (product && url.origin === 'https://site.truthjblue.com' && url.pathname === '/payment-link/' + product.payment) {
       ga('begin_checkout', { currency: 'USD', value: product.value, items: [item(product)] });
       meta('InitiateCheckout', { content_ids: [product.id], content_name: product.name, content_type: 'product', currency: 'USD', value: product.value, num_items: 1 });
+      count('checkout_click', a.dataset.checkout);
     }
     var format = a.dataset.download;
     var pdf = format === 'pdf' && url.origin === location.origin && (url.pathname === '/downloads/You-Were-Created-to-Serve.pdf' || (url.pathname === '/api/ebook' && url.searchParams.get('f') === 'pdf'));
