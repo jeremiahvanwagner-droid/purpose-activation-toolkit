@@ -33,8 +33,6 @@ export const metadata: Metadata = {
  */
 function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
   const toolkit = store.items.find((i) => i.meta.featured) ?? null;
-  const toolkitPrice = toolkit?.amount != null ? `${formatPrice(toolkit.amount)} once, ` : "";
-
   return [
     {
       q: "Where should I begin?",
@@ -46,7 +44,7 @@ function storeFaq(store: StoreData, hasPrintBooks: boolean): Faq[] {
     },
     {
       q: "What is the Purpose Activation Toolkit?",
-      a: `An interactive, faith-first digital workbook in four modules that turn spiritual clarity into daily, aligned action. Every answer saves as you write it, your work follows you to any device, and the finished workbook is yours for life — ${toolkitPrice}no subscription.`,
+      a: `An interactive, faith-first digital workbook in four modules that turn spiritual clarity into daily, aligned action. Your answers save as you write, signing in keeps them in your account, and the finished workbook is yours to keep. ${toolkit?.amount != null ? `${formatPrice(toolkit.amount)} USD, one-time.` : "$247 USD, one-time."}`,
     },
     {
       q: "How do checkout and delivery work?",

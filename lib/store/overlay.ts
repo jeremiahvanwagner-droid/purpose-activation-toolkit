@@ -154,7 +154,7 @@ export const PRODUCTS: ProductMeta[] = [
     steps: [
       "Secure checkout on HighLevel, our payments platform.",
       "Sign in at truthjblue.com/toolkit with the email you used — your modules are waiting.",
-      "Your work saves as you go and follows you to any device.",
+      "Your work saves as you go and is kept in your account when you sign in.",
     ],
   },
 

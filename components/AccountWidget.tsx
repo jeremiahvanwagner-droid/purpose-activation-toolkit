@@ -251,8 +251,7 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
       <div className="acct">
         <div className="acct-title">Check your email ✉</div>
         <p className="acct-note">
-          We sent a sign-in link to <b>{email.trim()}</b>. Open it on any device to sync your
-          workbook.
+          We sent a sign-in link to <b>{email.trim()}</b>. Open the link to sign in. Your workbook is kept in your account.
         </p>
         {/* Auth mail is a brand-new sending reputation, so first sends land in spam often
             enough to cost us buyers. Naming the sender and the real subject line is what

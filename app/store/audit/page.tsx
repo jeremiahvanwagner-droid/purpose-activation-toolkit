@@ -57,7 +57,7 @@ const AUDIT_PAYWALL: PaywallProduct = {
     "Your Alignment Profile, scored and banded, with your primary lever named",
     "A seven-day realignment plan and your own alignment statement",
     "The eBook You Were Created to Serve",
-    "Cross-device sync — start on your phone, continue on your laptop",
+    "Sign in with your email to keep your answers in your account and pick up where you left off.",
   ],
   signInRedirect: PAID_AUDIT_PATH,
 };
@@ -82,7 +82,7 @@ function PaidAudit() {
         <h1 className="page-title">{IAA_META.title}</h1>
         <p className="lede">{IAA_META.subtitle}</p>
         <p className="store-note">
-          Yours — thank you. Your answers save as you go and follow you to any device you sign in on.
+          Yours — thank you. Your answers save as you write, and signing in keeps them in your account.
         </p>
       </header>
 

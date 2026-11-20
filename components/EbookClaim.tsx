@@ -135,7 +135,7 @@ export default function EbookClaim({
           <p>
             {url
               ? emailed
-                ? "It's yours — read it right here as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader. We've also sent a copy to your inbox so you can read it on any device."
+                ? "It's yours — read it right here as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader. We've also sent a copy to your inbox so you can read it on your phone, tablet, or computer."
                 : "It's yours — read it right here as a PDF, or take the EPUB for Apple Books, Kindle or any e-reader. Save the file somewhere you'll find it again."
               : "Thank you — your copy is on its way to your inbox."}
           </p>
