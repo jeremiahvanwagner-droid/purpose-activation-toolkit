@@ -146,7 +146,7 @@ export const PRODUCTS: ProductMeta[] = [
     badge: "The core offer",
     kicker: "Interactive workbook · four modules",
     tagline:
-      "Four interactive modules that turn spiritual clarity into daily, aligned action. Every answer saves as you write it; the finished workbook is yours for life.",
+      "Four interactive modules that turn spiritual clarity into daily, aligned action. Every answer saves as you write it; the finished workbook is yours to keep.",
     checkout: { kind: "buy", href: CHECKOUT_URL, label: "Get the Toolkit" },
     note: "Lifetime access · no subscription",
     access: { href: "https://www.truthjblue.com/toolkit", label: "Sign in to the Toolkit" },
