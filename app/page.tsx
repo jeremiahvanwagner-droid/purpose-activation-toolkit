@@ -73,8 +73,8 @@ const DIFF = [
     body: "This isn't self-help with a faith veneer. It's stewardship of a Divine assignment, Scripture-grounded from the first page.",
   },
   {
-    title: "Sync across every device.",
-    body: "Start on your phone. Continue on your laptop. Sign in once with your email — your work follows you.",
+    title: "Keep your work in your account.",
+    body: "Sign in with your email to keep your answers in your account and pick up where you left off.",
   },
 ];
 
@@ -255,8 +255,8 @@ export default function Landing() {
               <div>
                 <h3 className="mk-step-title">Enter the Toolkit.</h3>
                 <p className="mk-step-body">
-                  Move through the four modules at your own pace — teaching, exercise, reflection. Every
-                  answer saves and follows you to any device.
+                  Move through the four modules at your own pace — teaching, exercise, reflection. Your
+                  answers save as you write, and signing in keeps them in your account.
                 </p>
               </div>
             </li>

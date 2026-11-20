@@ -34,8 +34,7 @@ export const TOOLKIT_PAYWALL: PaywallProduct = {
   unentitledTitle: "Unlock the full Toolkit.",
   signedOutLede: (
     <>
-      The full Purpose Activation Toolkit — all four modules, your keepsake export, and cloud sync across every
-      device — is <b>$247</b>, lifetime access. Already purchased? Sign in with the same email you used at
+      The full Purpose Activation Toolkit — all four modules, your keepsake export, and saved to your account when you sign in — is <b>$247</b>, lifetime access. Already purchased? Sign in with the same email you used at
       checkout and your work will follow you.
     </>
   ),
@@ -56,7 +55,7 @@ export const TOOLKIT_PAYWALL: PaywallProduct = {
   inclusions: [
     "All four interactive modules — Purpose Activation Framework, 7-Step Divine Decision Matrix, Alignment-to-Action Roadmap, Execution Prompts",
     "The complete keepsake — every answer and every signed commitment, in a printable PDF",
-    "Cross-device sync — start on your phone, continue on your laptop",
+    "Saved to your account. Sign in with your email to pick up where you left off.",
     "Lifetime access — no subscription, no renewal",
   ],
   signInRedirect: "/toolkit",

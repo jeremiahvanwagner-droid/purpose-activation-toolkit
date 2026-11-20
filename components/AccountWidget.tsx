@@ -270,8 +270,8 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
 
   return (
     <form className="acct" onSubmit={sendLink}>
-      <div className="acct-title">Save to every device</div>
-      <p className="acct-note">Sign in with just your email to sync your progress.</p>
+      <div className="acct-title">Save to your account</div>
+      <p className="acct-note">Sign in with just your email to keep your progress in your account.</p>
       {status.deviceSave === "failed" ? (
         <p className="acct-msg acct-warn">
           This browser is blocking storage, so answers aren&apos;t being saved on this device.
