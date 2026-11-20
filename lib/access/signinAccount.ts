@@ -5,13 +5,19 @@
  * for an email with no confirmed auth user fails with `signup_disabled` and no
  * link is sent. Before the browser asks for a link, this checks that the email
  * has a live entitlement row or a qualifying HighLevel purchase, and if so
- * creates (or confirms) its auth user with the service role. It never writes
- * an entitlement row: access is still decided by reconcileEntitlement after
- * sign-in. The response is the same either way, so it reveals nothing about
- * who has bought.
+ * creates (or confirms) its auth user with the service role.
+ *
+ * Toolkit access is reconciled here too (Nov 20, 2026): when the email has no
+ * live entitlement row, the same HighLevel lookup /api/entitlement-sync runs
+ * (reconcileEntitlement: live mode only, $0 live coupon orders qualify, a
+ * refunded charge revokes) writes the Toolkit row before the magic link is
+ * sent. A buyer is unlocked by the time the link is opened, even if no payment
+ * webhook ever arrives. The response is the same either way, so it reveals
+ * nothing about who has bought.
  */
 
-import { PRODUCTS, findPurchase, serviceHeaders } from "./entitlementSync";
+import { PRODUCTS, findPurchase, reconcileEntitlement, serviceHeaders } from "./entitlementSync";
+import { TOOLKIT_PRODUCT_ID } from "./revoke";
 
 type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
 
@@ -74,6 +80,13 @@ export async function prepareSignin(email: string, fetchImpl: FetchLike = fetch)
 
   let eligible = await hasLiveRow(email, fetchImpl);
   if (eligible === "error") console.warn(JSON.stringify({ event: "prepare-signin-row-read-failed" }));
+  if (eligible !== true) {
+    // Grant the Toolkit now if HighLevel shows a qualifying purchase. Anything
+    // short of a grant falls through to the any-product purchase check below.
+    const toolkit = await reconcileEntitlement(email, TOOLKIT_PRODUCT_ID, fetchImpl);
+    if (toolkit.entitled === true) eligible = true;
+    else if (toolkit.reason === "grant-failed") console.warn(JSON.stringify({ event: "prepare-signin-toolkit-grant-failed" }));
+  }
   if (eligible !== true) {
     const bought = await hasPurchase(email, fetchImpl);
     if (bought === true) eligible = true;

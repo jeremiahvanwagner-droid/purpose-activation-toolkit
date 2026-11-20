@@ -1,5 +1,6 @@
 "use client";
 
+import { magicLinkOrigin } from "@/lib/authRedirect";
 import { useEffect, useState } from "react";
 import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getWorkbookSync, useSaveStatus } from "@/lib/store";
@@ -97,7 +98,7 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
       // Land signed-in users where they were headed, not on the marketing page.
       options: {
         emailRedirectTo:
-          typeof window !== "undefined" ? `${window.location.origin}${redirectTo}` : undefined,
+          typeof window !== "undefined" ? `${magicLinkOrigin(window.location.origin)}${redirectTo}` : undefined,
       },
     });
     setBusy(false);

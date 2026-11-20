@@ -21,7 +21,10 @@
 //      each renewal would tell Meta one customer was twelve, and the bidding
 //      algorithm would scale spend against revenue that is one person paying
 //      on time. (Jeremiah, 2026-09-05: "first payment only, ignore renewals".)
-//   2. No database. Meta deduplicates on event_id for 48 hours, and the event
+//   2. No Meta database. (Toolkit access is the one write: since Nov 20, 2026
+//      the buyer's email is reconciled against HighLevel's transaction record
+//      and the entitlement row written, as /api/entitlement-sync does.)
+//      Meta deduplicates on event_id for 48 hours, and the event
 //      id here is the HighLevel order id, so a redelivery cannot double-count.
 //      This keeps the store lane out of the EOS Supabase tables entirely.
 //   3. Unsigned requests are never processed. Anyone who could post here could
@@ -38,6 +41,7 @@
 // checked in Vercel's logs (every accepted event is logged with its mapping)
 // and the field list tightened once the actual shape is known.
 
+import { toolkitAccessFromOrder } from "@/lib/access/orderWebhookAccess";
 import { sha256Hex } from "@/lib/eosMeasurement";
 import { META_PIXEL_ID } from "@/lib/metaPixel";
 
@@ -124,9 +128,16 @@ export async function POST(req: Request): Promise<Response> {
     return Response.json({ ok: false, error: "Invalid secret." }, { status: 401 });
   }
 
+  // --- Toolkit access (Nov 20, 2026) ---------------------------------------
+  // Before any Meta logic, so a $0 coupon order or an odd payload still
+  // unlocks a real buyer. The email only names whom to look up; access comes
+  // from HighLevel's own transaction record (lib/access/orderWebhookAccess).
+  const access = await toolkitAccessFromOrder(firstString(buyer(body), ["email", "emailAddress", "email_address"]));
+  console.log(JSON.stringify({ event: "ghl-order-webhook-access", access }));
+
   // --- first payment only ---------------------------------------------------
   if (isRenewal(body)) {
-    return Response.json({ ok: true, ignored: "renewal" });
+    return Response.json({ ok: true, ignored: "renewal", access });
   }
 
   // --- extract the order ----------------------------------------------------
@@ -137,7 +148,7 @@ export async function POST(req: Request): Promise<Response> {
     // Without a stable id there is no dedupe key, and an undeduplicated
     // Purchase is worse than none. Log it so the mapping can be fixed.
     console.error("[ghl-order-webhook] no order id in payload; keys:", Object.keys(body).join(","));
-    return Response.json({ ok: false, error: "No order id." }, { status: 400 });
+    return Response.json({ ok: false, error: "No order id.", access }, { status: 400 });
   }
 
   let amount = firstNumber(order, ["amount", "total", "totalAmount", "value", "price", "grandTotal"])
@@ -145,8 +156,10 @@ export async function POST(req: Request): Promise<Response> {
   const cents = firstNumber(order, ["amountInCents", "amount_cents", "totalInCents"]);
   if (amount === null && cents !== null) amount = cents / 100;
   if (amount === null || amount <= 0) {
-    console.error("[ghl-order-webhook] no positive amount for order", orderId);
-    return Response.json({ ok: false, error: "No amount." }, { status: 400 });
+    // A $0 (100%-coupon) order is a real order with nothing to report to Meta.
+    // 2xx so HighLevel does not retry; access was already handled above.
+    console.warn("[ghl-order-webhook] no positive amount for order", orderId);
+    return Response.json({ ok: true, sent: false, reason: "no-positive-amount", access });
   }
 
   const currency = (firstString(order, ["currency", "currencyCode"]) ?? firstString(body, ["currency"]) ?? "USD").toUpperCase();
@@ -166,7 +179,7 @@ export async function POST(req: Request): Promise<Response> {
   const token = process.env.META_CAPI_ACCESS_TOKEN?.trim();
   if (!token) {
     console.warn("[ghl-order-webhook] META_CAPI_ACCESS_TOKEN not set; Purchase not sent", { eventId, amount, currency });
-    return Response.json({ ok: true, sent: false, reason: "meta-not-configured", eventId });
+    return Response.json({ ok: true, sent: false, reason: "meta-not-configured", eventId, access });
   }
 
   // --- build the Purchase --------------------------------------------------
@@ -231,5 +244,5 @@ export async function POST(req: Request): Promise<Response> {
 
   // Always 2xx from here: the order is real regardless of whether Meta accepted
   // the report, and a non-2xx would only make HighLevel resend it.
-  return Response.json({ ok: true, sent: outcome === "sent", outcome, eventId });
+  return Response.json({ ok: true, sent: outcome === "sent", outcome, eventId, access });
 }

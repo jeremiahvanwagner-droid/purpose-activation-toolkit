@@ -37,14 +37,14 @@ const paid = (email: string, amount = 247) => ({
   entitySourceId: TOOLKIT, entitySource: { id: TOOLKIT }, createdAt: "2026-11-13T15:18:00Z",
 });
 
-test("a buyer with no auth user gets one created, confirmed, with no entitlement write", async () => {
+test("a buyer with no auth user gets one created and confirmed", async () => {
   env();
   const { f, calls } = stub({ txs: [paid("buyer@example.test")] });
   assert.equal(await prepareSignin("buyer@example.test", f), "created");
-  const post = calls.find((c) => c.method === "POST");
+  const post = calls.find((c) => c.method === "POST" && c.url.includes("/auth/v1/admin/users"));
   assert.ok(post && post.url === `${SUPA}/auth/v1/admin/users`);
   assert.deepEqual(JSON.parse(post!.body!), { email: "buyer@example.test", email_confirm: true });
-  assert.ok(!calls.some((c) => c.url.includes("/rest/v1/entitlements") && c.method !== "GET"));
+  // Since Nov 20, 2026 the Toolkit row is also written here; see tests/access-gap.test.ts.
 });
 
 test("an unconfirmed existing user with a comp row is confirmed", async () => {
@@ -100,6 +100,9 @@ test("a rejected first HighLevel token falls back to the second TJB token", asyn
     throw new Error(`unexpected ${url}`);
   };
   assert.equal(await prepareSignin("buyer@example.test", f), "created");
-  assert.deepEqual(auths, ["Bearer pit-test", "Bearer pit-second"]);
+  // The first lookup is the Toolkit reconcile (Nov 20, 2026); this stub does not keep the row it writes,
+  // so the any-product check looks again. Each lookup starts on the first token and falls back.
+  assert.deepEqual(auths.slice(0, 2), ["Bearer pit-test", "Bearer pit-second"]);
+  assert.ok(auths.length % 2 === 0 && auths.every((a, i) => a === (i % 2 ? "Bearer pit-second" : "Bearer pit-test")));
   delete process.env.GHL_TJB_PIT;
 });
