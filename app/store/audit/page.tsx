@@ -40,8 +40,8 @@ const AUDIT_PAYWALL: PaywallProduct = {
   ),
   unentitledLede: (
     <>
-      Your Audit opens the moment your purchase is on file, and your answers follow you to every device you
-      sign in on. <b>$97</b>, one-time.
+      Your Audit opens once your purchase is on file, and signing in keeps your answers in your
+      account. <b>$97</b> USD, one-time.
     </>
   ),
   cta: {
