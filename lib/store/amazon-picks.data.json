@@ -1,0 +1,168 @@
+{
+  "storefrontUrl": "https://www.amazon.com/shop/influencer-74ca0298",
+  "associateTag": "julianvanwagn-20",
+  "verifiedAt": "2026-11-21",
+  "lists": [
+    {
+      "id": "F2D81006X8D2",
+      "slug": "gift-picks",
+      "kicker": "For the season",
+      "title": "Holiday Gift Picks for Growth",
+      "description": "Books and tools we'd be glad to wrap for someone who is thinking about purpose, character, and a steadier daily practice.",
+      "showUntil": "2026-12-25",
+      "items": [
+        { "asin": "0062572563", "kind": "book", "byline": "C. S. Lewis", "name": "The C. S. Lewis Signature Classics", "detail": "Eight-volume box set, with Mere Christianity and The Screwtape Letters", "image": "https://m.media-amazon.com/images/I/41JwQmafuiL._AC_.jpg" },
+        { "asin": "0812968255", "kind": "book", "byline": "Marcus Aurelius", "name": "Meditations", "image": "https://m.media-amazon.com/images/I/41EI-z+FDML._AC_.jpg" },
+        { "asin": "B0002T401Y", "kind": "tool", "byline": "Lamy", "name": "Lamy Safari Fountain Pen", "detail": "Charcoal, fine nib", "image": "https://m.media-amazon.com/images/I/21ueigVkwNL._AC_.jpg" },
+        { "asin": "B07QTBFT12", "kind": "tool", "byline": "Full Focus", "name": "Full Focus Planner", "detail": "Classic edition", "image": "https://m.media-amazon.com/images/I/314xmNzJu6L._AC_.jpg" },
+        { "asin": "0991846222", "kind": "tool", "byline": "Intelligent Change", "name": "3-Month Productivity Planner", "detail": "Undated, A5, black", "image": "https://m.media-amazon.com/images/I/31d0U-WQPOL._AC_.jpg" },
+        { "asin": "8883701127", "kind": "tool", "byline": "Moleskine", "name": "Classic Notebook, Large", "detail": "Hard cover, ruled, 240 pages", "image": "https://m.media-amazon.com/images/I/31ESmufuK9L._AC_.jpg" },
+        { "asin": "0735211299", "kind": "book", "byline": "James Clear", "name": "Atomic Habits", "detail": "An Easy & Proven Way to Build Good Habits & Break Bad Ones", "image": "https://m.media-amazon.com/images/I/417nMGle9rL._AC_.jpg" },
+        { "asin": "0804137382", "kind": "book", "byline": "Greg McKeown", "name": "Essentialism", "detail": "The Disciplined Pursuit of Less", "image": "https://m.media-amazon.com/images/I/41Wm1en57qL._AC_.jpg" },
+        { "asin": "1455586692", "kind": "book", "byline": "Cal Newport", "name": "Deep Work", "detail": "Rules for Focused Success in a Distracted World", "image": "https://m.media-amazon.com/images/I/41aLX4X3l2L._AC_.jpg" },
+        { "asin": "B00JGFQWRA", "kind": "tool", "byline": "Kitchen Safe", "name": "Time-Locking Container", "detail": "Medium; locks a phone away for a set time", "image": "https://m.media-amazon.com/images/I/41GE5LHiDVL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "Q0LPJCBWZX7I",
+      "slug": "start-here",
+      "kicker": "Start here",
+      "title": "Start Here: Purpose & Everyday Service",
+      "description": "Begin with questions worth sitting with: What matters? Whom can we serve? What is one faithful next step? These books and writing tools make room for honest reflection, at your own pace.",
+      "items": [
+        { "asin": "B07L4JCG7T", "kind": "tool", "byline": "PAPERAGE", "name": "Lined Hardcover Journal", "detail": "160 college-ruled pages, 5.6 × 8 in", "image": "https://m.media-amazon.com/images/I/31DfZrBp0oL._AC_.jpg" },
+        { "asin": "0310347556", "kind": "book", "byline": "Rick Warren", "name": "The Purpose Driven Life", "detail": "What on Earth Am I Here For?", "image": "https://m.media-amazon.com/images/I/512F4a8P34L._AC_.jpg" },
+        { "asin": "0830846948", "kind": "book", "byline": "James Bryan Smith", "name": "The Good and Beautiful You", "detail": "Discovering the Person Jesus Created You to Be", "image": "https://m.media-amazon.com/images/I/41Ry9-92uGL._AC_.jpg" },
+        { "asin": "0310348498", "kind": "book", "byline": "Peter Scazzero", "name": "Emotionally Healthy Spirituality", "detail": "It's Impossible to Be Spiritually Mature, While Remaining Emotionally Immature", "image": "https://m.media-amazon.com/images/I/41pVYst4JbL._AC_.jpg" },
+        { "asin": "1496439651", "kind": "book", "byline": "Aundi Kolber", "name": "Try Softer", "detail": "A Fresh Approach to Move Us out of Anxiety, Stress, and Survival Mode", "image": "https://m.media-amazon.com/images/I/419QkOlzxpL._AC_.jpg" },
+        { "asin": "0310351804", "kind": "book", "byline": "Henry Cloud", "name": "Boundaries", "detail": "When to Say Yes, How to Say No — updated and expanded edition", "image": "https://m.media-amazon.com/images/I/41FjeT+NoWL._AC_.jpg" },
+        { "asin": "B001GAOTSW", "kind": "tool", "byline": "PILOT", "name": "G2 Premium Gel Pens", "detail": "Fine point 0.7 mm, black ink, 12-pack", "image": "https://m.media-amazon.com/images/I/41B1tEsn+uL._AC_.jpg" },
+        { "asin": "B0DCZWLMTC", "kind": "tool", "byline": "LEUCHTTURM1917", "name": "The Official Bullet Journal, Edition 2", "detail": "A5 hardcover, dotted, 206 numbered pages", "image": "https://m.media-amazon.com/images/I/319URtbQGbL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "SGFDGR5C54BL",
+      "slug": "palace-of-excellence",
+      "kicker": "Our own books",
+      "title": "The Teachings of the Palace of Excellence",
+      "description": "Our twelve-book Kindle series, from discovering your purpose to leaving a legacy — a step-by-step walk through each room of a purpose-filled life.",
+      "own": true,
+      "items": [
+        { "asin": "B0DBNRCZ6W", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Discovering Your Purpose", "detail": "Book 1", "image": "https://m.media-amazon.com/images/I/41yor8StmrL._AC_.jpg" },
+        { "asin": "B0DBR6FMD1", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Designing Your Life Plan", "detail": "Book 2", "image": "https://m.media-amazon.com/images/I/516o6ciHC4L._AC_.jpg" },
+        { "asin": "B0DBR5HCV7", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Mindset Mastery", "detail": "Book 3", "image": "https://m.media-amazon.com/images/I/515kRjGBtiL._AC_.jpg" },
+        { "asin": "B0DBTV7Z41", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Health and Wellness", "detail": "Book 4", "image": "https://m.media-amazon.com/images/I/51ogG7JJqlL._AC_.jpg" },
+        { "asin": "B0DBTT4XTS", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Building Meaningful Relationships", "detail": "Book 5", "image": "https://m.media-amazon.com/images/I/512oLfAAvCL._AC_.jpg" },
+        { "asin": "B0DBZ49GYY", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Career and Purpose", "detail": "Book 6", "image": "https://m.media-amazon.com/images/I/51aQUTFw6+L._AC_.jpg" },
+        { "asin": "B0DC8J2875", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Financial Freedom", "detail": "Book 7", "image": "https://m.media-amazon.com/images/I/513M5OcK0nL._AC_.jpg" },
+        { "asin": "B0DC98MVQB", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Overcoming Challenges", "detail": "Book 8", "image": "https://m.media-amazon.com/images/I/51nmir7avXL._AC_.jpg" },
+        { "asin": "B0DD5TL3TZ", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Spiritual Growth", "detail": "Book 9", "image": "https://m.media-amazon.com/images/I/51hl+kksNML._AC_.jpg" },
+        { "asin": "B0DD6NBWBS", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Creativity and Innovation", "detail": "Book 10", "image": "https://m.media-amazon.com/images/I/51myZMykZBL._AC_.jpg" },
+        { "asin": "B0DD6MJHLK", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Purposeful Leadership", "detail": "Book 11", "image": "https://m.media-amazon.com/images/I/510m-hqB6yL._AC_.jpg" },
+        { "asin": "B0DD9ZGPHZ", "kind": "book", "byline": "Jeremiah Van Wagner", "name": "Legacy and Impact", "detail": "Book 12", "image": "https://m.media-amazon.com/images/I/51is-3GDMhL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "114F2OOFLAX1O",
+      "slug": "bible-study",
+      "kicker": "Scripture",
+      "title": "Bible Study & Daily Devotion",
+      "description": "Keep Scripture at the center, with practical companions for reading, marking and reflecting. Choose what fits your season and reading needs; no tool replaces the time you spend in the Word.",
+      "items": [
+        { "asin": "1433562014", "kind": "book", "byline": "ESV Bibles", "name": "ESV Journaling Bible", "detail": "TruTone, brown, Mosaic Cross design", "image": "https://m.media-amazon.com/images/I/41IE2v+zU6L._AC_.jpg" },
+        { "asin": "1433592304", "kind": "book", "byline": "Paul David Tripp", "name": "New Morning Mercies", "detail": "A Daily Gospel Devotional", "image": "https://m.media-amazon.com/images/I/317GU3dgmnL._AC_.jpg" },
+        { "asin": "1941325823", "kind": "book", "byline": "Shannon Roberts", "name": "Prayer Journal for Women", "detail": "52-week Scripture, devotional & guided prayer journal", "image": "https://m.media-amazon.com/images/I/51itHoUH+FL._AC_.jpg" },
+        { "asin": "B0CWZ7HSPQ", "kind": "tool", "byline": "Mr. Pen", "name": "Bible Journaling Kit", "detail": "No-bleed highlighters, pens, tabs and washi tape", "image": "https://m.media-amazon.com/images/I/51PPFf501pL._AC_.jpg" },
+        { "asin": "0998311235", "kind": "book", "byline": "Douglas Kaine McKelvey", "name": "Every Moment Holy", "detail": "New Liturgies for Daily Life", "image": "https://m.media-amazon.com/images/I/41OaB0D+i5L._AC_.jpg" },
+        { "asin": "B089R7W95T", "kind": "tool", "byline": "wishacc", "name": "Bamboo Book Stand", "detail": "Folding, five angles, 13.2 × 9.2 in", "image": "https://m.media-amazon.com/images/I/41-111r5yBL._AC_.jpg" },
+        { "asin": "B07WNRN9WQ", "kind": "tool", "byline": "Glocusent", "name": "Neck Reading Light", "detail": "Rechargeable and hands-free, three colours", "image": "https://m.media-amazon.com/images/I/41-CC8j0OjL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "T42KY9G3268R",
+      "slug": "prayer-journals",
+      "kicker": "Prayer",
+      "title": "Prayer & Reflection Journals",
+      "description": "Bring your questions, gratitude and ordinary days into prayer and reflection, one page at a time. These journals, prayer companions and writing tools offer structure while leaving room for your own words.",
+      "items": [
+        { "asin": "B088Y42FLG", "kind": "book", "byline": "Christian Skylib Bibles", "name": "Prayer Journal for Women", "detail": "69-week guided prayer journal", "image": "https://m.media-amazon.com/images/I/51ZbEhF6TML._AC_.jpg", "hidden": true, "hiddenReason": "Amazon's title for this listing embeds the ISBN of the Shannon Roberts journal (1941325823) in the Bible Study list, which is how copycat listings are usually written. Held back from the page until Truth confirms it." },
+        { "asin": "B07L4JCG7T", "kind": "tool", "byline": "PAPERAGE", "name": "Lined Hardcover Journal", "detail": "160 college-ruled pages, 5.6 × 8 in", "image": "https://m.media-amazon.com/images/I/31DfZrBp0oL._AC_.jpg" },
+        { "asin": "B001GAOTSW", "kind": "tool", "byline": "PILOT", "name": "G2 Premium Gel Pens", "detail": "Fine point 0.7 mm, black ink, 12-pack", "image": "https://m.media-amazon.com/images/I/41B1tEsn+uL._AC_.jpg" },
+        { "asin": "B0DCZWLMTC", "kind": "tool", "byline": "LEUCHTTURM1917", "name": "The Official Bullet Journal, Edition 2", "detail": "A5 hardcover, dotted, 206 numbered pages", "image": "https://m.media-amazon.com/images/I/319URtbQGbL._AC_.jpg" },
+        { "asin": "0998311235", "kind": "book", "byline": "Douglas Kaine McKelvey", "name": "Every Moment Holy", "detail": "New Liturgies for Daily Life", "image": "https://m.media-amazon.com/images/I/41OaB0D+i5L._AC_.jpg" },
+        { "asin": "1496439651", "kind": "book", "byline": "Aundi Kolber", "name": "Try Softer", "detail": "A Fresh Approach to Move Us out of Anxiety, Stress, and Survival Mode", "image": "https://m.media-amazon.com/images/I/419QkOlzxpL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "2SM2P51RZS87O",
+      "slug": "daily-practice",
+      "kicker": "Rhythm",
+      "title": "Build a Consistent Daily Practice",
+      "description": "Make room for what matters: prayer, focused work, reading and rest. Start with what you already own, and consider these practical tools only where they serve a real need.",
+      "items": [
+        { "asin": "B08W9Z5WY9", "kind": "tool", "byline": "Clever Fox", "name": "Clever Fox Planner 2.0", "detail": "Undated weekly & monthly, A5, amber", "image": "https://m.media-amazon.com/images/I/51RjDXxlFsS._AC_.jpg" },
+        { "asin": "B001GAOTSW", "kind": "tool", "byline": "PILOT", "name": "G2 Premium Gel Pens", "detail": "Fine point 0.7 mm, black ink, 12-pack", "image": "https://m.media-amazon.com/images/I/41B1tEsn+uL._AC_.jpg" },
+        { "asin": "B0DCZWLMTC", "kind": "tool", "byline": "LEUCHTTURM1917", "name": "The Official Bullet Journal, Edition 2", "detail": "A5 hardcover, dotted, 206 numbered pages", "image": "https://m.media-amazon.com/images/I/319URtbQGbL._AC_.jpg" },
+        { "asin": "B07459P7BF", "kind": "tool", "byline": "wishacc", "name": "Bamboo Book Stand with Page Clips", "detail": "Folding, five angles, fits thick books", "image": "https://m.media-amazon.com/images/I/51l3cO7zsFL._AC_.jpg" },
+        { "asin": "B07WNRN9WQ", "kind": "tool", "byline": "Glocusent", "name": "Neck Reading Light", "detail": "Rechargeable and hands-free, three colours", "image": "https://m.media-amazon.com/images/I/41-CC8j0OjL._AC_.jpg" },
+        { "asin": "0525653090", "kind": "book", "byline": "John Mark Comer", "name": "The Ruthless Elimination of Hurry", "detail": "How to Stay Emotionally Healthy and Spiritually Alive in the Chaos of the Modern World", "image": "https://m.media-amazon.com/images/I/21l+8DCC56L._AC_.jpg" },
+        { "asin": "B07KC5DWCC", "kind": "tool", "byline": "MZOO", "name": "Contoured Sleep Mask", "detail": "Light-blocking, no pressure on the eyes", "image": "https://m.media-amazon.com/images/I/31HYH+KlZfL._AC_.jpg" },
+        { "asin": "B0BFCY4KNZ", "kind": "tool", "byline": "Bedsure", "name": "GentleSoft Fleece Throw", "detail": "50 × 60 in, linen beige", "image": "https://m.media-amazon.com/images/I/41j8sw+s0FL._AC_.jpg" },
+        { "asin": "B07L4JCG7T", "kind": "tool", "byline": "PAPERAGE", "name": "Lined Hardcover Journal", "detail": "160 college-ruled pages, 5.6 × 8 in", "image": "https://m.media-amazon.com/images/I/31DfZrBp0oL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "G896OW1DEX0W",
+      "slug": "focus-tools",
+      "kicker": "Tools",
+      "title": "Habits, Planners & Focus Tools",
+      "description": "Practical tools for planning the week, guarding a block of time, and writing things down. They support a practice; they do not guarantee better habits.",
+      "items": [
+        { "asin": "B07QTBFT12", "kind": "tool", "byline": "Full Focus", "name": "Full Focus Planner", "detail": "Classic edition", "image": "https://m.media-amazon.com/images/I/314xmNzJu6L._AC_.jpg" },
+        { "asin": "0991846222", "kind": "tool", "byline": "Intelligent Change", "name": "3-Month Productivity Planner", "detail": "Undated, A5, black", "image": "https://m.media-amazon.com/images/I/31d0U-WQPOL._AC_.jpg" },
+        { "asin": "8883701127", "kind": "tool", "byline": "Moleskine", "name": "Classic Notebook, Large", "detail": "Hard cover, ruled, 240 pages", "image": "https://m.media-amazon.com/images/I/31ESmufuK9L._AC_.jpg" },
+        { "asin": "B0G6662D9Q", "kind": "tool", "byline": "Time Timer", "name": "Time Timer Original 8″", "detail": "60-minute visual countdown timer", "image": "https://m.media-amazon.com/images/I/41fUeThnrzL._AC_.jpg" },
+        { "asin": "B00JGFQWRA", "kind": "tool", "byline": "Kitchen Safe", "name": "Time-Locking Container", "detail": "Medium; locks a phone away for a set time", "image": "https://m.media-amazon.com/images/I/41GE5LHiDVL._AC_.jpg" },
+        { "asin": "B0B3HSJ5NL", "kind": "tool", "byline": "Anker", "name": "Anker 525 Charging Station", "detail": "7-in-1 desktop power strip, 65 W", "image": "https://m.media-amazon.com/images/I/21iYB4XU-sL._AC_.jpg" },
+        { "asin": "B0002T401Y", "kind": "tool", "byline": "Lamy", "name": "Lamy Safari Fountain Pen", "detail": "Charcoal, fine nib", "image": "https://m.media-amazon.com/images/I/21ueigVkwNL._AC_.jpg" },
+        { "asin": "1455586692", "kind": "book", "byline": "Cal Newport", "name": "Deep Work", "detail": "Rules for Focused Success in a Distracted World", "image": "https://m.media-amazon.com/images/I/41aLX4X3l2L._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "2PZAKWM14M2O4",
+      "slug": "mindset",
+      "kicker": "The mind",
+      "title": "Psychology & Mindset",
+      "description": "Research-based reading on how we think, feel, form habits, and find meaning. These are companions for honest reflection, not a shortcut to a new life.",
+      "items": [
+        { "asin": "0735211299", "kind": "book", "byline": "James Clear", "name": "Atomic Habits", "detail": "An Easy & Proven Way to Build Good Habits & Break Bad Ones", "image": "https://m.media-amazon.com/images/I/417nMGle9rL._AC_.jpg" },
+        { "asin": "0345472322", "kind": "book", "byline": "Carol S. Dweck", "name": "Mindset", "detail": "The New Psychology of Success", "image": "https://m.media-amazon.com/images/I/41K9oFkUywL._AC_.jpg" },
+        { "asin": "0374533555", "kind": "book", "byline": "Daniel Kahneman", "name": "Thinking, Fast and Slow", "image": "https://m.media-amazon.com/images/I/41wI53OEpCL._AC_.jpg" },
+        { "asin": "0807014273", "kind": "book", "byline": "Viktor E. Frankl", "name": "Man's Search for Meaning", "image": "https://m.media-amazon.com/images/I/51VAWTV4CBL._AC_.jpg" },
+        { "asin": "055338371X", "kind": "book", "byline": "Daniel Goleman", "name": "Emotional Intelligence", "detail": "Why It Can Matter More Than IQ", "image": "https://m.media-amazon.com/images/I/41TIv-65qcL._AC_.jpg" },
+        { "asin": "1501111108", "kind": "book", "byline": "Angela Duckworth", "name": "Grit", "detail": "The Power of Passion and Perseverance", "image": "https://m.media-amazon.com/images/I/41Ekj37gYgL._AC_.jpg" },
+        { "asin": "1592408419", "kind": "book", "byline": "Brené Brown", "name": "Daring Greatly", "detail": "How the Courage to Be Vulnerable Transforms the Way We Live, Love, Parent, and Lead", "image": "https://m.media-amazon.com/images/I/41UjqAwGVBL._AC_.jpg" },
+        { "asin": "1984878123", "kind": "book", "byline": "Adam Grant", "name": "Think Again", "detail": "The Power of Knowing What You Don't Know", "image": "https://m.media-amazon.com/images/I/418Iw+L5UJL._AC_.jpg" },
+        { "asin": "1982137274", "kind": "book", "byline": "Stephen R. Covey", "name": "The 7 Habits of Highly Effective People", "detail": "30th anniversary edition", "image": "https://m.media-amazon.com/images/I/41f3shLJf5L._AC_.jpg" },
+        { "asin": "1592409490", "kind": "book", "byline": "Susan David", "name": "Emotional Agility", "detail": "Get Unstuck, Embrace Change, and Thrive in Work and Life", "image": "https://m.media-amazon.com/images/I/4171YJPUemL._AC_.jpg" },
+        { "asin": "1455586692", "kind": "book", "byline": "Cal Newport", "name": "Deep Work", "detail": "Rules for Focused Success in a Distracted World", "image": "https://m.media-amazon.com/images/I/41aLX4X3l2L._AC_.jpg" },
+        { "asin": "0804137382", "kind": "book", "byline": "Greg McKeown", "name": "Essentialism", "detail": "The Disciplined Pursuit of Less", "image": "https://m.media-amazon.com/images/I/41Wm1en57qL._AC_.jpg" }
+      ]
+    },
+    {
+      "id": "2CETBS7CH1DYM",
+      "slug": "lead-with-purpose",
+      "kicker": "Leadership",
+      "title": "Lead with Purpose: Men & Mentors",
+      "description": "For men and mentors learning to lead through service, integrity and care for others. These reading companions invite reflection and conversation, not a shortcut to influence, status or success.",
+      "items": [
+        { "asin": "0718077253", "kind": "book", "byline": "Ken Blanchard", "name": "Lead Like Jesus Revisited", "detail": "Lessons from the Greatest Leadership Role Model of All Time", "image": "https://m.media-amazon.com/images/I/41PyDZfzD+L._AC_.jpg" },
+        { "asin": "0802416705", "kind": "book", "byline": "J. Oswald Sanders", "name": "Spiritual Leadership", "detail": "Principles of Excellence for Every Believer", "image": "https://m.media-amazon.com/images/I/418HvjpKd-L._AC_.jpg" },
+        { "asin": "0310351804", "kind": "book", "byline": "Henry Cloud", "name": "Boundaries", "detail": "When to Say Yes, How to Say No — updated and expanded edition", "image": "https://m.media-amazon.com/images/I/41FjeT+NoWL._AC_.jpg" },
+        { "asin": "0310348498", "kind": "book", "byline": "Peter Scazzero", "name": "Emotionally Healthy Spirituality", "detail": "It's Impossible to Be Spiritually Mature, While Remaining Emotionally Immature", "image": "https://m.media-amazon.com/images/I/41pVYst4JbL._AC_.jpg" },
+        { "asin": "0830846948", "kind": "book", "byline": "James Bryan Smith", "name": "The Good and Beautiful You", "detail": "Discovering the Person Jesus Created You to Be", "image": "https://m.media-amazon.com/images/I/41Ry9-92uGL._AC_.jpg" },
+        { "asin": "1433592304", "kind": "book", "byline": "Paul David Tripp", "name": "New Morning Mercies", "detail": "A Daily Gospel Devotional", "image": "https://m.media-amazon.com/images/I/317GU3dgmnL._AC_.jpg" }
+      ]
+    }
+  ]
+}

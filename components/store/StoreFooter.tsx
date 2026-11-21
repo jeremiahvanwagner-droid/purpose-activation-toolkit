@@ -2,6 +2,7 @@ import Link from "next/link";
 import Glyph from "@/components/store/Glyph";
 import { BEYOND_THE_VEIL_URL, COMMUNITY_URL } from "@/lib/links";
 import { ADDRESS_LINES, SITE_URL, SUPPORT_EMAIL, storeHref } from "@/lib/store/base";
+import { AMAZON_DISCLOSURE } from "@/lib/store/amazon-picks";
 import { PRINT_COLLECTION_TITLE } from "@/lib/store/lulu-books";
 import { COLLECTIONS } from "@/lib/store/overlay";
 
@@ -33,6 +34,9 @@ export default function StoreFooter({ base }: { base: string }) {
               <li>
                 <Link href={storeHref(base, "/books")}>{PRINT_COLLECTION_TITLE}</Link>
               </li>
+              <li>
+                <Link href={storeHref(base, "/recommended")}>Recommended books &amp; tools</Link>
+              </li>
             </ul>
           </div>
 
@@ -63,7 +67,7 @@ export default function StoreFooter({ base }: { base: string }) {
           <span>© {year} Truth J Blue LLC. All rights reserved.</span>
           <span>
             Checkout, booking and delivery are handled securely by HighLevel. Printed books are sold through Lulu’s
-            checkout, and printed and shipped by Lulu.
+            checkout, and printed and shipped by Lulu. {AMAZON_DISCLOSURE}
           </span>
         </div>
       </div>

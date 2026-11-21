@@ -7,6 +7,7 @@ import ProductCard from "@/components/store/ProductCard";
 import { Constellation } from "@/components/store/Glyph";
 import { COMMUNITY_URL } from "@/lib/links";
 import { faqPageSchema, type Faq } from "@/lib/seo";
+import { AMAZON_DISCLOSURE, shownLists } from "@/lib/store/amazon-picks";
 import { STORE_URL, SUPPORT_EMAIL, storeBase, storeHref } from "@/lib/store/base";
 import { formatPrice, getStore, type StoreData } from "@/lib/store/catalog";
 import { PRINT_RETURNS_NOTE, publishedPrintBooks } from "@/lib/store/lulu-books";
@@ -109,6 +110,8 @@ export default async function StoreHome() {
   const toolkit = start.find((i) => i.meta.featured);
   const printBooks = publishedPrintBooks();
   const faq = storeFaq(store, printBooks.length > 0);
+  // The series already has its own section above, as the Library.
+  const recommended = shownLists(new Date()).filter((l) => !l.own);
 
   return (
     <>
@@ -260,6 +263,32 @@ export default async function StoreHome() {
           </div>
         </div>
       </section>
+
+      {recommended.length ? (
+        <section id="recommended" className="st-section">
+          <div className="st-container">
+            <SectionHead
+              kicker="Recommended"
+              title="Books and tools we reach for."
+              blurb="Christ-centered reading and simple tools for Scripture, prayer, daily rhythm and leadership, gathered into lists. Each one opens on Amazon."
+              href={storeHref(base, "/recommended")}
+              more="Browse recommendations"
+            />
+            <div className="st-rec-tiles">
+              {recommended.map((l) => (
+                <Link key={l.id} className="st-rec-tile" href={storeHref(base, `/recommended#${l.slug}`)}>
+                  <span className="st-rec-tile-k">{l.kicker}</span>
+                  <span className="st-rec-tile-t">{l.title}</span>
+                  <span className="st-rec-tile-n">
+                    {l.shown.length} {l.own ? "books" : "picks"} →
+                  </span>
+                </Link>
+              ))}
+            </div>
+            <p className="st-rec-note">{AMAZON_DISCLOSURE}</p>
+          </div>
+        </section>
+      ) : null}
 
       <section id="questions" className="st-section st-section-alt" aria-labelledby="st-faq-title">
         <div className="st-container">
