@@ -65,10 +65,20 @@ test("a hidden item must say why, and is never shown", () => {
   m.lists[1].items[0].hidden = true;
   assert.ok(validateAmazonPicks(m).some((e) => e.endsWith("hiddenReason: a hidden item says why")));
 
+  m.lists[1].items[0].hiddenReason = "Synthetic: held back for the test.";
+  assert.deepEqual(validateAmazonPicks(m), []);
+  const asin = m.lists[1].items[0].asin;
+  const list = shownLists(new Date("2026-11-21T18:00:00Z"), m).find((l) => l.id === m.lists[1].id);
+  assert.ok(list);
+  assert.ok(!list.shown.some((i) => i.asin === asin));
+  assert.equal(list.shown.length, list.items.length - 1);
+});
+
+test("the prayer journal Truth approved on 2026-11-21 is shown", () => {
   const prayer = shownLists(new Date("2026-11-21T18:00:00Z")).find((l) => l.slug === "prayer-journals");
   assert.ok(prayer);
-  assert.ok(!prayer.shown.some((i) => i.asin === "B088Y42FLG"));
-  assert.equal(prayer.shown.length, prayer.items.length - 1);
+  assert.equal(prayer.shown[0].asin, "B088Y42FLG");
+  assert.equal(prayer.shown.length, prayer.items.length);
 });
 
 test("the same ASIN twice in one list, or a duplicate slug, is rejected", () => {

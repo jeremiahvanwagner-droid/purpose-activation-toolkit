@@ -58,10 +58,10 @@ A list with `showUntil` (the holiday list) leads the page through that day,
 in Kansas City time, and is not shown after it. To run it again next year,
 set a new date.
 
-`B088Y42FLG` in Prayer & Reflection Journals is held back (`hidden: true`).
-Its Amazon title embeds the ISBN of the Shannon Roberts prayer journal, which
-is how copycat listings are usually written. Remove `hidden` and
-`hiddenReason` to show it.
+To keep an item off the page without taking it off the Amazon list, set
+`"hidden": true` on it with a `hiddenReason`. `B088Y42FLG` in Prayer &
+Reflection Journals was launched that way (its Amazon title embeds the ISBN
+of the Shannon Roberts journal) and shown from 2026-11-21 at Truth's say-so.
 
 ## Measurement
 
