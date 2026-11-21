@@ -69,6 +69,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...STORE_COLLECTIONS.map((c) => ({ url: `${STORE_URL}/${c}` })),
     ...STORE_PRODUCTS.map((s) => ({ url: `${STORE_URL}/product/${s}` })),
     ...(printBooks.length ? [{ url: `${STORE_URL}/books` }] : []),
+    // The Amazon storefront's lists (app/store/recommended). Canonical on the
+    // store host; its links are rel="sponsored", the page itself is ours.
+    { url: `${STORE_URL}/recommended` },
     ...printBooks.map((b) => ({ url: printBookUrl(b) })),
   ];
 }

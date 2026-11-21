@@ -34,6 +34,14 @@ export default function StoreNav({ base, current }: { base: string; current?: st
             ) : null}
           </Fragment>
         ))}
+        {/* Amazon's lists, not ours to sell — so last, after everything we make. */}
+        <Link
+          className="st-nav-link"
+          href={storeHref(base, "/recommended")}
+          aria-current={current === "recommended" ? "page" : undefined}
+        >
+          Recommended
+        </Link>
       </div>
       <a className="st-nav-cta" href={SITE_URL}>
         truthjblue.com
