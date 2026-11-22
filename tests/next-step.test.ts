@@ -86,25 +86,30 @@ test("a real success shows the block once and sends one GA4 impression, never Me
   page.send();
   page.send();
   assert.equal(page.block.hidden, false);
+  assert.equal(page.ga.length, 0);
+  assert.equal(page.timers.length, 1);
+  assert.equal(page.timers[0].ms, 0);
+  page.timers[0].fn();
   assert.deepEqual(JSON.parse(JSON.stringify(page.ga)), [["event", "toolkit_next_step_view", { funnel_name: "ywcts" }]]);
   assert.equal(page.meta.length, 0);
-  assert.equal(page.timers.length, 0);
 });
 
 test("phones scroll the block into view, and reduced motion is instant", () => {
   const phone = setup({ narrow: true });
   phone.send();
-  assert.equal(phone.timers.length, 1);
-  assert.equal(phone.timers[0].ms, 400);
-  phone.timers[0].fn();
+  const scroll = phone.timers.find((timer) => timer.ms === 400);
+  assert.ok(scroll);
+  scroll.fn();
   assert.deepEqual(JSON.parse(JSON.stringify(phone.scrolls)), [{ behavior: "smooth", block: "end" }]);
 
   const still = setup({ narrow: true, reduce: true });
   still.send();
-  still.timers[0].fn();
+  still.timers.find((timer) => timer.ms === 400).fn();
   assert.deepEqual(JSON.parse(JSON.stringify(still.scrolls)), [{ behavior: "auto", block: "end" }]);
 
   const desktop = setup({ narrow: false, reduce: true });
   desktop.send();
-  assert.equal(desktop.timers.length, 0);
+  assert.equal(desktop.timers.some((timer) => timer.ms === 400), false);
+  desktop.timers[0].fn();
+  assert.equal(desktop.ga.length, 1);
 });
