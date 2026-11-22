@@ -63,3 +63,13 @@ export const STORE_URL = "https://store.truthjblue.com";
 /** The Audit as sold in the store. A same-host path on purpose: it resolves
  *  from www.truthjblue.com whether or not the store hostname has moved yet. */
 export const STORE_AUDIT_PATH = "/store/product/inner-alignment-audit";
+
+/**
+ * HighLevel Affiliate Manager install snippet, copied verbatim.
+ * Campaign links are https://www.truthjblue.com/?am_id=<id>. Do not append
+ * am_id to the payment link — that page ignores it.
+ */
+export const HL_AFFILIATE_SCRIPT_URL = "https://site.truthjblue.com/js/am.js";
+export const HL_AFFILIATE_LOCATION_ID = "TW8JsPW5NMnA3tfK2XLn";
+export const HL_AFFILIATE_BRANDED_URL = "https://backend.leadconnectorhq.com";
+export const HL_AFFILIATE_COOKIE_DOMAIN = ".www.truthjblue.com";

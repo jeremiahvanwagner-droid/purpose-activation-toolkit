@@ -4,6 +4,7 @@ import "./globals.css";
 import MetaPixel from "@/components/MetaPixel";
 import SyncProvider from "@/components/SyncProvider";
 import AttributionCapture from "@/components/AttributionCapture";
+import AffiliateTracking from "@/components/AffiliateTracking";
 import { COMMUNITY_URL } from "@/lib/links";
 import { ORGANIZATION_ID, PERSON_ID } from "@/lib/seo";
 
@@ -123,6 +124,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <MetaPixel />
         <SyncProvider />
         <AttributionCapture />
+        <AffiliateTracking host={host} />
         {children}
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`} />
         <script

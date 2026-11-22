@@ -133,4 +133,29 @@
     } catch (_) {}
   });
   // Visits to /resource and /purchase-support are not Lead or Purchase events.
+
+  // HighLevel Affiliate Manager. This file is static, so the assignment below
+  // is what `next build` rewrites from NEXT_PUBLIC_HL_AFFILIATE_TRACKING.
+  // Committed false: unset or any other value inserts nothing. www only.
+  // The eBook form is a cross-origin HighLevel iframe and does not expose the
+  // address, so this loader does not call trackLead. Sign-in does that.
+  var HL_AFFILIATE_TRACKING = false;
+  if (HL_AFFILIATE_TRACKING && location.hostname === 'www.truthjblue.com') {
+    try {
+      var affiliateScript = document.createElement('script');
+      affiliateScript.async = true;
+      affiliateScript.src = 'https://site.truthjblue.com/js/am.js';
+      var affiliateInited = false;
+      affiliateScript.onload = affiliateScript.onreadystatechange = function () {
+        if (affiliateInited) return;
+        var state = this.readyState;
+        if (state && state !== 'complete' && state !== 'loaded') return;
+        affiliateInited = true;
+        try {
+          window.affiliateManager.init('TW8JsPW5NMnA3tfK2XLn', 'https://backend.leadconnectorhq.com', '.www.truthjblue.com');
+        } catch (initError) {}
+      };
+      document.head.appendChild(affiliateScript);
+    } catch (affiliateError) {}
+  }
 })();

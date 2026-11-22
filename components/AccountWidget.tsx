@@ -6,6 +6,7 @@ import { getSupabase, isSupabaseConfigured } from "@/lib/supabase";
 import { getWorkbookSync, useSaveStatus } from "@/lib/store";
 import { describeStatus, type Conflict } from "@/lib/sync/workbookSync";
 import { labelForField, previewValue } from "@/lib/fieldLabels";
+import { trackAffiliateLead } from "@/lib/affiliateTracking";
 
 /**
  * Passwordless (magic-link) sign-in, shown in the rail and on paywalls, plus
@@ -82,6 +83,9 @@ export default function AccountWidget({ redirectTo = "/toolkit" }: { redirectTo?
     if (!addr || !supa) return;
     setBusy(true);
     setErr(null);
+    // Affiliate lead binding. No-op unless the flag is on and am.js already
+    // stored both referral cookies. It must not delay or replace the link.
+    trackAffiliateLead(addr);
     // Sign-ups are closed in Supabase; this lets a buyer's first link go out.
     try {
       await fetch("/api/auth/prepare-signin", {

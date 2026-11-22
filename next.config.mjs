@@ -1,3 +1,9 @@
+import { inlineHlAffiliateFlag } from "./scripts/inline-hl-affiliate-flag.mjs";
+
+// Rewrites the static funnel's flag during `next build` only. Dev and lint
+// leave the committed `false` alone.
+inlineHlAffiliateFlag();
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
