@@ -86,7 +86,7 @@ test("a real success shows the block once and sends one GA4 impression, never Me
   page.send();
   page.send();
   assert.equal(page.block.hidden, false);
-  assert.deepEqual(JSON.parse(JSON.stringify(page.ga)), [["event", "toolkit_next_step_view", { funnel_name: "ywcts", transport_type: "beacon" }]]);
+  assert.deepEqual(JSON.parse(JSON.stringify(page.ga)), [["event", "toolkit_next_step_view", { funnel_name: "ywcts" }]]);
   assert.equal(page.meta.length, 0);
   assert.equal(page.timers.length, 0);
 });
