@@ -4,9 +4,12 @@
  *
  * Identity is the Supabase user behind the bearer token. The body may name a
  * product and nothing else. Payment-backed rows are rechecked for a new grant.
- * Complimentary and unclassified sources are kept. Rows are never deleted: a
- * fully refunded payment marks its row revoked (lib/access/revoke.ts), and a
- * revoked row denies access until a different qualifying purchase exists.
+ * Complimentary and unclassified sources are kept. A gift seat (source
+ * gift:<transaction id>) stays until the buyer's transaction is observed
+ * refunded; a lookup that fails or never sees that charge does not revoke it.
+ * Rows are never deleted: a fully refunded payment marks its row revoked
+ * (lib/access/revoke.ts), and a revoked row denies access until a different
+ * qualifying purchase exists.
  */
 
 import { decideAccess, paymentBackedSource, type EntitlementRow } from "./decide";
@@ -108,7 +111,13 @@ async function readRow(email: string, productId: string, fetchImpl: FetchLike): 
   }
 }
 
-export async function findPurchase(email: string, sourceIds: Set<string>, storedTransactionId: string | null, fetchImpl: FetchLike) {
+export async function findPurchase(
+  email: string,
+  sourceIds: Set<string>,
+  storedTransactionId: string | null,
+  fetchImpl: FetchLike,
+  opts?: { excludeTransactionId?: string | null; observeStored?: boolean }
+) {
   const locationId = process.env.GHL_LOCATION_ID_TJB?.trim() || process.env.GHL_TJB_LOCATION_ID?.trim();
   const apiVersion = process.env.GHL_API_VERSION_TJB?.trim() || "2021-07-28";
   // The second TJB token is a fallback for when the first is rejected (rotated or revoked).
@@ -152,6 +161,8 @@ export async function findPurchase(email: string, sourceIds: Set<string>, stored
       pageSize: PAGE_SIZE,
       maxPages: MAX_PAGES,
       storedTransactionId: storedTransactionId ?? undefined,
+      excludeTransactionId: opts?.excludeTransactionId || undefined,
+      observeStored: opts?.observeStored === true,
     }
   );
 }
@@ -264,6 +275,91 @@ export async function handleEntitlementSync(req: Request, fetchImpl: FetchLike =
   return Response.json(await reconcileEntitlement(email, productId, fetchImpl));
 }
 
+function isGiftSource(source: string | null): boolean {
+  return !!source && source.startsWith("gift:");
+}
+
+function giftTransactionId(row: StoredRow): string | null {
+  if (row.transaction_id) return row.transaction_id;
+  if (row.source?.startsWith("gift:")) {
+    const id = row.source.slice("gift:".length).trim();
+    return id || null;
+  }
+  return null;
+}
+
+type GiftRecord = { buyer_email: string };
+
+/** The gift tied to this HighLevel transaction, or null when there is no row. "error" means the read itself failed. */
+async function readGift(transactionId: string, fetchImpl: FetchLike): Promise<GiftRecord | null | "error"> {
+  const svc = serviceHeaders();
+  if (!svc) return "error";
+  const qs = new URLSearchParams({
+    transaction_id: `eq.${transactionId}`,
+    select: "buyer_email,status",
+    limit: "1",
+  });
+  try {
+    const res = await fetchImpl(`${svc.url}/rest/v1/toolkit_gifts?${qs}`, { headers: svc.headers, cache: "no-store" });
+    if (!res.ok) return "error";
+    const rows = (await res.json()) as unknown;
+    if (!Array.isArray(rows)) return "error";
+    const row = rows[0] as { buyer_email?: unknown } | undefined;
+    if (!row) return null;
+    if (typeof row.buyer_email !== "string" || !row.buyer_email.trim()) return "error";
+    return { buyer_email: row.buyer_email.trim().toLowerCase() };
+  } catch {
+    return "error";
+  }
+}
+
+/**
+ * Keep a gift seat unless HighLevel shows that exact transaction refunded.
+ * "found" (still paid), "not-found" (charge not in a finished scan), and
+ * "unavailable" (lookup failed or page cap) all keep the seat.
+ */
+async function recheckGift(row: StoredRow, fetchImpl: FetchLike): Promise<SyncBody> {
+  const productId = REFUND_REVOKES_PRODUCT_ID;
+  const txId = giftTransactionId(row);
+  if (!txId) return { entitled: true, checked: true, productId, access: "preserved" };
+
+  const gift = await readGift(txId, fetchImpl);
+  if (gift === "error") {
+    console.warn(JSON.stringify({ event: "gift-recheck-unavailable", transactionId: txId }));
+    return { entitled: true, checked: false, productId, access: "unavailable", reason: "lookup-unavailable" };
+  }
+  if (!gift) {
+    console.warn(JSON.stringify({ event: "gift-recheck-missing", transactionId: txId }));
+    return { entitled: true, checked: true, productId, access: "preserved" };
+  }
+
+  const lookup = await findPurchase(gift.buyer_email, PRODUCTS[productId].sourceIds, txId, fetchImpl, {
+    observeStored: true,
+  });
+  if (lookup.status === "unavailable") {
+    console.warn(JSON.stringify({ event: "gift-recheck-unavailable", reason: lookup.reason, transactionId: txId }));
+    return { entitled: true, checked: false, productId, access: "unavailable", reason: "lookup-unavailable" };
+  }
+  if (lookup.status !== "refund-observed") {
+    return { entitled: true, checked: true, productId, access: "preserved" };
+  }
+
+  const result = await revokeForTransaction({
+    email: gift.buyer_email,
+    productId,
+    transaction: lookup.transaction,
+    reason: `ghl:refunded:${lookup.transaction._id ?? txId}`,
+    fetchImpl,
+  });
+  if (result.outcome === "failed") {
+    console.error(JSON.stringify({ event: "gift-recheck-revoke-failed", transactionId: txId }));
+  }
+  if (lostAccess(result.outcome)) {
+    await removeBuyerTag(result.contactId ?? lookup.transaction.contactId ?? null, fetchImpl);
+  }
+  return { entitled: false, checked: true, reason: "not-found", revoked: true, productId };
+}
+
 export async function reconcileEntitlement(email: string, productId: string, fetchImpl: FetchLike = fetch): Promise<SyncBody> {
   if (!(productId in PRODUCTS)) return { entitled: false, error: "Unknown product." };
 
@@ -272,10 +368,20 @@ export async function reconcileEntitlement(email: string, productId: string, fet
     return { entitled: false, checked: false, reason: "lookup-unavailable", productId };
   }
 
+  // A gift seat is not payment-backed, so decideAccess would keep it forever.
+  // Recheck the buyer's transaction: only an observed refund revokes it.
+  if (row && !row.revoked_at && isGiftSource(row.source) && productId === REFUND_REVOKES_PRODUCT_ID) {
+    return recheckGift(row, fetchImpl);
+  }
+
   const lookup =
     row && !row.revoked_at && !paymentBackedSource(row.source)
       ? null
-      : await findPurchase(email, PRODUCTS[productId].sourceIds, row?.transaction_id ?? null, fetchImpl);
+      : await findPurchase(email, PRODUCTS[productId].sourceIds, row?.transaction_id ?? null, fetchImpl, {
+          // The stored charge may still be "succeeded" after it was gifted. Skip it
+          // so a later purchase of a revoked row can reopen access.
+          excludeTransactionId: row?.revoked_at ? row.transaction_id : null,
+        });
   let decision = decideAccess(row, lookup);
   if (lookup?.status === "unavailable") {
     console.warn(JSON.stringify({ event: "entitlement-lookup-unavailable", reason: lookup.reason, productId }));

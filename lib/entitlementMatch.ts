@@ -25,6 +25,8 @@ export type GhlTransaction = {
   contactId?: string;
   contactEmail?: string | null;
   entitySourceId?: string;
+  /** HighLevel order id. Present on payment-link charges; absent on older callers. */
+  entityId?: string;
   entitySourceName?: string;
   createdAt?: string;
 };
@@ -77,23 +79,52 @@ export async function lookupPurchase(
   fetchPage: (offset: number, limit: number) => Promise<PageResult>,
   email: string,
   sourceIds: ReadonlySet<string>,
-  opts: { requireLive?: boolean; pageSize?: number; maxPages?: number; storedTransactionId?: string } = {}
+  opts: {
+    requireLive?: boolean;
+    pageSize?: number;
+    maxPages?: number;
+    storedTransactionId?: string;
+    /** Skip this id when choosing a qualifying purchase. A revoked row uses it so a later, different purchase can reopen access while the original charge is still "succeeded" (a gift). */
+    excludeTransactionId?: string;
+    /**
+     * Report the stored transaction itself. A gift is tied to one charge: another
+     * succeeded purchase must not hide a refund of the gifted charge, and a scan
+     * that never reaches that charge stays "unavailable" so nothing is revoked.
+     */
+    observeStored?: boolean;
+  } = {}
 ): Promise<PurchaseLookup> {
   const requireLive = opts.requireLive ?? true;
   const pageSize = opts.pageSize ?? 100;
   const maxPages = opts.maxPages ?? 10;
+  const observeStored = opts.observeStored === true && !!opts.storedTransactionId;
   let refunded: GhlTransaction | undefined;
 
   for (let page = 0; page < maxPages; page++) {
     const result = await fetchPage(page * pageSize, pageSize);
     if (!result.ok) return { status: "unavailable", reason: result.reason, pagesRead: page };
-    const match = result.rows.find((tx) => isQualifyingPurchase(tx, email, sourceIds, requireLive));
-    if (match) return { status: "found", transaction: match, pagesRead: page + 1 };
-    if (opts.storedTransactionId) {
-      const seen = result.rows.find((tx) =>
-        isStoredRefund(tx, email, sourceIds, opts.storedTransactionId!, requireLive)
+    if (observeStored && opts.storedTransactionId) {
+      const storedId = opts.storedTransactionId;
+      const succeeded = result.rows.find(
+        (tx) => tx._id === storedId && isQualifyingPurchase(tx, email, sourceIds, requireLive)
       );
-      if (seen) refunded = seen;
+      if (succeeded) return { status: "found", transaction: succeeded, pagesRead: page + 1 };
+      const storedRefund = result.rows.find((tx) =>
+        isStoredRefund(tx, email, sourceIds, storedId, requireLive)
+      );
+      if (storedRefund) return { status: "refund-observed", transaction: storedRefund, pagesRead: page + 1 };
+    } else {
+      const match = result.rows.find((tx) => {
+        if (opts.excludeTransactionId && tx._id === opts.excludeTransactionId) return false;
+        return isQualifyingPurchase(tx, email, sourceIds, requireLive);
+      });
+      if (match) return { status: "found", transaction: match, pagesRead: page + 1 };
+      if (opts.storedTransactionId) {
+        const seen = result.rows.find((tx) =>
+          isStoredRefund(tx, email, sourceIds, opts.storedTransactionId!, requireLive)
+        );
+        if (seen) refunded = seen;
+      }
     }
     // A short page is the last page. (GHL reports totalCount 0 for an offset
     // past the end, so the page length is the reliable signal.)

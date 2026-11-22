@@ -176,6 +176,8 @@ export async function handleStripeToolkitRefund(req: Request, fetchImpl: FetchLi
     tag = await removeBuyerTag(result.contactId ?? found.tx.contactId ?? charge.metadata?.contactId ?? null, fetchImpl);
     if (tag === "failed") console.error(`[toolkit-refund] ${event.id}: toolkit-buyer tag removal failed for transaction ${found.tx._id}.`);
   }
-  console.log(`[toolkit-refund] ${event.id} ${charge.id}: transaction ${found.tx._id} -> ${result.outcome}, tag ${tag}.`);
+  console.log(
+    `[toolkit-refund] ${event.id} ${charge.id}: transaction ${found.tx._id} -> ${result.outcome}, tag ${tag}, gifts ${result.giftRevoked}.`
+  );
   return json({ ok: true, action: result.outcome, tag });
 }

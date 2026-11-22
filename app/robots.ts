@@ -18,13 +18,16 @@ import type { MetadataRoute } from "next";
  * to 2026-09-21 by mistake, grouped with the paid app. The paid Audit lives
  * at /store/audit and keeps itself out of the index with its own robots
  * metadata, which is the right tool for that.
+ *
+ * /gift is an unpublished buyer form. It 404s unless a server flag is on,
+ * and it stays out of the index either way.
  */
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: ["/api/", "/toolkit", "/module/", "/workbook"],
+      disallow: ["/api/", "/toolkit", "/module/", "/workbook", "/gift"],
     },
     sitemap: "https://www.truthjblue.com/sitemap.xml",
   };

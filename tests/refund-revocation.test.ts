@@ -92,6 +92,10 @@ function world(init: { rows?: Row[]; txs?: Tx[]; ghlDown?: boolean; tagFails?: b
         assert.equal(value, '(source.eq.ghl-payments-sync,source.like."ghl:*")');
         if (!(row.source === "ghl-payments-sync" || row.source.startsWith("ghl:"))) return false;
       }
+      if (key === "source" && value.startsWith("like.")) {
+        const pattern = value.slice("like.".length);
+        if (pattern === "gift:*" && !row.source.startsWith("gift:")) return false;
+      }
     }
     return true;
   };
@@ -126,6 +130,11 @@ function world(init: { rows?: Row[]; txs?: Tx[]; ghlDown?: boolean; tagFails?: b
         return new Response(null, { status: 201 });
       }
       if (method === "DELETE") throw new Error("entitlement rows must never be deleted");
+    }
+    if (url.host === "supabase.test" && url.pathname === "/rest/v1/toolkit_gifts") {
+      if (method === "GET") return new Response("[]", { status: 200 });
+      if (method === "PATCH") return new Response("[]", { status: 200 });
+      throw new Error(`unexpected gifts ${method}`);
     }
     if (url.host === "services.leadconnectorhq.com" && url.pathname === "/payments/transactions") {
       if (init.ghlDown) return new Response("down", { status: 503 });

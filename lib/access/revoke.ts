@@ -8,8 +8,12 @@
  * grant for the refunded payment.
  *
  * Only a payment-backed row (`ghl-payments-sync` / `ghl:*`) whose
- * raw.transaction_id is the refunded HighLevel transaction is ever revoked.
- * Complimentary, owner and manual rows never match that predicate.
+ * raw.transaction_id is the refunded HighLevel transaction is revoked for the
+ * buyer. Complimentary, owner and manual rows never match that predicate.
+ * A gift of that same transaction is revoked too: the recipient row
+ * (`source` gift:<transaction id>) and the toolkit_gifts record. A lookup
+ * that never ran does not reach this function, so a failed lookup cannot
+ * revoke a gift.
  *
  * Callers: app/api/stripe/toolkit-refund (Stripe charge.refunded) and
  * reconcileEntitlement (HighLevel shows the stored transaction refunded).
@@ -95,13 +99,23 @@ export async function revokeForTransaction(args: {
   reason: string;
   fetchImpl?: FetchLike;
   now?: () => Date;
-}): Promise<{ outcome: RevokeOutcome; contactId: string | null }> {
+}): Promise<{ outcome: RevokeOutcome; contactId: string | null; giftRevoked: number }> {
   const fetchImpl = args.fetchImpl ?? fetch;
   const email = args.email.trim().toLowerCase();
   const txId = args.transaction._id;
   const svc = service();
-  if (!svc || !txId || !email) return { outcome: "failed", contactId: null };
+  if (!svc || !txId || !email) return { outcome: "failed", contactId: null, giftRevoked: 0 };
   const revokedAt = (args.now ?? (() => new Date()))().toISOString();
+
+  const done = async (
+    outcome: RevokeOutcome,
+    contactId: string | null
+  ): Promise<{ outcome: RevokeOutcome; contactId: string | null; giftRevoked: number }> => {
+    if (outcome === "failed") return { outcome, contactId, giftRevoked: 0 };
+    const gifts = await revokeGiftRows(svc, txId, args.reason, revokedAt, fetchImpl);
+    if (!gifts.ok) return { outcome: "failed", contactId, giftRevoked: 0 };
+    return { outcome, contactId, giftRevoked: gifts.count };
+  };
 
   // 1. Revoke the active row for this payment, if there is one.
   const qs = new URLSearchParams({
@@ -120,25 +134,25 @@ export async function revokeForTransaction(args: {
       headers,
       body: JSON.stringify({ revoked_at: revokedAt, revoked_reason: args.reason }),
     });
-    if (!res.ok) return { outcome: "failed", contactId: null };
+    if (!res.ok) return done("failed", null);
     const updated = (await res.json()) as unknown;
     if (Array.isArray(updated) && updated.length > 0) {
       const first = updated[0] as { contact_id?: unknown };
       const contactId = typeof first.contact_id === "string" ? first.contact_id : args.transaction.contactId ?? null;
-      return { outcome: "revoked", contactId };
+      return done("revoked", contactId);
     }
   } catch {
-    return { outcome: "failed", contactId: null };
+    return done("failed", null);
   }
 
   // 2. Nothing active matched. Find out why.
   const row = await readRowForRevoke(email, args.productId, fetchImpl);
-  if (row === "error") return { outcome: "failed", contactId: null };
+  if (row === "error") return done("failed", null);
   if (row) {
     if (isPaymentBacked(row.source) && row.transaction_id === txId && row.revoked_at) {
-      return { outcome: "already-revoked", contactId: row.contact_id ?? args.transaction.contactId ?? null };
+      return done("already-revoked", row.contact_id ?? args.transaction.contactId ?? null);
     }
-    return { outcome: "kept-other-access", contactId: row.contact_id ?? args.transaction.contactId ?? null };
+    return done("kept-other-access", row.contact_id ?? args.transaction.contactId ?? null);
   }
 
   // 3. No row: the buyer never signed in. Write a revoked placeholder so a
@@ -168,16 +182,64 @@ export async function revokeForTransaction(args: {
         revoked_reason: args.reason,
       }),
     });
-    if (!res.ok) return { outcome: "failed", contactId: null };
+    if (!res.ok) return done("failed", null);
   } catch {
-    return { outcome: "failed", contactId: null };
+    return done("failed", null);
   }
   const after = await readRowForRevoke(email, args.productId, fetchImpl);
-  if (after === "error" || !after) return { outcome: "failed", contactId: null };
+  if (after === "error" || !after) return done("failed", null);
   if (after.transaction_id === txId && after.revoked_at) {
-    return { outcome: "tombstoned", contactId: after.contact_id ?? args.transaction.contactId ?? null };
+    return done("tombstoned", after.contact_id ?? args.transaction.contactId ?? null);
   }
-  return { outcome: "kept-other-access", contactId: after.contact_id ?? args.transaction.contactId ?? null };
+  return done("kept-other-access", after.contact_id ?? args.transaction.contactId ?? null);
+}
+
+/**
+ * Revoke Toolkit seats granted from this transaction as gifts.
+ * Runs only after the buyer write has a definite outcome. Matches the
+ * recipient row (any email) and the gift record. Does not match
+ * complimentary or manual rows: those are not source gift:*.
+ */
+async function revokeGiftRows(
+  svc: { url: string; headers: Headers },
+  txId: string,
+  reason: string,
+  revokedAt: string,
+  fetchImpl: FetchLike
+): Promise<{ ok: true; count: number } | { ok: false }> {
+  const headers = new Headers(svc.headers);
+  headers.set("Content-Type", "application/json");
+  headers.set("Prefer", "return=representation");
+  const entitlementQs = new URLSearchParams({
+    "raw->>transaction_id": `eq.${txId}`,
+    source: "like.gift:*",
+    revoked_at: "is.null",
+  });
+  const giftQs = new URLSearchParams({
+    transaction_id: `eq.${txId}`,
+    status: "eq.granted",
+  });
+  try {
+    const res = await fetchImpl(`${svc.url}/rest/v1/entitlements?${entitlementQs}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ revoked_at: revokedAt, revoked_reason: reason }),
+    });
+    if (!res.ok) return { ok: false };
+    const updated = (await res.json()) as unknown;
+    if (!Array.isArray(updated)) return { ok: false };
+    const giftRes = await fetchImpl(`${svc.url}/rest/v1/toolkit_gifts?${giftQs}`, {
+      method: "PATCH",
+      headers,
+      body: JSON.stringify({ status: "revoked", revoked_at: revokedAt, revoked_reason: reason }),
+    });
+    if (!giftRes.ok) return { ok: false };
+    const gifts = (await giftRes.json()) as unknown;
+    if (!Array.isArray(gifts)) return { ok: false };
+    return { ok: true, count: updated.length };
+  } catch {
+    return { ok: false };
+  }
 }
 
 /** Remove the toolkit-buyer tag from a HighLevel contact in the TJB location. Best effort. */
