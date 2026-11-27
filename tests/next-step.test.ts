@@ -104,7 +104,9 @@ test("phones scroll the block into view, and reduced motion is instant", () => {
 
   const still = setup({ narrow: true, reduce: true });
   still.send();
-  still.timers.find((timer) => timer.ms === 400).fn();
+  const reduced = still.timers.find((timer) => timer.ms === 400);
+  assert.ok(reduced);
+  reduced.fn();
   assert.deepEqual(JSON.parse(JSON.stringify(still.scrolls)), [{ behavior: "auto", block: "end" }]);
 
   const desktop = setup({ narrow: false, reduce: true });
