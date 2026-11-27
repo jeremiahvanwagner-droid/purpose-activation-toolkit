@@ -1,0 +1,11 @@
+.workshop-hero{display:block;min-height:0;padding-bottom:28px}
+.workshop-hero img{display:block;width:100%;max-width:960px;height:auto;margin:0 auto 40px;border-radius:4px}
+.workshop-hero h1{max-width:11em}
+.workshop-hero h2{font-size:clamp(32px,3.4vw,44px);margin-top:8px}
+.workshop-hero .check-list{max-width:740px;margin-top:8px}
+.workshop-register{padding-top:8px;padding-bottom:100px}
+.workshop-register .form-card{max-width:640px}
+.workshop-under,.workshop-small{padding:0 12px}
+.workshop-under{font-size:15px;line-height:1.6;color:#172832;margin:18px 0 10px}
+.workshop-small{font-size:13px;line-height:1.55;color:#586772;margin:0 0 12px}
+.workshop-address{max-width:460px;line-height:1.6}

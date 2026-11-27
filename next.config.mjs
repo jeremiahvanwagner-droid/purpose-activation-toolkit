@@ -98,6 +98,7 @@ const nextConfig = {
         ),
         { source: '/created-to-serve/resource', destination: '/api/ebook-resource' },
         { source: '/created-to-serve/resource/index.html', destination: '/api/ebook-resource' },
+        { source: '/workshop', destination: '/workshop/index.html' },
       ],
     };
   },
